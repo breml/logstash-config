@@ -123,7 +123,6 @@ func (p Plugin) String() string {
 
 type Attribute interface {
 	String() string
-	//Name() string
 	ValueString() string
 }
 
@@ -320,12 +319,439 @@ func (he HashEntry) Value() Attribute {
 	return he.value
 }
 
-type Branch struct{}
-
-func NewBranch() Branch {
-	return Branch{}
+type Branch struct {
+	ifBlock     IfBlock
+	elseIfBlock []ElseIfBlock
+	elseBlock   ElseBlock
 }
 
+//
+// Arguments for elseBlock and elseIfBlock are in the wrong order from logically point of view.
+// This is due to the variadic nature of the elseIfBlock argument.
+func NewBranch(ifBlock IfBlock, elseBlock ElseBlock, elseIfBlock ...ElseIfBlock) Branch {
+	return Branch{
+		ifBlock:     ifBlock,
+		elseIfBlock: elseIfBlock,
+		elseBlock:   elseBlock,
+	}
+}
+
+// TODO: Maybe we should add helper functions NewIfBranch and NewIfElseBranch
+
 func (b Branch) String() string {
-	return ""
+	var s bytes.Buffer
+	s.WriteString(fmt.Sprint(b.ifBlock))
+	if b.elseIfBlock != nil && len(b.elseIfBlock) > 0 {
+		for _, block := range b.elseIfBlock {
+			s.WriteString(fmt.Sprint(block))
+		}
+	}
+	s.WriteString(fmt.Sprintln(b.elseBlock))
+	return s.String()
+}
+
+type IfBlock struct {
+	condition Condition
+	block     []BranchOrPlugin
+}
+
+func NewIfBlock(condition Condition, block ...BranchOrPlugin) IfBlock {
+	return IfBlock{
+		condition: condition,
+		block:     block,
+	}
+}
+
+func (ib IfBlock) String() string {
+	var s bytes.Buffer
+	s.WriteString(fmt.Sprintf("if %v {\n", ib.condition))
+	if ib.block != nil && len(ib.block) > 0 {
+		var ss bytes.Buffer
+		for _, block := range ib.block {
+			if block != nil {
+				ss.WriteString(fmt.Sprintln(block))
+			}
+		}
+		s.WriteString(prefix(ss.String()))
+	}
+	s.WriteString(fmt.Sprint("}"))
+	return s.String()
+}
+
+type ElseIfBlock struct {
+	condition Condition
+	block     []BranchOrPlugin
+}
+
+func NewElseIfBlock(condition Condition, block ...BranchOrPlugin) ElseIfBlock {
+	return ElseIfBlock{
+		condition: condition,
+		block:     block,
+	}
+}
+
+func (eib ElseIfBlock) String() string {
+	var s bytes.Buffer
+	s.WriteString(fmt.Sprintf(" else if %v {\n", eib.condition))
+	if eib.block != nil && len(eib.block) > 0 {
+		var ss bytes.Buffer
+		for _, block := range eib.block {
+			if block != nil {
+				ss.WriteString(fmt.Sprintln(block))
+			}
+		}
+		s.WriteString(prefix(ss.String()))
+	}
+	s.WriteString(fmt.Sprint("}"))
+	return s.String()
+}
+
+type ElseBlock struct {
+	block []BranchOrPlugin
+}
+
+func NewElseBlock(block ...BranchOrPlugin) ElseBlock {
+	return ElseBlock{
+		block: block,
+	}
+}
+
+func (eb ElseBlock) String() string {
+	if eb.block == nil || len(eb.block) == 0 {
+		return ""
+	}
+
+	var s bytes.Buffer
+	s.WriteString(fmt.Sprintln(" else {"))
+	var ss bytes.Buffer
+	for _, block := range eb.block {
+		if block != nil {
+			ss.WriteString(fmt.Sprintln(block))
+		}
+	}
+	s.WriteString(prefix(ss.String()))
+	s.WriteString(fmt.Sprintln("}"))
+	return s.String()
+}
+
+type Condition struct {
+	expression []Expression
+}
+
+func NewCondition(expression ...Expression) Condition {
+	return Condition{
+		expression: expression,
+	}
+}
+
+func (c Condition) String() string {
+	var s bytes.Buffer
+	for _, expression := range c.expression {
+		if expression != nil {
+			s.WriteString(fmt.Sprint(expression))
+		}
+	}
+	return s.String()
+}
+
+type Expression interface {
+	BoolOperator() BooleanOperator
+}
+
+type BoolExpression struct {
+	boolOperator BooleanOperator
+}
+
+func (be BoolExpression) BoolOperator() BooleanOperator {
+	return be.boolOperator
+}
+
+func (be BoolExpression) String() string {
+	return be.boolOperator.String()
+}
+
+type ConditionExpression struct {
+	BoolExpression
+	condition Condition
+}
+
+func NewConditionExpression(boolOperator BooleanOperator, condition Condition) ConditionExpression {
+	return ConditionExpression{
+		BoolExpression: BoolExpression{
+			boolOperator: boolOperator,
+		},
+		condition: condition,
+	}
+}
+
+func (ce ConditionExpression) String() string {
+	return fmt.Sprintf("%v(%s)", ce.BoolExpression, ce.condition.String())
+}
+
+// type NegativeExpression interface {
+// 	String() string
+// }
+
+type NegativeCondition struct {
+	BoolExpression
+	condition Condition
+}
+
+func NewNegativeCondition(boolOperator BooleanOperator, condition Condition) NegativeCondition {
+	return NegativeCondition{
+		BoolExpression: BoolExpression{
+			boolOperator: boolOperator,
+		},
+		condition: condition,
+	}
+}
+
+func (nc NegativeCondition) String() string {
+	return fmt.Sprintf("%v! (%s)", nc.BoolExpression, nc.condition.String())
+}
+
+type NegativeSelector struct {
+	BoolExpression
+	selector SelectorElement
+}
+
+func NewNegativeSelector(boolOperator BooleanOperator, selector SelectorElement) NegativeSelector {
+	return NegativeSelector{
+		BoolExpression: BoolExpression{
+			boolOperator: boolOperator,
+		},
+		selector: selector,
+	}
+}
+
+func (ns NegativeSelector) String() string {
+	return fmt.Sprintf("%v! %s", ns.BoolExpression, ns.selector)
+}
+
+type InExpression struct {
+	BoolExpression
+	lvalue Rvalue
+	rvalue Rvalue
+}
+
+func NewInExpression(boolOperator BooleanOperator, lvalue Rvalue, rvalue Rvalue) InExpression {
+	return InExpression{
+		BoolExpression: BoolExpression{
+			boolOperator: boolOperator,
+		},
+		lvalue: lvalue,
+		rvalue: rvalue,
+	}
+}
+
+func (ie InExpression) String() string {
+	return fmt.Sprintf("%v%v in %v", ie.BoolExpression, ie.lvalue.ValueString(), ie.rvalue.ValueString())
+}
+
+type NotInExpression struct {
+	BoolExpression
+	rvalue Rvalue
+	lvalue Rvalue
+}
+
+func NewNotInExpression(boolOperator BooleanOperator, lvalue Rvalue, rvalue Rvalue) NotInExpression {
+	return NotInExpression{
+		BoolExpression: BoolExpression{
+			boolOperator: boolOperator,
+		},
+		lvalue: lvalue,
+		rvalue: rvalue,
+	}
+}
+
+func (nie NotInExpression) String() string {
+	return fmt.Sprintf("%v%v not in %v", nie.BoolExpression, nie.lvalue.ValueString(), nie.rvalue.ValueString())
+}
+
+type Rvalue interface {
+	String() string
+	ValueString() string
+}
+
+type RvalueExpression struct {
+	BoolExpression
+	rvalue Rvalue
+}
+
+func NewRvalueExpression(boolOperator BooleanOperator, rvalue Rvalue) RvalueExpression {
+	return RvalueExpression{
+		BoolExpression: BoolExpression{
+			boolOperator: boolOperator,
+		},
+		rvalue: rvalue,
+	}
+}
+
+func (re RvalueExpression) String() string {
+	return fmt.Sprintf("%v%v", re.BoolExpression, re.rvalue.ValueString())
+}
+
+type CompareExpression struct {
+	BoolExpression
+	lvalue          Rvalue
+	compareOperator CompareOperator
+	rvalue          Rvalue
+}
+
+func NewCompareExpression(boolOperator BooleanOperator, lvalue Rvalue, compareOperator CompareOperator, rvalue Rvalue) CompareExpression {
+	return CompareExpression{
+		BoolExpression: BoolExpression{
+			boolOperator: boolOperator,
+		},
+		lvalue:          lvalue,
+		compareOperator: compareOperator,
+		rvalue:          rvalue,
+	}
+}
+
+func (ce CompareExpression) String() string {
+	return fmt.Sprintf("%v%v %v %v", ce.BoolExpression, ce.lvalue.ValueString(), ce.compareOperator, ce.rvalue.ValueString())
+}
+
+type CompareOperator int
+
+const (
+	Equal = iota + 1
+	NotEqual
+	LessOrEqual
+	GreaterOrEqual
+	LessThan
+	GreaterThan
+)
+
+func (co CompareOperator) String() string {
+	switch co {
+	case Equal:
+		return "=="
+	case NotEqual:
+		return "!="
+	case LessOrEqual:
+		return "<="
+	case GreaterOrEqual:
+		return ">="
+	case LessThan:
+		return "<"
+	case GreaterThan:
+		return ">"
+	default:
+		return "undefined"
+	}
+}
+
+type RegexpExpression struct {
+	BoolExpression
+	lvalue         Rvalue
+	regexpOperator RegexpOperator
+	rvalue         StringOrRegexp
+}
+
+func NewRegexpExpression(boolOperator BooleanOperator, lvalue Rvalue, regexpOperator RegexpOperator, rvalue StringOrRegexp) RegexpExpression {
+	return RegexpExpression{
+		BoolExpression: BoolExpression{
+			boolOperator: boolOperator,
+		},
+		lvalue:         lvalue,
+		regexpOperator: regexpOperator,
+		rvalue:         rvalue,
+	}
+}
+
+func (re RegexpExpression) String() string {
+	return fmt.Sprintf("%v%v %v %v", re.BoolExpression, re.lvalue.ValueString(), re.regexpOperator, re.rvalue.ValueString())
+}
+
+type StringOrRegexp interface {
+	String() string
+	ValueString() string
+}
+
+type RegexpOperator int
+
+const (
+	RegexpMatch = iota + 1
+	RegexpNotMatch
+)
+
+func (ro RegexpOperator) String() string {
+	switch ro {
+	case RegexpMatch:
+		return fmt.Sprint("=~")
+	case RegexpNotMatch:
+		return fmt.Sprint("!~")
+	default:
+		return fmt.Sprint(" undefined ")
+	}
+}
+
+type Regexp struct {
+	regexp string
+}
+
+func NewRegexp(regexp string) Regexp {
+	return Regexp{
+		regexp: regexp,
+	}
+}
+
+func (r Regexp) String() string {
+	return fmt.Sprintf("/%s/", r.regexp)
+}
+
+func (r Regexp) ValueString() string {
+	return r.String()
+}
+
+type BooleanOperator int
+
+const (
+	NoOperator = iota + 1
+	And
+	Or
+	Xor
+	Nand
+)
+
+func (be BooleanOperator) String() string {
+	switch be {
+	case NoOperator:
+		return ""
+	case And:
+		return " and "
+	case Or:
+		return " or "
+	case Nand:
+		return " nand "
+	case Xor:
+		return " xor "
+	default:
+		return " undefined "
+	}
+}
+
+type SelectorExpression struct {
+	BoolExpression
+	selectorElement SelectorElement
+}
+
+type SelectorElement struct {
+	name string
+}
+
+func NewSelectorElement(name string) SelectorElement {
+	return SelectorElement{
+		name: name,
+	}
+}
+
+func (se SelectorElement) String() string {
+	return fmt.Sprintf("[%s]", se.name)
+}
+
+func (se SelectorElement) ValueString() string {
+	return se.String()
 }

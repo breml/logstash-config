@@ -7,10 +7,13 @@ func TestAst(t *testing.T) {
 		config   Config
 		expected string
 	}{
+		// The empty config
 		{
 			config:   Config{},
 			expected: ``,
 		},
+
+		// Plugins with attributes of various types
 		{
 			config: NewConfig(
 				NewPluginSections(
@@ -50,6 +53,493 @@ func TestAst(t *testing.T) {
 output {
   stdout {
     id => "ABC"
+  }
+}
+`,
+		},
+
+		// Simple if (without else) branch
+		{
+			config: NewConfig(
+				nil,
+				NewPluginSections(
+					Filter, NewBranch(
+						NewIfBlock(
+							NewCondition(
+								NewCompareExpression(
+									NoOperator, NewStringAttribute("", "true", Bareword), Equal, NewStringAttribute("", "true", Bareword),
+								),
+							),
+							NewPlugin("if-plugin"),
+						),
+						NewElseBlock(),
+					),
+				),
+				nil,
+			),
+			expected: `filter {
+  if true == true {
+    if-plugin {
+    }
+  }
+}
+`,
+		},
+
+		// Simple if-else branch
+		{
+			config: NewConfig(
+				nil,
+				NewPluginSections(
+					Filter, NewBranch(
+						NewIfBlock(
+							NewCondition(
+								NewCompareExpression(
+									NoOperator, NewStringAttribute("", "true", Bareword), Equal, NewStringAttribute("", "true", Bareword),
+								),
+							),
+							NewPlugin("if-plugin"),
+						),
+						NewElseBlock(
+							NewPlugin("else-plugin"),
+						),
+					),
+				),
+				nil,
+			),
+			expected: `filter {
+  if true == true {
+    if-plugin {
+    }
+  } else {
+    else-plugin {
+    }
+  }
+}
+`,
+		},
+
+		// if with multiple else-if and a final else branch
+		// test for different condition types
+		{
+			config: NewConfig(
+				nil,
+				NewPluginSections(
+					Filter, NewBranch(
+						NewIfBlock(
+							NewCondition(
+								NewCompareExpression(
+									NoOperator, NewStringAttribute("", "true", Bareword), Equal, NewStringAttribute("", "true", Bareword),
+								),
+							),
+							NewPlugin("if-plugin"),
+						),
+						NewElseBlock(
+							NewPlugin("else-plugin"),
+						),
+						NewElseIfBlock(
+							NewCondition(
+								NewCompareExpression(
+									NoOperator, NewStringAttribute("", "true", Bareword), NotEqual, NewStringAttribute("", "true", Bareword),
+								),
+							),
+							NewPlugin("else-if-plugin-1"),
+						),
+						NewElseIfBlock(
+							NewCondition(
+								NewCompareExpression(
+									NoOperator, NewNumberAttribute("", 10), GreaterThan, NewNumberAttribute("", 2),
+								),
+							),
+							NewPlugin("else-if-plugin-2"),
+						),
+						NewElseIfBlock(
+							NewCondition(
+								NewCompareExpression(
+									NoOperator, NewNumberAttribute("", 2), LessThan, NewNumberAttribute("", 10),
+								),
+							),
+							NewPlugin("else-if-plugin-3"),
+						),
+						NewElseIfBlock(
+							NewCondition(
+								NewCompareExpression(
+									NoOperator, NewNumberAttribute("", 10), GreaterOrEqual, NewNumberAttribute("", 2),
+								),
+							),
+							NewPlugin("else-if-plugin-4"),
+						),
+						NewElseIfBlock(
+							NewCondition(
+								NewCompareExpression(
+									NoOperator, NewNumberAttribute("", 2), LessOrEqual, NewNumberAttribute("", 10),
+								),
+							),
+							NewPlugin("else-if-plugin-5"),
+						),
+					),
+				),
+				nil,
+			),
+			expected: `filter {
+  if true == true {
+    if-plugin {
+    }
+  } else if true != true {
+    else-if-plugin-1 {
+    }
+  } else if 10 > 2 {
+    else-if-plugin-2 {
+    }
+  } else if 2 < 10 {
+    else-if-plugin-3 {
+    }
+  } else if 10 >= 2 {
+    else-if-plugin-4 {
+    }
+  } else if 2 <= 10 {
+    else-if-plugin-5 {
+    }
+  } else {
+    else-plugin {
+    }
+  }
+}
+`,
+		},
+
+		// if with multiple compare operators
+		{
+			config: NewConfig(
+				nil,
+				NewPluginSections(
+					Filter, NewBranch(
+						NewIfBlock(
+							NewCondition(
+								NewCompareExpression(
+									NoOperator, NewStringAttribute("", "true", Bareword), Equal, NewStringAttribute("", "true", Bareword),
+								),
+								NewCompareExpression(
+									And, NewStringAttribute("", "true", Bareword), Equal, NewStringAttribute("", "true", Bareword),
+								),
+								NewCompareExpression(
+									Or, NewStringAttribute("", "true", Bareword), Equal, NewStringAttribute("", "true", Bareword),
+								),
+								NewCompareExpression(
+									Nand, NewStringAttribute("", "true", Bareword), Equal, NewStringAttribute("", "true", Bareword),
+								),
+								NewCompareExpression(
+									Xor, NewStringAttribute("", "true", Bareword), Equal, NewStringAttribute("", "true", Bareword),
+								),
+							),
+							NewPlugin("plugin"),
+						),
+						NewElseBlock(),
+					),
+				),
+				nil,
+			),
+			expected: `filter {
+  if true == true and true == true or true == true nand true == true xor true == true {
+    plugin {
+    }
+  }
+}
+`,
+		},
+
+		// Condition in parentheses
+		{
+			config: NewConfig(
+				nil,
+				NewPluginSections(
+					Filter, NewBranch(
+						NewIfBlock(
+							NewCondition(
+								NewConditionExpression(
+									NoOperator,
+									NewCondition(
+										NewInExpression(
+											NoOperator, NewStringAttribute("", "tag", DoubleQuoted), NewSelectorElement("tags"),
+										),
+									),
+								),
+							),
+							NewPlugin("plugin"),
+						),
+						NewElseBlock(),
+					),
+				),
+				nil,
+			),
+			expected: `filter {
+  if ("tag" in [tags]) {
+    plugin {
+    }
+  }
+}
+`,
+		},
+
+		// Multiple conditions in parentheses
+		{
+			config: NewConfig(
+				nil,
+				NewPluginSections(
+					Filter, NewBranch(
+						NewIfBlock(
+							NewCondition(
+								NewConditionExpression(
+									NoOperator,
+									NewCondition(
+										NewInExpression(
+											NoOperator, NewStringAttribute("", "tag", DoubleQuoted), NewSelectorElement("tags"),
+										),
+										NewConditionExpression(
+											Or,
+											NewCondition(
+												NewCompareExpression(
+													NoOperator,
+													NewStringAttribute("", "true", Bareword),
+													Equal,
+													NewStringAttribute("", "true", Bareword),
+												),
+												NewCompareExpression(
+													And,
+													NewNumberAttribute("", 1),
+													Equal,
+													NewNumberAttribute("", 1),
+												),
+											),
+										),
+									),
+								),
+							),
+							NewPlugin("plugin"),
+						),
+						NewElseBlock(),
+					),
+				),
+				nil,
+			),
+			expected: `filter {
+  if ("tag" in [tags] or (true == true and 1 == 1)) {
+    plugin {
+    }
+  }
+}
+`,
+		},
+
+		// Negative condition
+		{
+			config: NewConfig(
+				nil,
+				NewPluginSections(
+					Filter, NewBranch(
+						NewIfBlock(
+							NewCondition(
+								NewNegativeCondition(
+									NoOperator,
+									NewCondition(
+										NewCompareExpression(
+											NoOperator,
+											NewStringAttribute("", "true", Bareword),
+											Equal,
+											NewStringAttribute("", "true", Bareword),
+										),
+									),
+								),
+							),
+							NewPlugin("plugin"),
+						),
+						NewElseBlock(),
+					),
+				),
+				nil,
+			),
+			expected: `filter {
+  if ! (true == true) {
+    plugin {
+    }
+  }
+}
+`,
+		},
+
+		// Negative Selector
+		{
+			config: NewConfig(
+				nil,
+				NewPluginSections(
+					Filter, NewBranch(
+						NewIfBlock(
+							NewCondition(
+								NewNegativeSelector(
+									NoOperator,
+									NewSelectorElement("field"),
+								),
+							),
+							NewPlugin("plugin"),
+						),
+						NewElseBlock(),
+					),
+				),
+				nil,
+			),
+			expected: `filter {
+  if ! [field] {
+    plugin {
+    }
+  }
+}
+`,
+		},
+
+		// InExpression
+		{
+			config: NewConfig(
+				nil,
+				NewPluginSections(
+					Filter, NewBranch(
+						NewIfBlock(
+							NewCondition(
+								NewInExpression(
+									NoOperator, NewStringAttribute("", "tag", DoubleQuoted), NewSelectorElement("tags"),
+								),
+							),
+							NewPlugin("plugin"),
+						),
+						NewElseBlock(),
+					),
+				),
+				nil,
+			),
+			expected: `filter {
+  if "tag" in [tags] {
+    plugin {
+    }
+  }
+}
+`,
+		},
+
+		// NotInExpression
+		{
+			config: NewConfig(
+				nil,
+				NewPluginSections(
+					Filter, NewBranch(
+						NewIfBlock(
+							NewCondition(
+								NewNotInExpression(
+									NoOperator, NewStringAttribute("", "tag", DoubleQuoted), NewSelectorElement("tags"),
+								),
+							),
+							NewPlugin("plugin"),
+						),
+						NewElseBlock(),
+					),
+				),
+				nil,
+			),
+			expected: `filter {
+  if "tag" not in [tags] {
+    plugin {
+    }
+  }
+}
+`,
+		},
+
+		// RegexpExpression (Match)
+		{
+			config: NewConfig(
+				nil,
+				NewPluginSections(
+					Filter, NewBranch(
+						NewIfBlock(
+							NewCondition(
+								NewRegexpExpression(
+									NoOperator, NewSelectorElement("field"), RegexpMatch, NewRegexp(".*"),
+								),
+							),
+							NewPlugin("plugin"),
+						),
+						NewElseBlock(),
+					),
+				),
+				nil,
+			),
+			expected: `filter {
+  if [field] =~ /.*/ {
+    plugin {
+    }
+  }
+}
+`,
+		},
+
+		// RegexpExpression (Not Match)
+		{
+			config: NewConfig(
+				nil,
+				NewPluginSections(
+					Filter, NewBranch(
+						NewIfBlock(
+							NewCondition(
+								NewRegexpExpression(
+									NoOperator, NewSelectorElement("field"), RegexpNotMatch, NewRegexp(".*"),
+								),
+							),
+							NewPlugin("plugin"),
+						),
+						NewElseBlock(),
+					),
+				),
+				nil,
+			),
+			expected: `filter {
+  if [field] !~ /.*/ {
+    plugin {
+    }
+  }
+}
+`,
+		},
+
+		// Rvalue
+		{
+			config: NewConfig(
+				nil,
+				NewPluginSections(
+					Filter, NewBranch(
+						NewIfBlock(
+							NewCondition(
+								NewRvalueExpression(
+									NoOperator, NewStringAttribute("", "string", DoubleQuoted),
+								),
+								NewRvalueExpression(
+									Or, NewNumberAttribute("", 10),
+								),
+								NewRvalueExpression(
+									Or, NewSelectorElement("field"),
+								),
+								NewRvalueExpression(
+									Or, NewRegexp(".*"),
+								),
+							),
+							NewPlugin("plugin"),
+						),
+						NewElseBlock(),
+					),
+				),
+				nil,
+			),
+			expected: `filter {
+  if "string" or 10 or [field] or /.*/ {
+    plugin {
+    }
   }
 }
 `,
