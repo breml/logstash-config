@@ -1,0 +1,470 @@
+// Parsing rules based on https://github.com/elastic/logstash/blob/master/logstash-core/lib/logstash/config/grammar.treetop
+{
+    package config
+}
+
+//  rule config
+//    _ plugin_section _ (_ plugin_section)* _ <LogStash::Config::AST::Config>
+//  end
+
+config =
+    _ ps:plugin_section _ pss:(
+        _ ps:plugin_section { 
+            return ret(ps)
+        } 
+    )* _ EOF { 
+        return config(ps, pss) 
+    }
+
+//  rule comment
+//    (whitespace? "#" [^\r\n]* "\r"? "\n")+ <LogStash::Config::AST::Comment>
+//  end
+
+comment =
+    (whitespace? "#" [^\r\n]* "\r"? "\n")+
+
+//  rule _
+//    (comment / whitespace)* <LogStash::Config::AST::Whitespace>
+//  end
+
+_ =
+    (comment / whitespace)*
+
+//  rule whitespace
+//    [ \t\r\n]+ <LogStash::Config::AST::Whitespace>
+//  end
+
+whitespace =
+    [ \t\r\n]+
+
+//  rule plugin_section
+//    plugin_type _ "{"
+//       _ (branch_or_plugin _)*
+//    "}"
+//    <LogStash::Config::AST::PluginSection>
+//  end
+
+plugin_section =
+    pt:plugin_type _ "{" _ bops:(
+        bop:branch_or_plugin _ { 
+            return ret(bop) 
+        } 
+    )* "}" { 
+        return pluginSection(pt, bops) 
+    }
+
+//   rule branch_or_plugin
+//     branch / plugin
+//   end
+
+// branch_or_plugin =
+//    branch / plugin
+branch_or_plugin =
+    plugin
+
+//   rule plugin_type
+//     ("input" / "filter" / "output")
+//   end
+
+plugin_type =
+    "input" {
+        return ast.Input, nil
+    } / "filter" {
+        return ast.Filter, nil
+    } / "output" {
+        return ast.Output, nil
+    }
+
+//   rule plugins
+//     (plugin (_ plugin)*)?
+//     <LogStash::Config::AST::Plugins>
+//   end
+
+// plugins =
+//     (
+//         p:plugin ps:(
+//             _ p:plugin {
+//                 fmt.Println("plugin")
+//                 return ret(p)
+//             }
+//         )* {
+//             fmt.Println("plugins")
+//             return plugins(p, ps)
+//         }
+//     )?
+
+//   rule plugin
+//     name _ "{"
+//       _
+//       attributes:( attribute (whitespace _ attribute)*)?
+//       _
+//     "}"
+//     <LogStash::Config::AST::Plugin>
+//   end
+
+plugin =
+    name:name _ "{" _ attributes:( 
+        attribute:attribute attrs:(
+            whitespace _ attribute:attribute {
+                return ret(attribute)
+            }
+        )* {
+            return attributes(attribute, attrs)
+        }
+    )? _ "}" {
+        return plugin(name, attributes)
+    }
+
+//   rule name
+//     (
+//       ([A-Za-z0-9_-]+ <LogStash::Config::AST::Name>)
+//       / string
+//     )
+//   end
+
+name =
+    ( ([A-Za-z0-9_-]+) {
+        return string(c.text), nil
+    } / value:string_value {
+        return ret(value)
+    } )
+
+//   rule attribute
+//     name _ "=>" _ value
+//     <LogStash::Config::AST::Attribute>
+//   end
+
+attribute =
+    name:name _ "=>" _ value:value {
+        return attribute(name, value)
+    }
+
+//   rule value
+//     plugin / bareword / string / number / array / hash
+//   end
+
+value =
+    plugin / bareword / string_value / number / array / hash
+
+//   rule array_value
+//     bareword / string / number / array / hash
+//   end
+
+array_value =
+    bareword / string_value / number / array / hash
+
+//   rule bareword
+//     [A-Za-z_] [A-Za-z0-9_]+
+//     <LogStash::Config::AST::Bareword>
+//   end
+
+bareword =
+    [A-Za-z_] [A-Za-z0-9_]+ {
+        return ast.NewStringAttribute("", string(c.text), ast.Bareword), nil
+    }
+
+//   rule double_quoted_string
+//     ( '"' ( '\"' / !'"' . )* '"' <LogStash::Config::AST::String>)
+//   end
+
+double_quoted_string =
+    ( `"` ( `\"` / !`"` . )* `"` ) {
+        return quotedvalue(c, `"`)
+    }
+
+//   rule single_quoted_string
+//     ( "'" ( "\\'" / !"'" . )* "'" <LogStash::Config::AST::String>)
+//   end
+
+single_quoted_string =
+    ( `'` ( `\'` / !`'` . )* `'` ) {
+        return quotedvalue(c, `'`)
+    }
+
+//   rule string
+//     double_quoted_string / single_quoted_string
+//   end
+
+string_value =
+    str:( str:double_quoted_string {
+        return ast.NewStringAttribute("", str.(string), ast.DoubleQuoted), nil
+    } / str:single_quoted_string {
+        return ast.NewStringAttribute("", str.(string), ast.SingleQuoted), nil
+    } ) {
+        return ret(str)
+    }
+
+//   rule regexp
+//     ( '/' ( '\/' / !'/' . )* '/'  <LogStash::Config::AST::RegExp>)
+//   end
+
+regexp =
+    ( `/` ( `\/` / !`/` . )* `/`)
+
+//   rule number
+//     "-"? [0-9]+ ("." [0-9]*)?
+//     <LogStash::Config::AST::Number>
+//   end
+
+number =
+    "-"? [0-9]+ ("." [0-9]*)? {
+        return number(string(c.text))
+    }
+
+//   rule array
+//     "["
+//     _
+//     (
+//       value (_ "," _ value)*
+//     )?
+//     _
+//     "]"
+//     <LogStash::Config::AST::Array>
+//   end
+
+array =
+    "[" _ value:( 
+        value:value values:(
+            _ "," _ value:value {
+                return ret(value)
+            }
+        )* {
+            return attributes(value, values)
+        }
+    )? _ "]" {
+        return array(value)
+    }
+
+//   rule hash
+//     "{"
+//       _
+//       hashentries?
+//       _
+//     "}"
+//     <LogStash::Config::AST::Hash>
+//   end
+
+hash =
+    "{" _ entries:hashentries? _ "}" {
+        return hash(entries)
+    }
+
+//   rule hashentries
+//     hashentry (whitespace hashentry)*
+//     <LogStash::Config::AST::HashEntries>
+//   end
+
+hashentries =
+    hashentry:hashentry hashentries1:(
+        whitespace hashentry:hashentry {
+            return ret(hashentry)
+        }
+    )* {
+        return hashentries(hashentry, hashentries1)
+    }
+
+//   rule hashentry
+//     name:(number / bareword / string) _ "=>" _ value
+//     <LogStash::Config::AST::HashEntry>
+//   end
+
+hashentry =
+    name:(number / bareword / string_value) _ "=>" _ value:value {
+        return hashentry(name, value)
+    }
+
+// Conditions
+/*
+//   rule branch
+//     if (_ else_if)* (_ else)?
+//     <LogStash::Config::AST::Branch>
+//   end
+
+branch =
+    if_cond (_ else_if)* (_ else_cond)?
+
+//   rule if
+//     "if" _ condition _ "{" _ (branch_or_plugin _)* "}"
+//     <LogStash::Config::AST::If>
+//   end
+
+if_cond =
+    "if" _ condition _ "{" _ (branch_or_plugin _)* "}"
+
+//   rule else_if
+//     "else" _ "if" _ condition _ "{" _ ( branch_or_plugin _)* "}"
+//     <LogStash::Config::AST::Elsif>
+//   end
+
+else_if =
+    "else" _ "if" _ condition _ "{" _ ( branch_or_plugin _)* "}"
+
+//   rule else
+//     "else" _ "{" _ (branch_or_plugin _)* "}"
+//     <LogStash::Config::AST::Else>
+//   end
+
+else_cond =
+    "else" _ "{" _ (branch_or_plugin _)* "}"
+
+//   rule condition
+//     expression (_ boolean_operator _ expression)*
+//     <LogStash::Config::AST::Condition>
+//   end
+
+condition =
+    expression (_ boolean_operator _ expression)*
+
+//   rule expression
+//     (
+//         ("(" _ condition _ ")")
+//       / negative_expression
+//       / in_expression
+//       / not_in_expression
+//       / compare_expression
+//       / regexp_expression
+//       / rvalue
+//     ) <LogStash::Config::AST::Expression>
+//   end
+
+expression = 
+    (
+        ("(" _ condition _ ")")
+      / negative_expression
+      / in_expression
+      / not_in_expression
+      / compare_expression
+      / regexp_expression
+      / rvalue
+    )
+
+//   rule negative_expression
+//     (
+//         ("!" _ "(" _ condition _ ")")
+//       / ("!" _ selector)
+//     ) <LogStash::Config::AST::NegativeExpression>
+//   end
+
+negative_expression = 
+    (
+        ("!" _ "(" _ condition _ ")")
+      / ("!" _ selector)
+    )
+
+//   rule in_expression
+//     rvalue _ in_operator _ rvalue
+//     <LogStash::Config::AST::InExpression>
+//   end
+
+in_expression =
+    rvalue _ in_operator _ rvalue
+
+//   rule not_in_expression
+//     rvalue _ not_in_operator _ rvalue
+//     <LogStash::Config::AST::NotInExpression>
+//   end
+
+not_in_expression =
+    rvalue _ not_in_operator _ rvalue
+
+//   rule in_operator
+//     "in"
+//   end
+
+in_operator =
+    "in"
+
+//   rule not_in_operator
+//     "not " _ "in"
+//   end
+
+not_in_operator =
+    "not " _ "in"
+
+//   rule rvalue
+//     string / number / selector / array / method_call / regexp
+//   end
+
+rvalue =
+    string_value / number / selector / array / method_call / regexp
+
+//   rule method_call
+//       method _ "(" _
+//         (
+//           rvalue ( _ "," _ rvalue )*
+//         )?
+//       _ ")"
+//     <LogStash::Config::AST::MethodCall>
+//   end
+
+method_call  =
+      method _ "(" _
+        (
+          rvalue ( _ "," _ rvalue )*
+        )?
+      _ ")"
+
+//   rule method
+//     bareword
+//   end
+
+method =
+    bareword
+
+//   rule compare_expression
+//     rvalue _ compare_operator _ rvalue
+//     <LogStash::Config::AST::ComparisonExpression>
+//   end
+
+compare_expression =
+    rvalue _ compare_operator _ rvalue
+
+//   rule compare_operator 
+//     ("==" / "!=" / "<=" / ">=" / "<" / ">") 
+//     <LogStash::Config::AST::ComparisonOperator>
+//   end
+
+compare_operator =
+    ("==" / "!=" / "<=" / ">=" / "<" / ">")
+
+//   rule regexp_expression
+//     rvalue _  regexp_operator _ (string / regexp)
+//     <LogStash::Config::AST::RegexpExpression>
+//   end
+
+regexp_expression =
+    rvalue _  regexp_operator _ (string_value / regexp)
+
+//   rule regexp_operator
+//     ("=~" / "!~") <LogStash::Config::AST::RegExpOperator>
+//   end
+
+regexp_operator =
+    ("=~" / "!~")
+
+//   rule boolean_operator
+//     ("and" / "or" / "xor" / "nand")
+//     <LogStash::Config::AST::BooleanOperator>
+//   end
+
+boolean_operator =
+    ("and" / "or" / "xor" / "nand")
+
+//   rule selector
+//     selector_element+
+//     <LogStash::Config::AST::Selector>
+//   end
+
+selector =
+    selector_element+
+
+//   rule selector_element
+//     "[" [^\],]+ "]"
+//     <LogStash::Config::AST::SelectorElement>
+//   end
+
+selector_element =
+    "[" [^\],]+ "]"
+*/
+
+EOF = !.
