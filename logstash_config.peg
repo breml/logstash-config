@@ -222,6 +222,7 @@ number =
 //     <LogStash::Config::AST::Array>
 //   end
 
+// TODO: value should be changed to to array_value due to https://github.com/elastic/logstash/issues/6580
 array =
     "[" _ value:( 
         value:value values:(
@@ -274,7 +275,7 @@ hashentry =
     }
 
 // Conditions
-/*
+
 //   rule branch
 //     if (_ else_if)* (_ else)?
 //     <LogStash::Config::AST::Branch>
@@ -385,8 +386,11 @@ not_in_operator =
 //     string / number / selector / array / method_call / regexp
 //   end
 
+// Removed method_call due to https://github.com/elastic/logstash/issues/6698
+// rvalue =
+//     string_value / number / selector / array / method_call / regexp
 rvalue =
-    string_value / number / selector / array / method_call / regexp
+    string_value / number / selector / array / regexp
 
 //   rule method_call
 //       method _ "(" _
@@ -397,19 +401,21 @@ rvalue =
 //     <LogStash::Config::AST::MethodCall>
 //   end
 
-method_call  =
-      method _ "(" _
-        (
-          rvalue ( _ "," _ rvalue )*
-        )?
-      _ ")"
+// Removed method_call due to https://github.com/elastic/logstash/issues/6698
+// method_call  =
+//       method _ "(" _
+//         (
+//           rvalue ( _ "," _ rvalue )*
+//         )?
+//       _ ")"
 
 //   rule method
 //     bareword
 //   end
 
-method =
-    bareword
+// Removed method_call due to https://github.com/elastic/logstash/issues/6698
+// method =
+//     bareword
 
 //   rule compare_expression
 //     rvalue _ compare_operator _ rvalue
@@ -465,6 +471,5 @@ selector =
 
 selector_element =
     "[" [^\],]+ "]"
-*/
 
 EOF = !.
