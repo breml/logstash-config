@@ -3,7 +3,6 @@ package config
 import (
 	"fmt"
 	"strconv"
-	"strings"
 
 	"github.com/breml/logstash-config/ast"
 )
@@ -134,6 +133,11 @@ func attribute(name, value interface{}) (ast.Attribute, error) {
 	}
 }
 
+func regexp(c *current) (ast.Regexp, error) {
+	val, _ := enclosedValue(c)
+	return ast.NewRegexp(val), nil
+}
+
 func number(value string) (ast.NumberAttribute, error) {
 	f, err := strconv.ParseFloat(value, 64)
 	if err != nil {
@@ -189,8 +193,165 @@ func hashentry(name, value interface{}) (ast.HashEntry, error) {
 	return ast.NewHashEntry(key.ValueString(), value.(ast.Attribute)), nil
 }
 
-func quotedvalue(c *current, quotechar string) (interface{}, error) {
-	return strings.Trim(string(c.text), quotechar), nil
+func branch(ifBlock, elseIfBlocks1, elseBlock1 interface{}) (ast.Branch, error) {
+	ielseIfBlocks := toIfaceSlice(elseIfBlocks1)
+
+	var elseIfBlocks []ast.ElseIfBlock
+	for _, elseIfBlock := range ielseIfBlocks {
+		if elseIfBlock, ok := elseIfBlock.(ast.ElseIfBlock); ok {
+			elseIfBlocks = append(elseIfBlocks, elseIfBlock)
+		} else {
+			return ast.Branch{}, fmt.Errorf("Argument is not an elseIfBlock: %#v", elseIfBlock)
+		}
+	}
+
+	var elseBlock ast.ElseBlock
+	if elseBlock1 != nil {
+		elseBlock = elseBlock1.(ast.ElseBlock)
+	}
+
+	return ast.NewBranch(ifBlock.(ast.IfBlock), elseBlock, elseIfBlocks...), nil
+}
+
+func ifBlock(cond, bops interface{}) (ast.IfBlock, error) {
+	return ast.NewIfBlock(cond.(ast.Condition), branchOrPlugins(bops)...), nil
+}
+
+func elseIfBlock(cond, bops interface{}) (ast.ElseIfBlock, error) {
+	return ast.NewElseIfBlock(cond.(ast.Condition), branchOrPlugins(bops)...), nil
+}
+
+func elseBlock(bops interface{}) (ast.ElseBlock, error) {
+	return ast.NewElseBlock(branchOrPlugins(bops)...), nil
+}
+
+func branchOrPlugins(bops1 interface{}) []ast.BranchOrPlugin {
+	bops := toIfaceSlice(bops1)
+
+	var branchOrPlugins []ast.BranchOrPlugin
+	for _, bop := range bops {
+		if bop, ok := bop.(ast.BranchOrPlugin); ok {
+			branchOrPlugins = append(branchOrPlugins, bop)
+		} else {
+			return []ast.BranchOrPlugin{}
+		}
+	}
+
+	return branchOrPlugins
+}
+
+func condition(expr, exprs interface{}) (ast.Condition, error) {
+	iexprs := toIfaceSlice(expr)
+	iexprs = append(iexprs, toIfaceSlice(exprs)...)
+
+	var expressions []ast.Expression
+	for _, ex := range iexprs {
+		if ex, ok := ex.(ast.Expression); ok {
+			expressions = append(expressions, ex)
+		} else {
+			return ast.Condition{}, fmt.Errorf("Argument is not an expression: %#v", ex)
+		}
+	}
+
+	return ast.NewCondition(expressions...), nil
+}
+
+func expression(bo, expr1 interface{}) (ast.Expression, error) {
+	expr := expr1.(ast.Expression)
+	expr.SetBoolOperator(bo.(ast.BooleanOperator))
+	return expr, nil
+}
+
+func condition_expression(cond interface{}) (ast.ConditionExpression, error) {
+	return ast.NewConditionExpression(ast.NoOperator, cond.(ast.Condition)), nil
+}
+
+func negative_expression(cond interface{}) (ast.NegativeCondition, error) {
+	return ast.NewNegativeCondition(ast.NoOperator, cond.(ast.Condition)), nil
+}
+
+func negative_selector(sel interface{}) (ast.NegativeSelector, error) {
+	return ast.NewNegativeSelector(ast.NoOperator, sel.(ast.Selector)), nil
+}
+
+func in_expression(lv, rv interface{}) (ast.InExpression, error) {
+	return ast.NewInExpression(ast.NoOperator, lv.(ast.Rvalue), rv.(ast.Rvalue)), nil
+}
+
+func not_in_expression(lv, rv interface{}) (ast.NotInExpression, error) {
+	return ast.NewNotInExpression(ast.NoOperator, lv.(ast.Rvalue), rv.(ast.Rvalue)), nil
+}
+
+func compare_expression(lv, co, rv interface{}) (ast.CompareExpression, error) {
+	return ast.NewCompareExpression(ast.NoOperator, lv.(ast.Rvalue), co.(ast.CompareOperator), rv.(ast.Rvalue)), nil
+}
+
+func regexp_expression(lv, ro, rv interface{}) (ast.RegexpExpression, error) {
+	return ast.NewRegexpExpression(ast.NoOperator, lv.(ast.Rvalue), ro.(ast.RegexpOperator), rv.(ast.Rvalue)), nil
+}
+
+func rvalue(rv interface{}) (ast.RvalueExpression, error) {
+	return ast.NewRvalueExpression(ast.NoOperator, rv.(ast.Rvalue)), nil
+}
+
+func compare_operator(value string) (ast.CompareOperator, error) {
+	switch value {
+	case "==":
+		return ast.Equal, nil
+	case "!=":
+		return ast.NotEqual, nil
+	case "<=":
+		return ast.LessOrEqual, nil
+	case ">=":
+		return ast.GreaterOrEqual, nil
+	case "<":
+		return ast.LessThan, nil
+	case ">":
+		return ast.GreaterThan, nil
+	}
+	return ast.Undefined, nil
+}
+
+func regexp_operator(value string) (ast.RegexpOperator, error) {
+	switch value {
+	case "=~":
+		return ast.RegexpMatch, nil
+	case "!~":
+		return ast.RegexpNotMatch, nil
+	}
+	return ast.Undefined, nil
+}
+
+func boolean_operator(value string) (ast.BooleanOperator, error) {
+	switch value {
+	case "and":
+		return ast.And, nil
+	case "or":
+		return ast.Or, nil
+	case "xor":
+		return ast.Xor, nil
+	case "nand":
+		return ast.Nand, nil
+	}
+	return ast.Undefined, nil
+}
+
+func selector(ses1 interface{}) (ast.Selector, error) {
+	ises := toIfaceSlice(ses1)
+
+	var ses []ast.SelectorElement
+	for _, se := range ises {
+		ses = append(ses, se.(ast.SelectorElement))
+	}
+	return ast.NewSelector(ses), nil
+}
+
+func selector_element(value string) (ast.SelectorElement, error) {
+	return ast.NewSelectorElement(value[1 : len(value)-1]), nil
+}
+
+func enclosedValue(c *current) (string, error) {
+	return string(c.text[1 : len(c.text)-1]), nil
 }
 
 func toIfaceSlice(v interface{}) []interface{} {

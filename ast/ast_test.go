@@ -67,7 +67,7 @@ output {
 						NewIfBlock(
 							NewCondition(
 								NewCompareExpression(
-									NoOperator, NewStringAttribute("", "true", Bareword), Equal, NewStringAttribute("", "true", Bareword),
+									NoOperator, NewStringAttribute("", "true", DoubleQuoted), Equal, NewStringAttribute("", "true", DoubleQuoted),
 								),
 							),
 							NewPlugin("if-plugin"),
@@ -78,7 +78,7 @@ output {
 				nil,
 			),
 			expected: `filter {
-  if true == true {
+  if "true" == "true" {
     if-plugin {
     }
   }
@@ -95,7 +95,7 @@ output {
 						NewIfBlock(
 							NewCondition(
 								NewCompareExpression(
-									NoOperator, NewStringAttribute("", "true", Bareword), Equal, NewStringAttribute("", "true", Bareword),
+									NoOperator, NewStringAttribute("", "true", DoubleQuoted), Equal, NewStringAttribute("", "true", DoubleQuoted),
 								),
 							),
 							NewPlugin("if-plugin"),
@@ -108,7 +108,7 @@ output {
 				nil,
 			),
 			expected: `filter {
-  if true == true {
+  if "true" == "true" {
     if-plugin {
     }
   } else {
@@ -129,7 +129,7 @@ output {
 						NewIfBlock(
 							NewCondition(
 								NewCompareExpression(
-									NoOperator, NewStringAttribute("", "true", Bareword), Equal, NewStringAttribute("", "true", Bareword),
+									NoOperator, NewStringAttribute("", "true", DoubleQuoted), Equal, NewStringAttribute("", "true", DoubleQuoted),
 								),
 							),
 							NewPlugin("if-plugin"),
@@ -140,7 +140,7 @@ output {
 						NewElseIfBlock(
 							NewCondition(
 								NewCompareExpression(
-									NoOperator, NewStringAttribute("", "true", Bareword), NotEqual, NewStringAttribute("", "true", Bareword),
+									NoOperator, NewStringAttribute("", "true", DoubleQuoted), NotEqual, NewStringAttribute("", "true", DoubleQuoted),
 								),
 							),
 							NewPlugin("else-if-plugin-1"),
@@ -182,10 +182,10 @@ output {
 				nil,
 			),
 			expected: `filter {
-  if true == true {
+  if "true" == "true" {
     if-plugin {
     }
-  } else if true != true {
+  } else if "true" != "true" {
     else-if-plugin-1 {
     }
   } else if 10 > 2 {
@@ -217,19 +217,19 @@ output {
 						NewIfBlock(
 							NewCondition(
 								NewCompareExpression(
-									NoOperator, NewStringAttribute("", "true", Bareword), Equal, NewStringAttribute("", "true", Bareword),
+									NoOperator, NewStringAttribute("", "true", DoubleQuoted), Equal, NewStringAttribute("", "true", DoubleQuoted),
 								),
 								NewCompareExpression(
-									And, NewStringAttribute("", "true", Bareword), Equal, NewStringAttribute("", "true", Bareword),
+									And, NewStringAttribute("", "true", DoubleQuoted), Equal, NewStringAttribute("", "true", DoubleQuoted),
 								),
 								NewCompareExpression(
-									Or, NewStringAttribute("", "true", Bareword), Equal, NewStringAttribute("", "true", Bareword),
+									Or, NewStringAttribute("", "true", DoubleQuoted), Equal, NewStringAttribute("", "true", DoubleQuoted),
 								),
 								NewCompareExpression(
-									Nand, NewStringAttribute("", "true", Bareword), Equal, NewStringAttribute("", "true", Bareword),
+									Nand, NewStringAttribute("", "true", DoubleQuoted), Equal, NewStringAttribute("", "true", DoubleQuoted),
 								),
 								NewCompareExpression(
-									Xor, NewStringAttribute("", "true", Bareword), Equal, NewStringAttribute("", "true", Bareword),
+									Xor, NewStringAttribute("", "true", DoubleQuoted), Equal, NewStringAttribute("", "true", DoubleQuoted),
 								),
 							),
 							NewPlugin("plugin"),
@@ -240,7 +240,7 @@ output {
 				nil,
 			),
 			expected: `filter {
-  if true == true and true == true or true == true nand true == true xor true == true {
+  if "true" == "true" and "true" == "true" or "true" == "true" nand "true" == "true" xor "true" == "true" {
     plugin {
     }
   }
@@ -260,7 +260,7 @@ output {
 									NoOperator,
 									NewCondition(
 										NewInExpression(
-											NoOperator, NewStringAttribute("", "tag", DoubleQuoted), NewSelectorElement("tags"),
+											NoOperator, NewStringAttribute("", "tag", DoubleQuoted), NewSelectorFromNames("tags"),
 										),
 									),
 								),
@@ -293,16 +293,16 @@ output {
 									NoOperator,
 									NewCondition(
 										NewInExpression(
-											NoOperator, NewStringAttribute("", "tag", DoubleQuoted), NewSelectorElement("tags"),
+											NoOperator, NewStringAttribute("", "tag", DoubleQuoted), NewSelectorFromNames("tags"),
 										),
 										NewConditionExpression(
 											Or,
 											NewCondition(
 												NewCompareExpression(
 													NoOperator,
-													NewStringAttribute("", "true", Bareword),
+													NewStringAttribute("", "true", DoubleQuoted),
 													Equal,
-													NewStringAttribute("", "true", Bareword),
+													NewStringAttribute("", "true", DoubleQuoted),
 												),
 												NewCompareExpression(
 													And,
@@ -323,7 +323,7 @@ output {
 				nil,
 			),
 			expected: `filter {
-  if ("tag" in [tags] or (true == true and 1 == 1)) {
+  if ("tag" in [tags] or ("true" == "true" and 1 == 1)) {
     plugin {
     }
   }
@@ -344,9 +344,9 @@ output {
 									NewCondition(
 										NewCompareExpression(
 											NoOperator,
-											NewStringAttribute("", "true", Bareword),
+											NewStringAttribute("", "true", DoubleQuoted),
 											Equal,
-											NewStringAttribute("", "true", Bareword),
+											NewStringAttribute("", "true", DoubleQuoted),
 										),
 									),
 								),
@@ -359,7 +359,7 @@ output {
 				nil,
 			),
 			expected: `filter {
-  if ! (true == true) {
+  if ! ("true" == "true") {
     plugin {
     }
   }
@@ -367,7 +367,7 @@ output {
 `,
 		},
 
-		// Negative Selector
+		// Negative Selector for value in subfield
 		{
 			config: NewConfig(
 				nil,
@@ -377,7 +377,7 @@ output {
 							NewCondition(
 								NewNegativeSelector(
 									NoOperator,
-									NewSelectorElement("field"),
+									NewSelectorFromNames("field", "subfield"),
 								),
 							),
 							NewPlugin("plugin"),
@@ -388,7 +388,7 @@ output {
 				nil,
 			),
 			expected: `filter {
-  if ! [field] {
+  if ! [field][subfield] {
     plugin {
     }
   }
@@ -405,7 +405,7 @@ output {
 						NewIfBlock(
 							NewCondition(
 								NewInExpression(
-									NoOperator, NewStringAttribute("", "tag", DoubleQuoted), NewSelectorElement("tags"),
+									NoOperator, NewStringAttribute("", "tag", DoubleQuoted), NewSelectorFromNames("tags"),
 								),
 							),
 							NewPlugin("plugin"),
@@ -433,7 +433,7 @@ output {
 						NewIfBlock(
 							NewCondition(
 								NewNotInExpression(
-									NoOperator, NewStringAttribute("", "tag", DoubleQuoted), NewSelectorElement("tags"),
+									NoOperator, NewStringAttribute("", "tag", DoubleQuoted), NewSelectorFromNames("field", "subfield"),
 								),
 							),
 							NewPlugin("plugin"),
@@ -444,7 +444,7 @@ output {
 				nil,
 			),
 			expected: `filter {
-  if "tag" not in [tags] {
+  if "tag" not in [field][subfield] {
     plugin {
     }
   }
@@ -461,7 +461,7 @@ output {
 						NewIfBlock(
 							NewCondition(
 								NewRegexpExpression(
-									NoOperator, NewSelectorElement("field"), RegexpMatch, NewRegexp(".*"),
+									NoOperator, NewSelectorFromNames("field"), RegexpMatch, NewRegexp(".*"),
 								),
 							),
 							NewPlugin("plugin"),
@@ -489,7 +489,7 @@ output {
 						NewIfBlock(
 							NewCondition(
 								NewRegexpExpression(
-									NoOperator, NewSelectorElement("field"), RegexpNotMatch, NewRegexp(".*"),
+									NoOperator, NewSelectorFromNames("field"), RegexpNotMatch, NewRegexp(".*"),
 								),
 							),
 							NewPlugin("plugin"),
@@ -523,7 +523,7 @@ output {
 									Or, NewNumberAttribute("", 10),
 								),
 								NewRvalueExpression(
-									Or, NewSelectorElement("field"),
+									Or, NewSelectorFromNames("field", "subfield"),
 								),
 								NewRvalueExpression(
 									Or, NewRegexp(".*"),
@@ -537,7 +537,7 @@ output {
 				nil,
 			),
 			expected: `filter {
-  if "string" or 10 or [field] or /.*/ {
+  if "string" or 10 or [field][subfield] or /.*/ {
     plugin {
     }
   }

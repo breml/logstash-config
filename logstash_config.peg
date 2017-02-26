@@ -57,10 +57,8 @@ plugin_section =
 //     branch / plugin
 //   end
 
-// branch_or_plugin =
-//    branch / plugin
 branch_or_plugin =
-    plugin
+    branch / plugin
 
 //   rule plugin_type
 //     ("input" / "filter" / "output")
@@ -169,7 +167,7 @@ bareword =
 
 double_quoted_string =
     ( `"` ( `\"` / !`"` . )* `"` ) {
-        return quotedvalue(c, `"`)
+        return enclosedValue(c)
     }
 
 //   rule single_quoted_string
@@ -178,7 +176,7 @@ double_quoted_string =
 
 single_quoted_string =
     ( `'` ( `\'` / !`'` . )* `'` ) {
-        return quotedvalue(c, `'`)
+        return enclosedValue(c)
     }
 
 //   rule string
@@ -199,7 +197,9 @@ string_value =
 //   end
 
 regexp =
-    ( `/` ( `\/` / !`/` . )* `/`)
+    ( `/` ( `\/` / !`/` . )* `/`) {
+        return regexp(c)
+    }
 
 //   rule number
 //     "-"? [0-9]+ ("." [0-9]*)?
@@ -282,7 +282,17 @@ hashentry =
 //   end
 
 branch =
-    if_cond (_ else_if)* (_ else_cond)?
+    ifBlock:if_cond elseIfBlocks:(
+        _ eib:else_if {
+                return ret(eib)
+            }
+        )* elseBlock:(
+            _ eb:else_cond {
+                return ret(eb)
+            }
+        )? {
+        return branch(ifBlock, elseIfBlocks, elseBlock)
+    }
 
 //   rule if
 //     "if" _ condition _ "{" _ (branch_or_plugin _)* "}"
@@ -290,7 +300,13 @@ branch =
 //   end
 
 if_cond =
-    "if" _ condition _ "{" _ (branch_or_plugin _)* "}"
+    "if" _ cond:condition _ "{" _ bops:(
+            bop:branch_or_plugin _ {
+                return ret(bop)
+            }
+        )* "}" {
+        return ifBlock(cond, bops)
+    }
 
 //   rule else_if
 //     "else" _ "if" _ condition _ "{" _ ( branch_or_plugin _)* "}"
@@ -298,7 +314,13 @@ if_cond =
 //   end
 
 else_if =
-    "else" _ "if" _ condition _ "{" _ ( branch_or_plugin _)* "}"
+    "else" _ "if" _ cond:condition _ "{" _ bops:(
+        bop:branch_or_plugin _ {
+            return ret(bop)
+        }
+    )* "}" {
+        return elseIfBlock(cond, bops)
+    }
 
 //   rule else
 //     "else" _ "{" _ (branch_or_plugin _)* "}"
@@ -306,7 +328,13 @@ else_if =
 //   end
 
 else_cond =
-    "else" _ "{" _ (branch_or_plugin _)* "}"
+    "else" _ "{" _ bops:(
+        bop:branch_or_plugin _ {
+            return ret(bop)
+        }
+    )* "}" {
+        return elseBlock(bops)
+    }
 
 //   rule condition
 //     expression (_ boolean_operator _ expression)*
@@ -314,7 +342,13 @@ else_cond =
 //   end
 
 condition =
-    expression (_ boolean_operator _ expression)*
+    cond:expression conds:(
+        _ bo:boolean_operator _ cond:expression {
+            return expression(bo, cond)
+        }
+    )* {
+        return condition(cond, conds)
+    }
 
 //   rule expression
 //     (
@@ -330,13 +364,19 @@ condition =
 
 expression = 
     (
-        ("(" _ condition _ ")")
+        (
+            "(" _ cond:condition _ ")" {
+                return condition_expression(cond)
+            }
+        )
       / negative_expression
       / in_expression
       / not_in_expression
       / compare_expression
       / regexp_expression
-      / rvalue
+      / rv:rvalue {
+          return rvalue(rv)
+      }
     )
 
 //   rule negative_expression
@@ -348,8 +388,16 @@ expression =
 
 negative_expression = 
     (
-        ("!" _ "(" _ condition _ ")")
-      / ("!" _ selector)
+        (
+            "!" _ "(" _ cond:condition _ ")" {
+                return negative_expression(cond)
+            }
+        )
+      / (
+          "!" _ sel:selector {
+              return negative_selector(sel)
+          }
+        )
     )
 
 //   rule in_expression
@@ -358,7 +406,9 @@ negative_expression =
 //   end
 
 in_expression =
-    rvalue _ in_operator _ rvalue
+    lv:rvalue _ in_operator _ rv:rvalue {
+        return in_expression(lv, rv)
+    }
 
 //   rule not_in_expression
 //     rvalue _ not_in_operator _ rvalue
@@ -366,7 +416,9 @@ in_expression =
 //   end
 
 not_in_expression =
-    rvalue _ not_in_operator _ rvalue
+    lv:rvalue _ not_in_operator _ rv:rvalue {
+        return not_in_expression(lv, rv)
+    }
 
 //   rule in_operator
 //     "in"
@@ -423,7 +475,9 @@ rvalue =
 //   end
 
 compare_expression =
-    rvalue _ compare_operator _ rvalue
+    lv:rvalue _ co:compare_operator _ rv:rvalue {
+        return compare_expression(lv, co, rv)
+    }
 
 //   rule compare_operator 
 //     ("==" / "!=" / "<=" / ">=" / "<" / ">") 
@@ -431,7 +485,9 @@ compare_expression =
 //   end
 
 compare_operator =
-    ("==" / "!=" / "<=" / ">=" / "<" / ">")
+    ("==" / "!=" / "<=" / ">=" / "<" / ">") {
+        return compare_operator(string(c.text))
+    }
 
 //   rule regexp_expression
 //     rvalue _  regexp_operator _ (string / regexp)
@@ -439,14 +495,18 @@ compare_operator =
 //   end
 
 regexp_expression =
-    rvalue _  regexp_operator _ (string_value / regexp)
+    lv:rvalue _  ro:regexp_operator _ rv:(string_value / regexp) {
+        return regexp_expression(lv, ro, rv)
+    }
 
 //   rule regexp_operator
 //     ("=~" / "!~") <LogStash::Config::AST::RegExpOperator>
 //   end
 
 regexp_operator =
-    ("=~" / "!~")
+    ("=~" / "!~") {
+        return regexp_operator(string(c.text))
+    }
 
 //   rule boolean_operator
 //     ("and" / "or" / "xor" / "nand")
@@ -454,7 +514,9 @@ regexp_operator =
 //   end
 
 boolean_operator =
-    ("and" / "or" / "xor" / "nand")
+    ("and" / "or" / "xor" / "nand") {
+        return boolean_operator(string(c.text))
+    }
 
 //   rule selector
 //     selector_element+
@@ -462,7 +524,9 @@ boolean_operator =
 //   end
 
 selector =
-    selector_element+
+    ses:selector_element+ {
+        return selector(ses)
+    }
 
 //   rule selector_element
 //     "[" [^\],]+ "]"
@@ -470,6 +534,8 @@ selector =
 //   end
 
 selector_element =
-    "[" [^\],]+ "]"
+    "[" [^\],]+ "]" {
+        return selector_element(string(c.text))
+    }
 
 EOF = !.

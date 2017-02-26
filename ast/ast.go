@@ -325,7 +325,6 @@ type Branch struct {
 	elseBlock   ElseBlock
 }
 
-//
 // Arguments for elseBlock and elseIfBlock are in the wrong order from logically point of view.
 // This is due to the variadic nature of the elseIfBlock argument.
 func NewBranch(ifBlock IfBlock, elseBlock ElseBlock, elseIfBlock ...ElseIfBlock) Branch {
@@ -369,7 +368,7 @@ func (ib IfBlock) String() string {
 		var ss bytes.Buffer
 		for _, block := range ib.block {
 			if block != nil {
-				ss.WriteString(fmt.Sprintln(block))
+				ss.WriteString(fmt.Sprint(block))
 			}
 		}
 		s.WriteString(prefix(ss.String()))
@@ -397,7 +396,7 @@ func (eib ElseIfBlock) String() string {
 		var ss bytes.Buffer
 		for _, block := range eib.block {
 			if block != nil {
-				ss.WriteString(fmt.Sprintln(block))
+				ss.WriteString(fmt.Sprint(block))
 			}
 		}
 		s.WriteString(prefix(ss.String()))
@@ -426,7 +425,7 @@ func (eb ElseBlock) String() string {
 	var ss bytes.Buffer
 	for _, block := range eb.block {
 		if block != nil {
-			ss.WriteString(fmt.Sprintln(block))
+			ss.WriteString(fmt.Sprint(block))
 		}
 	}
 	s.WriteString(prefix(ss.String()))
@@ -456,14 +455,19 @@ func (c Condition) String() string {
 
 type Expression interface {
 	BoolOperator() BooleanOperator
+	SetBoolOperator(BooleanOperator)
 }
 
 type BoolExpression struct {
 	boolOperator BooleanOperator
 }
 
-func (be BoolExpression) BoolOperator() BooleanOperator {
+func (be *BoolExpression) BoolOperator() BooleanOperator {
 	return be.boolOperator
+}
+
+func (be *BoolExpression) SetBoolOperator(bo BooleanOperator) {
+	be.boolOperator = bo
 }
 
 func (be BoolExpression) String() string {
@@ -471,13 +475,13 @@ func (be BoolExpression) String() string {
 }
 
 type ConditionExpression struct {
-	BoolExpression
+	*BoolExpression
 	condition Condition
 }
 
 func NewConditionExpression(boolOperator BooleanOperator, condition Condition) ConditionExpression {
 	return ConditionExpression{
-		BoolExpression: BoolExpression{
+		BoolExpression: &BoolExpression{
 			boolOperator: boolOperator,
 		},
 		condition: condition,
@@ -493,13 +497,13 @@ func (ce ConditionExpression) String() string {
 // }
 
 type NegativeCondition struct {
-	BoolExpression
+	*BoolExpression
 	condition Condition
 }
 
 func NewNegativeCondition(boolOperator BooleanOperator, condition Condition) NegativeCondition {
 	return NegativeCondition{
-		BoolExpression: BoolExpression{
+		BoolExpression: &BoolExpression{
 			boolOperator: boolOperator,
 		},
 		condition: condition,
@@ -511,13 +515,13 @@ func (nc NegativeCondition) String() string {
 }
 
 type NegativeSelector struct {
-	BoolExpression
-	selector SelectorElement
+	*BoolExpression
+	selector Selector
 }
 
-func NewNegativeSelector(boolOperator BooleanOperator, selector SelectorElement) NegativeSelector {
+func NewNegativeSelector(boolOperator BooleanOperator, selector Selector) NegativeSelector {
 	return NegativeSelector{
-		BoolExpression: BoolExpression{
+		BoolExpression: &BoolExpression{
 			boolOperator: boolOperator,
 		},
 		selector: selector,
@@ -529,14 +533,14 @@ func (ns NegativeSelector) String() string {
 }
 
 type InExpression struct {
-	BoolExpression
+	*BoolExpression
 	lvalue Rvalue
 	rvalue Rvalue
 }
 
 func NewInExpression(boolOperator BooleanOperator, lvalue Rvalue, rvalue Rvalue) InExpression {
 	return InExpression{
-		BoolExpression: BoolExpression{
+		BoolExpression: &BoolExpression{
 			boolOperator: boolOperator,
 		},
 		lvalue: lvalue,
@@ -549,14 +553,14 @@ func (ie InExpression) String() string {
 }
 
 type NotInExpression struct {
-	BoolExpression
+	*BoolExpression
 	rvalue Rvalue
 	lvalue Rvalue
 }
 
 func NewNotInExpression(boolOperator BooleanOperator, lvalue Rvalue, rvalue Rvalue) NotInExpression {
 	return NotInExpression{
-		BoolExpression: BoolExpression{
+		BoolExpression: &BoolExpression{
 			boolOperator: boolOperator,
 		},
 		lvalue: lvalue,
@@ -574,13 +578,13 @@ type Rvalue interface {
 }
 
 type RvalueExpression struct {
-	BoolExpression
+	*BoolExpression
 	rvalue Rvalue
 }
 
 func NewRvalueExpression(boolOperator BooleanOperator, rvalue Rvalue) RvalueExpression {
 	return RvalueExpression{
-		BoolExpression: BoolExpression{
+		BoolExpression: &BoolExpression{
 			boolOperator: boolOperator,
 		},
 		rvalue: rvalue,
@@ -592,7 +596,7 @@ func (re RvalueExpression) String() string {
 }
 
 type CompareExpression struct {
-	BoolExpression
+	*BoolExpression
 	lvalue          Rvalue
 	compareOperator CompareOperator
 	rvalue          Rvalue
@@ -600,7 +604,7 @@ type CompareExpression struct {
 
 func NewCompareExpression(boolOperator BooleanOperator, lvalue Rvalue, compareOperator CompareOperator, rvalue Rvalue) CompareExpression {
 	return CompareExpression{
-		BoolExpression: BoolExpression{
+		BoolExpression: &BoolExpression{
 			boolOperator: boolOperator,
 		},
 		lvalue:          lvalue,
@@ -644,7 +648,7 @@ func (co CompareOperator) String() string {
 }
 
 type RegexpExpression struct {
-	BoolExpression
+	*BoolExpression
 	lvalue         Rvalue
 	regexpOperator RegexpOperator
 	rvalue         StringOrRegexp
@@ -652,7 +656,7 @@ type RegexpExpression struct {
 
 func NewRegexpExpression(boolOperator BooleanOperator, lvalue Rvalue, regexpOperator RegexpOperator, rvalue StringOrRegexp) RegexpExpression {
 	return RegexpExpression{
-		BoolExpression: BoolExpression{
+		BoolExpression: &BoolExpression{
 			boolOperator: boolOperator,
 		},
 		lvalue:         lvalue,
@@ -734,8 +738,38 @@ func (be BooleanOperator) String() string {
 }
 
 type SelectorExpression struct {
-	BoolExpression
-	selectorElement SelectorElement
+	*BoolExpression
+	selectorElement []SelectorElement
+}
+
+type Selector struct {
+	elements []SelectorElement
+}
+
+func NewSelector(elements []SelectorElement) Selector {
+	return Selector{
+		elements: elements,
+	}
+}
+
+func NewSelectorFromNames(names ...string) Selector {
+	var elements []SelectorElement
+	for _, name := range names {
+		elements = append(elements, NewSelectorElement(name))
+	}
+	return NewSelector(elements)
+}
+
+func (s Selector) String() string {
+	var bb bytes.Buffer
+	for _, element := range s.elements {
+		bb.WriteString(element.String())
+	}
+	return bb.String()
+}
+
+func (s Selector) ValueString() string {
+	return s.String()
 }
 
 type SelectorElement struct {
@@ -750,8 +784,4 @@ func NewSelectorElement(name string) SelectorElement {
 
 func (se SelectorElement) String() string {
 	return fmt.Sprintf("[%s]", se.name)
-}
-
-func (se SelectorElement) ValueString() string {
-	return se.String()
 }

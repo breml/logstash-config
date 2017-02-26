@@ -105,6 +105,220 @@ output {
 }
 `,
 		},
+		// Simple if (without else) branch
+		{
+			input: `filter {
+  if 1 == 1 {
+    date {
+      
+    }
+  }
+}
+`,
+		},
+		// if with else-if and a final else branch
+		{
+			input: `filter {
+  if 1 == 1 {
+    date {
+      
+    }
+  } else if 1 == 1 {
+    date {
+      
+    }
+  } else {
+    date {
+      
+    }
+  }
+}
+`,
+		},
+		// if with multiple else-if and a final else branch
+		// multiple plugins in each branch
+		{
+			input: `filter {
+  if 1 == 1 {
+    date {
+      
+    }
+    date {
+      
+    }
+  } else if 1 == 1 {
+    date {
+      
+    }
+    date {
+      
+    }
+    date {
+      
+    }
+  } else if 1 == 1 {
+    date {
+      
+    }
+    date {
+      
+    }
+    date {
+      
+    }
+  } else {
+    date {
+      
+    }
+    date {
+      
+    }
+    date {
+      
+    }
+  }
+}
+`,
+		},
+		// if with multiple else-if and a final else branch
+		// test for different condition types
+		{
+			input: `filter {
+  if 1 != 1 {
+    date {
+      
+    }
+  } else if 1 <= 1 {
+    date {
+      
+    }
+  } else if 1 >= 1 {
+    date {
+      
+    }
+  } else if 1 < 1 {
+    date {
+      
+    }
+  } else if 1 > 1 {
+    date {
+      
+    }
+  }
+}
+`,
+		},
+		// if with multiple compare operators
+		{
+			input: `filter {
+  if "true" == "true" and "true1" == "true1" or "true2" == "true2" nand "true3" == "true3" xor "true4" == "true4" {
+    plugin {
+      
+    }
+  }
+}
+`,
+		},
+		// Condition in parentheses
+		{
+			input: `filter {
+  if ("tag" in [tags]) {
+    plugin {
+      
+    }
+  }
+}
+`,
+		},
+		// Multiple conditions in parentheses
+		{
+			input: `filter {
+  if ("tag" in [tags] or ("true" == "true" and 1 == 1)) {
+    plugin {
+      
+    }
+  }
+}
+`,
+		},
+		// Negative condition
+		{
+			input: `filter {
+  if ! ("true" == "true") {
+    plugin {
+      
+    }
+  }
+}
+`,
+		},
+		// Negative Selector for value in subfield
+		{
+			input: `filter {
+  if ! [field][subfield] {
+    plugin {
+      
+    }
+  }
+}
+`,
+		},
+		// InExpression
+		{
+			input: `filter {
+  if "tag" in [tags] {
+    plugin {
+      
+    }
+  }
+}
+`,
+		},
+		// NotInExpression
+		{
+			input: `filter {
+  if "tag" not in [field][subfield] {
+    plugin {
+      
+    }
+  }
+}
+`,
+		},
+		// RegexpExpression (Match)
+		{
+			input: `filter {
+  if [field] =~ /.*/ {
+    plugin {
+      
+    }
+  }
+}
+`,
+		},
+		// RegexpExpression (Not Match)
+		{
+			input: `filter {
+  if [field] !~ /.*/ {
+    plugin {
+      
+    }
+  }
+}
+`,
+		},
+		// Rvalue
+		{
+			input: `filter {
+  if "string" or 10 or [field][subfield] or /.*/ {
+    plugin {
+      
+    }
+  }
+}
+`,
+		},
+		//
 	}
 
 	for _, test := range cases {
