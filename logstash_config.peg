@@ -3,6 +3,14 @@
     package config
 }
 
+// Parsing entry point
+init =
+    &{
+        return initParser();
+    } conf:config EOF {
+        return ret(conf)
+    } // &{ return pushError("empty config file?", c) }
+
 //  rule config
 //    _ plugin_section _ (_ plugin_section)* _ <LogStash::Config::AST::Config>
 //  end
@@ -49,7 +57,11 @@ plugin_section =
         bop:branch_or_plugin _ { 
             return ret(bop) 
         } 
-    )* "}" { 
+    )* (
+        "}" / &{
+            return pushError("expect closing curly bracket", c)
+        }
+    ) {
         return pluginSection(pt, bops) 
     }
 
@@ -71,6 +83,8 @@ plugin_type =
         return ast.Filter, nil
     } / "output" {
         return ast.Output, nil
+    } / &{
+        return pushError("expect plugin type (input, filter, output)", c)
     }
 
 //   rule plugins
@@ -109,7 +123,11 @@ plugin =
         )* {
             return attributes(attribute, attrs)
         }
-    )? _ "}" {
+    )? _ (
+        "}" / &{
+            return fatalError("expect closing curly bracket", c)
+        }
+    ) {
         return plugin(name, attributes)
     }
 
@@ -142,14 +160,18 @@ attribute =
 //   end
 
 value =
-    plugin / bareword / string_value / number / array / hash
+    plugin / bareword / string_value / number / array / hash / &{
+        return fatalError("invalid value", c)
+    }
 
 //   rule array_value
 //     bareword / string / number / array / hash
 //   end
 
 array_value =
-    bareword / string_value / number / array / hash
+    bareword / string_value / number / array / hash / &{
+        return fatalError("invalid array value", c)
+    }
 
 //   rule bareword
 //     [A-Za-z_] [A-Za-z0-9_]+
@@ -166,7 +188,11 @@ bareword =
 //   end
 
 double_quoted_string =
-    ( `"` ( `\"` / !`"` . )* `"` ) {
+    ( `"` ( `\"` / !`"` . )* (
+        `"` / &{
+            return fatalError("expect closing double quotes (\")", c)
+        }
+    ) ) {
         return enclosedValue(c)
     }
 
@@ -175,7 +201,11 @@ double_quoted_string =
 //   end
 
 single_quoted_string =
-    ( `'` ( `\'` / !`'` . )* `'` ) {
+    ( `'` ( `\'` / !`'` . )* (
+        `'` / &{
+            return fatalError("expect closing single quote (')", c)
+        }
+    ) ) {
         return enclosedValue(c)
     }
 
@@ -197,7 +227,11 @@ string_value =
 //   end
 
 regexp =
-    ( `/` ( `\/` / !`/` . )* `/`) {
+    ( `/` ( `\/` / !`/` . )* (
+        `/` / &{
+            return fatalError("expect closing slash (/) for regexp", c)
+        }
+    ) ) {
         return regexp(c)
     }
 
@@ -232,7 +266,11 @@ array =
         )* {
             return attributes(value, values)
         }
-    )? _ "]" {
+    )? _ (
+        "]" / &{
+            return fatalError("expect closing square bracket", c)
+        }
+    ) {
         return array(value)
     }
 
@@ -246,7 +284,11 @@ array =
 //   end
 
 hash =
-    "{" _ entries:hashentries? _ "}" {
+    "{" _ entries:hashentries? _ (
+        "}" / &{
+            return fatalError("expect closing curly bracket", c)
+        }
+    ) {
         return hash(entries)
     }
 
@@ -304,7 +346,11 @@ if_cond =
             bop:branch_or_plugin _ {
                 return ret(bop)
             }
-        )* "}" {
+        )* (
+            "}" / &{
+                return fatalError("expect closing curly bracket", c)
+            }
+        ) {
         return ifBlock(cond, bops)
     }
 
@@ -318,7 +364,11 @@ else_if =
         bop:branch_or_plugin _ {
             return ret(bop)
         }
-    )* "}" {
+    )* (
+        "}" / &{
+            return fatalError("expect closing curly bracket", c)
+        }
+    ) {
         return elseIfBlock(cond, bops)
     }
 
@@ -332,7 +382,11 @@ else_cond =
         bop:branch_or_plugin _ {
             return ret(bop)
         }
-    )* "}" {
+    )* (
+        "}" / &{
+            return fatalError("expect closing curly bracket", c)
+        }
+    ) {
         return elseBlock(bops)
     }
 
@@ -377,6 +431,7 @@ expression =
       / rv:rvalue {
           return rvalue(rv)
       }
+      // &{ return pushError("expect valid expression", c) }
     )
 
 //   rule negative_expression
@@ -389,7 +444,11 @@ expression =
 negative_expression = 
     (
         (
-            "!" _ "(" _ cond:condition _ ")" {
+            "!" _ "(" _ cond:condition _ (
+                ")" / &{
+                    return fatalError("expect closing parenthesis", c)
+                }
+            ) {
                 return negative_expression(cond)
             }
         )
@@ -425,14 +484,18 @@ not_in_expression =
 //   end
 
 in_operator =
-    "in"
+    "in" / &{
+        return pushError("expect in operator (in)", c)
+    }
 
 //   rule not_in_operator
 //     "not " _ "in"
 //   end
 
 not_in_operator =
-    "not " _ "in"
+    "not " _ "in" / &{
+        return pushError("expect not in operator (not in)", c)
+    }
 
 //   rule rvalue
 //     string / number / selector / array / method_call / regexp
@@ -442,7 +505,9 @@ not_in_operator =
 // rvalue =
 //     string_value / number / selector / array / method_call / regexp
 rvalue =
-    string_value / number / selector / array / regexp
+    string_value / number / selector / array / regexp / &{
+        return pushError("invalid value for expression", c)
+    }
 
 //   rule method_call
 //       method _ "(" _
@@ -485,7 +550,9 @@ compare_expression =
 //   end
 
 compare_operator =
-    ("==" / "!=" / "<=" / ">=" / "<" / ">") {
+    ("==" / "!=" / "<=" / ">=" / "<" / ">" / &{
+        return pushError("expect compare operator (==, !=, <=, >=, <, >)", c)
+    }) {
         return compare_operator(string(c.text))
     }
 
@@ -504,7 +571,9 @@ regexp_expression =
 //   end
 
 regexp_operator =
-    ("=~" / "!~") {
+    ("=~" / "!~" / &{
+        return pushError("expect regexp comparison operator (=~, !~)", c)
+    }) {
         return regexp_operator(string(c.text))
     }
 
@@ -514,7 +583,9 @@ regexp_operator =
 //   end
 
 boolean_operator =
-    ("and" / "or" / "xor" / "nand") {
+    ("and" / "or" / "xor" / "nand" / &{
+        return pushError("expect boolean operator (and, or, xor, nand)", c)
+    }) {
         return boolean_operator(string(c.text))
     }
 
@@ -534,7 +605,11 @@ selector =
 //   end
 
 selector_element =
-    "[" [^\],]+ "]" {
+    "[" [^\],]+ (
+        "]" / &{
+            return fatalError("expect closing square bracket", c)
+        }
+    ) {
         return selector_element(string(c.text))
     }
 

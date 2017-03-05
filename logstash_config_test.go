@@ -365,10 +365,235 @@ func TestParser(t *testing.T) {
 	for _, test := range cases {
 		got, err := ParseReader("test", strings.NewReader(test.input))
 		if err != nil {
-			t.Fatalf("Expected to parse without error, input:\n|%s|", test.input)
+			t.Fatalf("Expected to parse without error: %s, input:\n|%s|", err, test.input)
 		}
 		if test.expected != fmt.Sprintf("%v", got) {
 			t.Errorf("Expected output does not match parsed output, expected:\n|%s|\n\nparsed:\n|%v|", test.expected, got)
+		}
+	}
+}
+
+func TestParseErrors(t *testing.T) {
+	cases := []struct {
+		input         string
+		expectedError string
+	}{
+		{
+			input:         ``,
+			expectedError: `expect plugin type`,
+		},
+		{
+			input:         `# comment only`,
+			expectedError: `expect plugin type`,
+		},
+		{
+			input: `FILTER {
+  if 1 == 1 {
+    plugin{}
+  }
+}`,
+			expectedError: `expect plugin type`,
+		},
+		{
+			input: `filter {
+  if 1 == 1 {
+    plugin{}
+  }
+`,
+			expectedError: `expect closing curly bracket`,
+		},
+		{
+			input: `filter {
+  plugin {}
+  plugin2 {
+  plugin3 {}
+}`,
+			expectedError: `expect closing curly bracket`,
+		},
+		{
+			input: `filter {
+  plugin {
+    value => #invalid#
+  }
+}`,
+			expectedError: `invalid value`,
+		},
+		{
+			input: `filter {
+  plugin {
+    value => [ #invalid# ]
+  }
+}`,
+			// expectedError: `invalid array value`,
+			expectedError: `invalid value`,
+		},
+		{
+			input: `filter {
+  plugin {
+    value => "invalid
+  }
+}`,
+			expectedError: `expect closing double quotes (")`,
+		},
+		{
+			input: `filter {
+  plugin {
+    value => 'invalid
+  }
+}`,
+			expectedError: `expect closing single quote (')`,
+		},
+		{
+			input: `filter {
+  if [field] =~ /.*
+    plugin {}
+  }
+}`,
+			expectedError: `expect closing slash (/) for regexp`,
+		},
+		{
+			input: `filter {
+  plugin {
+    value => [ "bar" 
+  }
+}`,
+			expectedError: `expect closing square bracket`,
+		},
+		{
+			input: `filter {
+  plugin {
+    value => { "bar" => "bar"
+  }
+}`,
+			expectedError: `expect closing curly bracket`,
+		},
+		{
+			input: `filter {
+  if 1 == 1 {
+    plugin {}
+  else {
+    plugin2 {}
+  }
+}`,
+			expectedError: `expect closing curly bracket`,
+		},
+		{
+			input: `filter {
+  if 1 == 1 {
+    plugin {}
+  } else {
+    plugin2 {}
+}`,
+			expectedError: `expect closing curly bracket`,
+		},
+		{
+			input: `filter {
+  if 1 == 1 {
+    plugin {}
+  } else if 2 == 2 {
+    plugin2 {}
+  else {
+    plugin3 {}
+  }
+}`,
+			expectedError: `expect closing curly bracket`,
+		},
+		// 		{
+		// 			input: `filter {
+		//   if this is not valid {
+		//     plugin {}
+		//   }
+		// }`,
+		// 			expectedError: `xxxxxxxxxxxxx`,
+		// 		},
+		{
+			input: `filter {
+  if ! ( 1 == 1 {
+    plugin {}
+  }
+}`,
+			expectedError: `expect closing parenthesis`,
+		},
+		{
+			input: `filter {
+  if [test] == #test# {
+    plugin {}
+  }
+}`,
+			expectedError: ` invalid value for expression`,
+		},
+		{
+			input: `filter {
+  if 1 == 1 nor 2 == 2 {
+    plugin{}
+  }
+}`,
+			expectedError: `expect boolean operator`,
+		},
+		{
+			input: `filter {
+  if [field] ?~ /.*/ {
+    plugin{}
+  }
+}`,
+			expectedError: `expect regexp comparison operator`,
+		},
+		{
+			input: `filter {
+  if "test" =! "test" {
+    plugin{}
+  }
+}`,
+			expectedError: `expect compare operator`,
+		},
+		{
+			input: `filter {
+  if "test" =! "test" {
+    plugin{}
+  }
+}`,
+			expectedError: `expect compare operator`,
+		},
+		{
+			input: `filter {
+  if "test" on [field] {
+    plugin{}
+  }
+}`,
+			expectedError: `expect in operator`,
+		},
+		{
+			input: `filter {
+  if "test" no in [field] {
+    plugin{}
+  }
+}`,
+			expectedError: `expect not in operator`,
+		},
+		{
+			input: `filter {
+  if "test" in [field][subfield {
+    plugin{}
+  }
+}`,
+			expectedError: `expect closing square bracket`,
+		},
+	}
+
+	var errMsg string
+	var hasErr bool
+	for _, test := range cases {
+		_, err := ParseReader("parse errors", strings.NewReader(test.input))
+		if err == nil {
+			t.Errorf("Expected parsing to fail with error: %s, input: %s", test.expectedError, test.input)
+		} else {
+			if errMsg, hasErr = GetFarthestFailure(); !hasErr {
+				errMsg = err.Error()
+			}
+			if !strings.Contains(errMsg, test.expectedError) {
+				t.Errorf("Expected parsing to fail with error containing: %s, got error: %s, input: %s", test.expectedError, errMsg, test.input)
+			}
+			// t.Logf("%s\n%s\n\n\n", test.input, errMsg)
 		}
 	}
 }

@@ -7,6 +7,11 @@ import (
 	"github.com/breml/logstash-config/ast"
 )
 
+func initParser() (bool, error) {
+	farthestFailure = []errPos{}
+	return true, nil
+}
+
 func ret(el interface{}) (interface{}, error) {
 	return el, nil
 }
