@@ -331,7 +331,7 @@ output {
 `,
 		},
 
-		// Negative condition
+		// Negative Condition Expression
 		{
 			config: NewConfig(
 				nil,
@@ -339,7 +339,7 @@ output {
 					Filter, NewBranch(
 						NewIfBlock(
 							NewCondition(
-								NewNegativeCondition(
+								NewNegativeConditionExpression(
 									NoOperator,
 									NewCondition(
 										NewCompareExpression(
@@ -367,7 +367,7 @@ output {
 `,
 		},
 
-		// Negative Selector for value in subfield
+		// Negative Selector Expression for value in subfield
 		{
 			config: NewConfig(
 				nil,
@@ -375,7 +375,7 @@ output {
 					Filter, NewBranch(
 						NewIfBlock(
 							NewCondition(
-								NewNegativeSelector(
+								NewNegativeSelectorExpression(
 									NoOperator,
 									NewSelectorFromNames("field", "subfield"),
 								),

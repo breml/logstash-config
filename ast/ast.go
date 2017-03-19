@@ -5,6 +5,18 @@ import (
 	"fmt"
 )
 
+// type Position struct {
+// 	Filename string // filename, if any
+// 	Offset   int    // offset, starting at 0
+// 	Line     int    // line number, starting at 1
+// 	Column   int    // column number, starting at 1 (byte count)
+// }
+
+// type Node interface {
+// 	Pos() Position
+// 	End() Position
+// }
+
 type Config struct {
 	Input  []PluginSection
 	Filter []PluginSection
@@ -91,7 +103,15 @@ func (ps PluginSection) String() string {
 	return s.String()
 }
 
-type BranchOrPlugin interface{}
+type BranchOrPlugin interface {
+	branchOrPlugin()
+}
+
+// branchOrPlugin() ensures that only BranchOrPlugin/type nodes can be
+// assigned to an BranchOrPlugin.
+//
+func (Plugin) branchOrPlugin() {}
+func (Branch) branchOrPlugin() {}
 
 type Plugin struct {
 	name       string
@@ -124,7 +144,17 @@ func (p Plugin) String() string {
 type Attribute interface {
 	String() string
 	ValueString() string
+	attributeNode()
 }
+
+// attributeNode() ensures that only attribute/type nodes can be
+// assigned to an Attribute.
+//
+func (PluginAttribute) attributeNode() {}
+func (StringAttribute) attributeNode() {}
+func (NumberAttribute) attributeNode() {}
+func (ArrayAttribute) attributeNode()  {}
+func (HashAttribute) attributeNode()   {}
 
 type PluginAttribute struct {
 	name  string
@@ -456,7 +486,20 @@ func (c Condition) String() string {
 type Expression interface {
 	BoolOperator() BooleanOperator
 	SetBoolOperator(BooleanOperator)
+	expressionNode()
 }
+
+// expressionNode() ensures that only expression/type nodes can be
+// assigned to an Expression.
+//
+func (ConditionExpression) expressionNode()         {}
+func (NegativeConditionExpression) expressionNode() {}
+func (NegativeSelectorExpression) expressionNode()  {}
+func (InExpression) expressionNode()                {}
+func (NotInExpression) expressionNode()             {}
+func (CompareExpression) expressionNode()           {}
+func (RegexpExpression) expressionNode()            {}
+func (RvalueExpression) expressionNode()            {}
 
 type BoolExpression struct {
 	boolOperator BooleanOperator
@@ -492,17 +535,13 @@ func (ce ConditionExpression) String() string {
 	return fmt.Sprintf("%v(%s)", ce.BoolExpression, ce.condition.String())
 }
 
-// type NegativeExpression interface {
-// 	String() string
-// }
-
-type NegativeCondition struct {
+type NegativeConditionExpression struct {
 	*BoolExpression
 	condition Condition
 }
 
-func NewNegativeCondition(boolOperator BooleanOperator, condition Condition) NegativeCondition {
-	return NegativeCondition{
+func NewNegativeConditionExpression(boolOperator BooleanOperator, condition Condition) NegativeConditionExpression {
+	return NegativeConditionExpression{
 		BoolExpression: &BoolExpression{
 			boolOperator: boolOperator,
 		},
@@ -510,17 +549,17 @@ func NewNegativeCondition(boolOperator BooleanOperator, condition Condition) Neg
 	}
 }
 
-func (nc NegativeCondition) String() string {
+func (nc NegativeConditionExpression) String() string {
 	return fmt.Sprintf("%v! (%s)", nc.BoolExpression, nc.condition.String())
 }
 
-type NegativeSelector struct {
+type NegativeSelectorExpression struct {
 	*BoolExpression
 	selector Selector
 }
 
-func NewNegativeSelector(boolOperator BooleanOperator, selector Selector) NegativeSelector {
-	return NegativeSelector{
+func NewNegativeSelectorExpression(boolOperator BooleanOperator, selector Selector) NegativeSelectorExpression {
+	return NegativeSelectorExpression{
 		BoolExpression: &BoolExpression{
 			boolOperator: boolOperator,
 		},
@@ -528,7 +567,7 @@ func NewNegativeSelector(boolOperator BooleanOperator, selector Selector) Negati
 	}
 }
 
-func (ns NegativeSelector) String() string {
+func (ns NegativeSelectorExpression) String() string {
 	return fmt.Sprintf("%v! %s", ns.BoolExpression, ns.selector)
 }
 
@@ -575,7 +614,17 @@ func (nie NotInExpression) String() string {
 type Rvalue interface {
 	String() string
 	ValueString() string
+	rvalueNode()
 }
+
+// rvalueNode() ensures that only rvalue/type nodes can be
+// assigned to an Rvalue.
+//
+func (StringAttribute) rvalueNode() {}
+func (NumberAttribute) rvalueNode() {}
+func (Selector) rvalueNode()        {}
+func (ArrayAttribute) rvalueNode()  {}
+func (Regexp) rvalueNode()          {}
 
 type RvalueExpression struct {
 	*BoolExpression
@@ -672,7 +721,14 @@ func (re RegexpExpression) String() string {
 type StringOrRegexp interface {
 	String() string
 	ValueString() string
+	stringOrRegexp()
 }
+
+// stringOrRegexp() ensures that only stringOrRegexp/type nodes can be
+// assigned to an StringOrRegexp.
+//
+func (StringAttribute) stringOrRegexp() {}
+func (Regexp) stringOrRegexp()          {}
 
 type RegexpOperator int
 

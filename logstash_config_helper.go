@@ -52,7 +52,7 @@ func config(ps1, pss1 interface{}) (ast.Config, error) {
 	}, nil
 }
 
-func pluginSection(pt1, bops1 ast.BranchOrPlugin) (ast.PluginSection, error) {
+func pluginSection(pt1, bops1 interface{}) (ast.PluginSection, error) {
 	pt := ast.PluginType(pt1.(int))
 	ibops := toIfaceSlice(bops1)
 	var bops []ast.BranchOrPlugin
@@ -271,12 +271,12 @@ func condition_expression(cond interface{}) (ast.ConditionExpression, error) {
 	return ast.NewConditionExpression(ast.NoOperator, cond.(ast.Condition)), nil
 }
 
-func negative_expression(cond interface{}) (ast.NegativeCondition, error) {
-	return ast.NewNegativeCondition(ast.NoOperator, cond.(ast.Condition)), nil
+func negative_expression(cond interface{}) (ast.NegativeConditionExpression, error) {
+	return ast.NewNegativeConditionExpression(ast.NoOperator, cond.(ast.Condition)), nil
 }
 
-func negative_selector(sel interface{}) (ast.NegativeSelector, error) {
-	return ast.NewNegativeSelector(ast.NoOperator, sel.(ast.Selector)), nil
+func negative_selector(sel interface{}) (ast.NegativeSelectorExpression, error) {
+	return ast.NewNegativeSelectorExpression(ast.NoOperator, sel.(ast.Selector)), nil
 }
 
 func in_expression(lv, rv interface{}) (ast.InExpression, error) {
@@ -292,7 +292,7 @@ func compare_expression(lv, co, rv interface{}) (ast.CompareExpression, error) {
 }
 
 func regexp_expression(lv, ro, rv interface{}) (ast.RegexpExpression, error) {
-	return ast.NewRegexpExpression(ast.NoOperator, lv.(ast.Rvalue), ro.(ast.RegexpOperator), rv.(ast.Rvalue)), nil
+	return ast.NewRegexpExpression(ast.NoOperator, lv.(ast.Rvalue), ro.(ast.RegexpOperator), rv.(ast.StringOrRegexp)), nil
 }
 
 func rvalue(rv interface{}) (ast.RvalueExpression, error) {
