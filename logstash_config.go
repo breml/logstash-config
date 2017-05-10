@@ -2138,11 +2138,11 @@ var g = &grammar{
 		},
 		{
 			name: "EOF",
-			pos:  position{line: 616, col: 1, offset: 13628},
+			pos:  position{line: 616, col: 1, offset: 13627},
 			expr: &notExpr{
-				pos: position{line: 616, col: 7, offset: 13634},
+				pos: position{line: 616, col: 7, offset: 13633},
 				expr: &anyMatcher{
-					line: 616, col: 8, offset: 13635,
+					line: 616, col: 8, offset: 13634,
 				},
 			},
 		},
@@ -2956,7 +2956,7 @@ func (p *parser) callonselector1() (interface{}, error) {
 }
 
 func (c *current) onselector_element8() (bool, error) {
-	return fatalError("expect closing square bracket", c)
+	return pushError("expect closing square bracket", c)
 
 }
 

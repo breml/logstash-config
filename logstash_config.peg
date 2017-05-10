@@ -607,7 +607,7 @@ selector =
 selector_element =
     "[" [^\],]+ (
         "]" / &{
-            return fatalError("expect closing square bracket", c)
+            return pushError("expect closing square bracket", c)
         }
     ) {
         return selector_element(string(c.text))
