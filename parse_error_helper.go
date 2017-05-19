@@ -11,9 +11,10 @@ type errPos struct {
 
 var (
 	farthestFailure []errPos
-	startpos        position
 )
 
+// GetFarthestFailure returns the farthest position where the parser had a parse error.
+// The farthest position is normally close to the real source for the error.
 func GetFarthestFailure() (string, bool) {
 	if len(farthestFailure) > 0 {
 		var bb bytes.Buffer

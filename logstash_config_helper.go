@@ -267,31 +267,31 @@ func expression(bo, expr1 interface{}) (ast.Expression, error) {
 	return expr, nil
 }
 
-func condition_expression(cond interface{}) (ast.ConditionExpression, error) {
+func conditionExpression(cond interface{}) (ast.ConditionExpression, error) {
 	return ast.NewConditionExpression(ast.NoOperator, cond.(ast.Condition)), nil
 }
 
-func negative_expression(cond interface{}) (ast.NegativeConditionExpression, error) {
+func negativeExpression(cond interface{}) (ast.NegativeConditionExpression, error) {
 	return ast.NewNegativeConditionExpression(ast.NoOperator, cond.(ast.Condition)), nil
 }
 
-func negative_selector(sel interface{}) (ast.NegativeSelectorExpression, error) {
+func negativeSelector(sel interface{}) (ast.NegativeSelectorExpression, error) {
 	return ast.NewNegativeSelectorExpression(ast.NoOperator, sel.(ast.Selector)), nil
 }
 
-func in_expression(lv, rv interface{}) (ast.InExpression, error) {
+func inExpression(lv, rv interface{}) (ast.InExpression, error) {
 	return ast.NewInExpression(ast.NoOperator, lv.(ast.Rvalue), rv.(ast.Rvalue)), nil
 }
 
-func not_in_expression(lv, rv interface{}) (ast.NotInExpression, error) {
+func notInExpression(lv, rv interface{}) (ast.NotInExpression, error) {
 	return ast.NewNotInExpression(ast.NoOperator, lv.(ast.Rvalue), rv.(ast.Rvalue)), nil
 }
 
-func compare_expression(lv, co, rv interface{}) (ast.CompareExpression, error) {
+func compareExpression(lv, co, rv interface{}) (ast.CompareExpression, error) {
 	return ast.NewCompareExpression(ast.NoOperator, lv.(ast.Rvalue), co.(ast.CompareOperator), rv.(ast.Rvalue)), nil
 }
 
-func regexp_expression(lv, ro, rv interface{}) (ast.RegexpExpression, error) {
+func regexpExpression(lv, ro, rv interface{}) (ast.RegexpExpression, error) {
 	return ast.NewRegexpExpression(ast.NoOperator, lv.(ast.Rvalue), ro.(ast.RegexpOperator), rv.(ast.StringOrRegexp)), nil
 }
 
@@ -299,7 +299,7 @@ func rvalue(rv interface{}) (ast.RvalueExpression, error) {
 	return ast.NewRvalueExpression(ast.NoOperator, rv.(ast.Rvalue)), nil
 }
 
-func compare_operator(value string) (ast.CompareOperator, error) {
+func compareOperator(value string) (ast.CompareOperator, error) {
 	switch value {
 	case "==":
 		return ast.Equal, nil
@@ -317,7 +317,7 @@ func compare_operator(value string) (ast.CompareOperator, error) {
 	return ast.Undefined, nil
 }
 
-func regexp_operator(value string) (ast.RegexpOperator, error) {
+func regexpOperator(value string) (ast.RegexpOperator, error) {
 	switch value {
 	case "=~":
 		return ast.RegexpMatch, nil
@@ -327,7 +327,7 @@ func regexp_operator(value string) (ast.RegexpOperator, error) {
 	return ast.Undefined, nil
 }
 
-func boolean_operator(value string) (ast.BooleanOperator, error) {
+func booleanOperator(value string) (ast.BooleanOperator, error) {
 	switch value {
 	case "and":
 		return ast.And, nil
@@ -351,7 +351,7 @@ func selector(ses1 interface{}) (ast.Selector, error) {
 	return ast.NewSelector(ses), nil
 }
 
-func selector_element(value string) (ast.SelectorElement, error) {
+func selectorElement(value string) (ast.SelectorElement, error) {
 	return ast.NewSelectorElement(value[1 : len(value)-1]), nil
 }
 

@@ -16,12 +16,12 @@ init =
 //  end
 
 config =
-    _ ps:plugin_section _ pss:(
-        _ ps:plugin_section { 
+    _ ps:pluginSection _ pss:(
+        _ ps:pluginSection {
             return ret(ps)
-        } 
-    )* _ EOF { 
-        return config(ps, pss) 
+        }
+    )* _ EOF {
+        return config(ps, pss)
     }
 
 //  rule comment
@@ -52,31 +52,31 @@ whitespace =
 //    <LogStash::Config::AST::PluginSection>
 //  end
 
-plugin_section =
-    pt:plugin_type _ "{" _ bops:(
-        bop:branch_or_plugin _ { 
-            return ret(bop) 
-        } 
+pluginSection =
+    pt:pluginType _ "{" _ bops:(
+        bop:branchOrPlugin _ {
+            return ret(bop)
+        }
     )* (
         "}" / &{
             return pushError("expect closing curly bracket", c)
         }
     ) {
-        return pluginSection(pt, bops) 
+        return pluginSection(pt, bops)
     }
 
 //   rule branch_or_plugin
 //     branch / plugin
 //   end
 
-branch_or_plugin =
+branchOrPlugin =
     branch / plugin
 
 //   rule plugin_type
 //     ("input" / "filter" / "output")
 //   end
 
-plugin_type =
+pluginType =
     "input" {
         return ast.Input, nil
     } / "filter" {
@@ -115,7 +115,7 @@ plugin_type =
 //   end
 
 plugin =
-    name:name _ "{" _ attributes:( 
+    name:name _ "{" _ attributes:(
         attribute:attribute attrs:(
             whitespace _ attribute:attribute {
                 return ret(attribute)
@@ -141,7 +141,7 @@ plugin =
 name =
     ( ([A-Za-z0-9_-]+) {
         return string(c.text), nil
-    } / value:string_value {
+    } / value:stringValue {
         return ret(value)
     } )
 
@@ -160,7 +160,7 @@ attribute =
 //   end
 
 value =
-    plugin / bareword / string_value / number / array / hash / &{
+    plugin / bareword / stringValue / number / array / hash / &{
         return fatalError("invalid value", c)
     }
 
@@ -168,8 +168,8 @@ value =
 //     bareword / string / number / array / hash
 //   end
 
-array_value =
-    bareword / string_value / number / array / hash / &{
+arrayValue =
+    bareword / stringValue / number / array / hash / &{
         return fatalError("invalid array value", c)
     }
 
@@ -187,7 +187,7 @@ bareword =
 //     ( '"' ( '\"' / !'"' . )* '"' <LogStash::Config::AST::String>)
 //   end
 
-double_quoted_string =
+doubleQuotedString =
     ( `"` ( `\"` / !`"` . )* (
         `"` / &{
             return fatalError("expect closing double quotes (\")", c)
@@ -200,7 +200,7 @@ double_quoted_string =
 //     ( "'" ( "\\'" / !"'" . )* "'" <LogStash::Config::AST::String>)
 //   end
 
-single_quoted_string =
+singleQuotedString =
     ( `'` ( `\'` / !`'` . )* (
         `'` / &{
             return fatalError("expect closing single quote (')", c)
@@ -213,10 +213,10 @@ single_quoted_string =
 //     double_quoted_string / single_quoted_string
 //   end
 
-string_value =
-    str:( str:double_quoted_string {
+stringValue =
+    str:( str:doubleQuotedString {
         return ast.NewStringAttribute("", str.(string), ast.DoubleQuoted), nil
-    } / str:single_quoted_string {
+    } / str:singleQuotedString {
         return ast.NewStringAttribute("", str.(string), ast.SingleQuoted), nil
     } ) {
         return ret(str)
@@ -258,7 +258,7 @@ number =
 
 // TODO: value should be changed to to array_value due to https://github.com/elastic/logstash/issues/6580
 array =
-    "[" _ value:( 
+    "[" _ value:(
         value:value values:(
             _ "," _ value:value {
                 return ret(value)
@@ -312,7 +312,7 @@ hashentries =
 //   end
 
 hashentry =
-    name:(number / bareword / string_value) _ "=>" _ value:value {
+    name:(number / bareword / stringValue) _ "=>" _ value:value {
         return hashentry(name, value)
     }
 
@@ -324,12 +324,12 @@ hashentry =
 //   end
 
 branch =
-    ifBlock:if_cond elseIfBlocks:(
-        _ eib:else_if {
+    ifBlock:ifCond elseIfBlocks:(
+        _ eib:elseIf {
                 return ret(eib)
             }
         )* elseBlock:(
-            _ eb:else_cond {
+            _ eb:elseCond {
                 return ret(eb)
             }
         )? {
@@ -341,9 +341,9 @@ branch =
 //     <LogStash::Config::AST::If>
 //   end
 
-if_cond =
+ifCond =
     "if" _ cond:condition _ "{" _ bops:(
-            bop:branch_or_plugin _ {
+            bop:branchOrPlugin _ {
                 return ret(bop)
             }
         )* (
@@ -359,9 +359,9 @@ if_cond =
 //     <LogStash::Config::AST::Elsif>
 //   end
 
-else_if =
+elseIf =
     "else" _ "if" _ cond:condition _ "{" _ bops:(
-        bop:branch_or_plugin _ {
+        bop:branchOrPlugin _ {
             return ret(bop)
         }
     )* (
@@ -377,9 +377,9 @@ else_if =
 //     <LogStash::Config::AST::Else>
 //   end
 
-else_cond =
+elseCond =
     "else" _ "{" _ bops:(
-        bop:branch_or_plugin _ {
+        bop:branchOrPlugin _ {
             return ret(bop)
         }
     )* (
@@ -397,7 +397,7 @@ else_cond =
 
 condition =
     cond:expression conds:(
-        _ bo:boolean_operator _ cond:expression {
+        _ bo:booleanOperator _ cond:expression {
             return expression(bo, cond)
         }
     )* {
@@ -416,18 +416,18 @@ condition =
 //     ) <LogStash::Config::AST::Expression>
 //   end
 
-expression = 
+expression =
     (
         (
             "(" _ cond:condition _ ")" {
-                return condition_expression(cond)
+                return conditionExpression(cond)
             }
         )
-      / negative_expression
-      / in_expression
-      / not_in_expression
-      / compare_expression
-      / regexp_expression
+      / negativeExpression
+      / inExpression
+      / notInExpression
+      / compareExpression
+      / regexpExpression
       / rv:rvalue {
           return rvalue(rv)
       }
@@ -441,7 +441,7 @@ expression =
 //     ) <LogStash::Config::AST::NegativeExpression>
 //   end
 
-negative_expression = 
+negativeExpression =
     (
         (
             "!" _ "(" _ cond:condition _ (
@@ -449,12 +449,12 @@ negative_expression =
                     return fatalError("expect closing parenthesis", c)
                 }
             ) {
-                return negative_expression(cond)
+                return negativeExpression(cond)
             }
         )
       / (
           "!" _ sel:selector {
-              return negative_selector(sel)
+              return negativeSelector(sel)
           }
         )
     )
@@ -464,9 +464,9 @@ negative_expression =
 //     <LogStash::Config::AST::InExpression>
 //   end
 
-in_expression =
-    lv:rvalue _ in_operator _ rv:rvalue {
-        return in_expression(lv, rv)
+inExpression =
+    lv:rvalue _ inOperator _ rv:rvalue {
+        return inExpression(lv, rv)
     }
 
 //   rule not_in_expression
@@ -474,16 +474,16 @@ in_expression =
 //     <LogStash::Config::AST::NotInExpression>
 //   end
 
-not_in_expression =
-    lv:rvalue _ not_in_operator _ rv:rvalue {
-        return not_in_expression(lv, rv)
+notInExpression =
+    lv:rvalue _ notInOperator _ rv:rvalue {
+        return notInExpression(lv, rv)
     }
 
 //   rule in_operator
 //     "in"
 //   end
 
-in_operator =
+inOperator =
     "in" / &{
         return pushError("expect in operator (in)", c)
     }
@@ -492,7 +492,7 @@ in_operator =
 //     "not " _ "in"
 //   end
 
-not_in_operator =
+notInOperator =
     "not " _ "in" / &{
         return pushError("expect not in operator (not in)", c)
     }
@@ -505,7 +505,7 @@ not_in_operator =
 // rvalue =
 //     string_value / number / selector / array / method_call / regexp
 rvalue =
-    string_value / number / selector / array / regexp / &{
+    stringValue / number / selector / array / regexp / &{
         return pushError("invalid value for expression", c)
     }
 
@@ -539,21 +539,21 @@ rvalue =
 //     <LogStash::Config::AST::ComparisonExpression>
 //   end
 
-compare_expression =
-    lv:rvalue _ co:compare_operator _ rv:rvalue {
-        return compare_expression(lv, co, rv)
+compareExpression =
+    lv:rvalue _ co:compareOperator _ rv:rvalue {
+        return compareExpression(lv, co, rv)
     }
 
-//   rule compare_operator 
-//     ("==" / "!=" / "<=" / ">=" / "<" / ">") 
+//   rule compare_operator
+//     ("==" / "!=" / "<=" / ">=" / "<" / ">")
 //     <LogStash::Config::AST::ComparisonOperator>
 //   end
 
-compare_operator =
+compareOperator =
     ("==" / "!=" / "<=" / ">=" / "<" / ">" / &{
         return pushError("expect compare operator (==, !=, <=, >=, <, >)", c)
     }) {
-        return compare_operator(string(c.text))
+        return compareOperator(string(c.text))
     }
 
 //   rule regexp_expression
@@ -561,20 +561,20 @@ compare_operator =
 //     <LogStash::Config::AST::RegexpExpression>
 //   end
 
-regexp_expression =
-    lv:rvalue _  ro:regexp_operator _ rv:(string_value / regexp) {
-        return regexp_expression(lv, ro, rv)
+regexpExpression =
+    lv:rvalue _  ro:regexpOperator _ rv:(stringValue / regexp) {
+        return regexpExpression(lv, ro, rv)
     }
 
 //   rule regexp_operator
 //     ("=~" / "!~") <LogStash::Config::AST::RegExpOperator>
 //   end
 
-regexp_operator =
+regexpOperator =
     ("=~" / "!~" / &{
         return pushError("expect regexp comparison operator (=~, !~)", c)
     }) {
-        return regexp_operator(string(c.text))
+        return regexpOperator(string(c.text))
     }
 
 //   rule boolean_operator
@@ -582,11 +582,11 @@ regexp_operator =
 //     <LogStash::Config::AST::BooleanOperator>
 //   end
 
-boolean_operator =
+booleanOperator =
     ("and" / "or" / "xor" / "nand" / &{
         return pushError("expect boolean operator (and, or, xor, nand)", c)
     }) {
-        return boolean_operator(string(c.text))
+        return booleanOperator(string(c.text))
     }
 
 //   rule selector
@@ -595,7 +595,7 @@ boolean_operator =
 //   end
 
 selector =
-    ses:selector_element+ {
+    ses:selectorElement+ {
         return selector(ses)
     }
 
@@ -604,13 +604,13 @@ selector =
 //     <LogStash::Config::AST::SelectorElement>
 //   end
 
-selector_element =
+selectorElement =
     "[" [^\],]+ (
         "]" / &{
             return pushError("expect closing square bracket", c)
         }
     ) {
-        return selector_element(string(c.text))
+        return selectorElement(string(c.text))
     }
 
 EOF = !.
