@@ -12,10 +12,10 @@ func TestParserIdentic(t *testing.T) {
 	cases := []struct {
 		input string
 	}{
-		// Empty file => does not work
-		// {
-		// 	input: ``,
-		// },
+		// Empty file
+		{
+			input: ``,
+		},
 
 		// Single PluginSection
 		{
@@ -338,6 +338,25 @@ func TestParser(t *testing.T) {
 		input    string
 		expected string
 	}{
+		// Whitespace, tab and newlines only
+		{
+			input: `
+      
+			`,
+			expected: ``,
+		},
+		// Single comment (one line without newline)
+		{
+			input:    `# comment only`,
+			expected: ``,
+		},
+		// Comment surrounded by empty lines
+		{
+			input: `
+# comment only
+`,
+			expected: ``,
+		},
 		{
 			input: `input { stdin {} }`,
 			expected: `input {
@@ -379,14 +398,6 @@ func TestParseErrors(t *testing.T) {
 		input         string
 		expectedError string
 	}{
-		{
-			input:         ``,
-			expectedError: `expect plugin type`,
-		},
-		{
-			input:         `# comment only`,
-			expectedError: `expect plugin type`,
-		},
 		{
 			input: `FILTER {
   if 1 == 1 {

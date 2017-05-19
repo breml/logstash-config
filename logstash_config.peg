@@ -7,9 +7,15 @@
 init =
     &{
         return initParser();
-    } conf:config EOF {
+    } conf:(
+        conf:config EOF {
+            return ret(conf)
+        } / _ EOF {
+            return ast.Config{}, nil
+        }
+    ) {
         return ret(conf)
-    } // &{ return pushError("empty config file?", c) }
+    }
 
 //  rule config
 //    _ plugin_section _ (_ plugin_section)* _ <LogStash::Config::AST::Config>
@@ -29,7 +35,7 @@ config =
 //  end
 
 comment =
-    (whitespace? "#" [^\r\n]* "\r"? "\n")+
+    (whitespace? "#" [^\r\n]* "\r"? ("\n" / EOF))+
 
 //  rule _
 //    (comment / whitespace)* <LogStash::Config::AST::Whitespace>
