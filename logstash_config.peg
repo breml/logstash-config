@@ -11,7 +11,7 @@ init =
         conf:config EOF {
             return ret(conf)
         } / _ EOF {
-            return ast.Config{}, nil
+            return ast.NewConfig(nil, nil, nil), nil
         }
     ) {
         return ret(conf)

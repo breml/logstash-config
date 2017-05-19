@@ -309,7 +309,6 @@ func (aa ArrayAttribute) ValueString() string {
 	var s bytes.Buffer
 	s.WriteString(fmt.Sprintf("[ "))
 
-	// TODO: use slice of string and string.Join
 	first := true
 	for _, a := range aa.Value() {
 		if first {
