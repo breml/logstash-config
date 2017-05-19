@@ -36,12 +36,10 @@ func config(ps1, pss1 interface{}) (ast.Config, error) {
 			case ast.Output:
 				output = append(output, ps)
 			default:
-				// TODO: Return error
-				fmt.Printf("why are we in default? %#v\n", ps)
+				return ast.Config{}, fmt.Errorf("PluginType is not supported: %#v", ps)
 			}
 		} else {
-			// TODO: Return error
-			fmt.Printf("why dont we get an PluginSection: %#v\n", ips1)
+			return ast.Config{}, fmt.Errorf("Value is not a PluginSection: %#v", ips1)
 		}
 	}
 
@@ -67,23 +65,6 @@ func pluginSection(pt1, bops1 interface{}) (ast.PluginSection, error) {
 		BranchOrPlugins: bops,
 	}, nil
 }
-
-// func plugins(p1 interface{}, ps1 interface{}) ([]ast.Plugin, error) {
-// 	var plugins []ast.Plugin
-
-// 	ips := toIfaceSlice(p1)
-// 	ips = append(ips, toIfaceSlice(ps1)...)
-
-// 	for _, p := range ips {
-// 		if p, ok := p.(ast.Plugin); ok {
-// 			plugins = append(plugins, p)
-// 		} else {
-// 			return nil, fmt.Errorf("Argument is not a plugin")
-// 		}
-// 	}
-
-// 	return plugins, nil
-// }
 
 func plugin(name, attributes interface{}) (ast.Plugin, error) {
 	if attributes != nil {

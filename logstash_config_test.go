@@ -320,7 +320,6 @@ output {
 }
 `,
 		},
-		//
 	}
 
 	for _, test := range cases {
@@ -426,6 +425,7 @@ func TestParseErrors(t *testing.T) {
     value => [ #invalid# ]
   }
 }`,
+			// Upstream grammar from Logstash is wrong: https://github.com/elastic/logstash/issues/6580
 			// expectedError: `invalid array value`,
 			expectedError: `invalid value`,
 		},
@@ -595,7 +595,6 @@ func TestParseErrors(t *testing.T) {
 			if !strings.Contains(errMsg, test.expectedError) {
 				t.Errorf("Expected parsing to fail with error containing: %s, got error: %s, input: %s", test.expectedError, errMsg, test.input)
 			}
-			// t.Logf("%s\n%s\n\n\n", test.input, errMsg)
 		}
 	}
 }

@@ -5,18 +5,6 @@ import (
 	"fmt"
 )
 
-// type Position struct {
-// 	Filename string // filename, if any
-// 	Offset   int    // offset, starting at 0
-// 	Line     int    // line number, starting at 1
-// 	Column   int    // column number, starting at 1 (byte count)
-// }
-
-// type Node interface {
-// 	Pos() Position
-// 	End() Position
-// }
-
 type Config struct {
 	Input  []PluginSection
 	Filter []PluginSection
