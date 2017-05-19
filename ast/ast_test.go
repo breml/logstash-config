@@ -1,6 +1,10 @@
-package ast
+package ast_test
 
-import "testing"
+import (
+	"testing"
+
+	. "github.com/breml/logstash-config/ast"
+)
 
 func TestAst(t *testing.T) {
 	cases := []struct {
@@ -19,7 +23,7 @@ func TestAst(t *testing.T) {
 				NewPluginSections(
 					Input, NewPlugin("stdin",
 						NewArrayAttribute(
-							"tags", StringAttribute{value: "tag1", sat: DoubleQuoted}, StringAttribute{value: "tag2", sat: SingleQuoted}, StringAttribute{value: "tag3", sat: Bareword},
+							"tags", NewStringAttribute("", "tag1", DoubleQuoted), NewStringAttribute("", "tag2", SingleQuoted), NewStringAttribute("", "tag3", Bareword),
 						),
 						NewHashAttribute(
 							"add_field",

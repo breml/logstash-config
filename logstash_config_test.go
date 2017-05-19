@@ -1,9 +1,11 @@
-package config
+package config_test
 
 import (
 	"fmt"
 	"strings"
 	"testing"
+
+	. "github.com/breml/logstash-config"
 )
 
 func TestParserIdentic(t *testing.T) {
