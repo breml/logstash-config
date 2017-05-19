@@ -67,5 +67,4 @@ func fatalError(errorMsg string, c *current) (bool, error) {
 	bb.WriteString(fmt.Sprintf("Parsing error at pos %s and [%d] (after: '%s'):\n", c.pos, pos(c), string(c.text)))
 	bb.WriteString(fmt.Sprintf("-> %s\n", errorMsg))
 	panic(bb.String())
-	//return false, fmt.Errorf("%s", bb.String())
 }
