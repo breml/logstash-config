@@ -37,20 +37,16 @@ func pos(c *current) int {
 // The assumption is, that the longest successful parse tree is the most acurate.
 func pushError(errorMsg string, c *current) (bool, error) {
 	pos := pos(c)
-	if len(farthestFailure) == 0 {
-		farthestFailure = append(farthestFailure, errPos{msg: errorMsg, c: *c, pos: pos})
+	if len(farthestFailure) == 0 || pos > farthestFailure[0].pos {
+		farthestFailure = []errPos{errPos{msg: errorMsg, c: *c, pos: pos}}
 	} else {
-		if pos > farthestFailure[0].pos {
-			farthestFailure = []errPos{errPos{msg: errorMsg, c: *c, pos: pos}}
-		} else {
-			if pos == farthestFailure[0].pos {
-				for _, failure := range farthestFailure {
-					if failure.msg == errorMsg {
-						return false, nil
-					}
+		if pos == farthestFailure[0].pos {
+			for _, failure := range farthestFailure {
+				if failure.msg == errorMsg {
+					return false, nil
 				}
-				farthestFailure = append(farthestFailure, errPos{msg: errorMsg, c: *c, pos: pos})
 			}
+			farthestFailure = append(farthestFailure, errPos{msg: errorMsg, c: *c, pos: pos})
 		}
 	}
 	return false, nil
