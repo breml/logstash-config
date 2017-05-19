@@ -23,7 +23,11 @@ func main() {
 
 	got, err := config.ParseReader(nm, in)
 	if err != nil {
-		log.Fatal(err)
+		errMsg := err.Error()
+		if farthestFailure, hasErr := config.GetFarthestFailure(); hasErr {
+			errMsg = farthestFailure
+		}
+		log.Fatal(errMsg)
 	}
 	fmt.Println(got)
 }
