@@ -577,11 +577,11 @@ func TestPluginType(t *testing.T) {
 		},
 		{
 			input:    0,
-			expected: "undefined",
+			expected: "undefined plugin type",
 		},
 		{
 			input:    4,
-			expected: "undefined",
+			expected: "undefined plugin type",
 		},
 	}
 
