@@ -2,11 +2,31 @@ package config_test
 
 import (
 	"fmt"
+	"log"
 	"strings"
 	"testing"
 
 	. "github.com/breml/logstash-config"
 )
+
+func ExampleParseReader() {
+	logstashConfig := `filter {
+    mutate {
+      add_tag => [ "tag" ]
+    }
+  }`
+	got, err := ParseReader("example.conf", strings.NewReader(logstashConfig))
+	if err != nil {
+		log.Fatalf("Parse error: %s\n", err)
+	}
+
+	// Output: filter {
+	//   mutate {
+	//     add_tag => [ "tag" ]
+	//   }
+	//}
+	fmt.Println(got)
+}
 
 func TestParserIdentic(t *testing.T) {
 	cases := []struct {
