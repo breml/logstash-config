@@ -10,6 +10,7 @@ import (
 func main() {
 	in := os.Stdin
 	nm := "stdin"
+	log.SetFlags(0)
 	if len(os.Args) > 1 {
 		f, err := os.Open(os.Args[1])
 		if err != nil {
