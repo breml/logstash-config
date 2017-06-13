@@ -167,7 +167,7 @@ attribute =
 
 value =
     plugin / bareword / stringValue / number / array / hash / &{
-        return fatalError("invalid value", c)
+        return pushError("invalid value", c)
     }
 
 //   rule array_value

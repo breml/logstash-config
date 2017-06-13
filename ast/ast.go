@@ -311,12 +311,14 @@ func (aa ArrayAttribute) ValueString() string {
 
 	first := true
 	for _, a := range aa.Value() {
-		if first {
-			first = false
-		} else {
-			s.WriteString(", ")
+		if a != nil {
+			if first {
+				first = false
+			} else {
+				s.WriteString(", ")
+			}
+			s.WriteString(fmt.Sprintf("%s", a.ValueString()))
 		}
-		s.WriteString(fmt.Sprintf("%s", a.ValueString()))
 	}
 	s.WriteString(fmt.Sprintf(" ]"))
 	return s.String()

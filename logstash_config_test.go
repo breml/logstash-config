@@ -340,6 +340,15 @@ output {
 }
 `,
 		},
+		// Empty array
+		{
+			input: `filter {
+  plugin {
+    value => [  ]
+  }
+}
+`,
+		},
 	}
 
 	for _, test := range cases {
@@ -448,7 +457,7 @@ func TestParseErrors(t *testing.T) {
     value => #invalid#
   }
 }`,
-			expectedError: `invalid value`,
+			expectedError: `expect closing curly bracket`,
 		},
 		{
 			input: `filter {
@@ -458,7 +467,7 @@ func TestParseErrors(t *testing.T) {
 }`,
 			// Upstream grammar from Logstash is wrong: https://github.com/elastic/logstash/issues/6580
 			// expectedError: `invalid array value`,
-			expectedError: `invalid value`,
+			expectedError: `expect closing square bracket`,
 		},
 		{
 			input: `filter {

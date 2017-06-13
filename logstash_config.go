@@ -2414,7 +2414,7 @@ func (p *parser) callonattribute1() (interface{}, error) {
 }
 
 func (c *current) onvalue8() (bool, error) {
-	return fatalError("invalid value", c)
+	return pushError("invalid value", c)
 
 }
 
