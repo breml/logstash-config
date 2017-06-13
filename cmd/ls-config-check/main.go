@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"os"
 
@@ -26,7 +25,7 @@ func main() {
 		nm = os.Args[1]
 	}
 
-	got, err := config.ParseReader(nm, in)
+	_, err := config.ParseReader(nm, in)
 	if err != nil {
 		errMsg := err.Error()
 		if farthestFailure, hasErr := config.GetFarthestFailure(); hasErr {
@@ -34,5 +33,4 @@ func main() {
 		}
 		log.Fatal(errMsg)
 	}
-	fmt.Println(got)
 }
