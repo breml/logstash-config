@@ -53,7 +53,7 @@ func pushError(errorMsg string, c *current) (bool, error) {
 	return false, nil
 }
 
-// fatalError is used to abort the parsing imediately due to an unrecoverable parse error.
+// fatalError is used to abort the parsing immediately due to an unrecoverable parse error.
 // In most cases this is a missing closing character of a pair, which was opened before.
 // Example: a missing closing square bracket or a missing closing double quote.
 func fatalError(errorMsg string, c *current) (bool, error) {
