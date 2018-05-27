@@ -39,7 +39,7 @@ func pos(c *current) int {
 func pushError(errorMsg string, c *current) (bool, error) {
 	pos := pos(c)
 	if len(farthestFailure) == 0 || pos > farthestFailure[0].pos {
-		farthestFailure = []errPos{errPos{msg: errorMsg, c: *c, pos: pos}}
+		farthestFailure = []errPos{{msg: errorMsg, c: *c, pos: pos}}
 	} else {
 		if pos == farthestFailure[0].pos {
 			for _, failure := range farthestFailure {
