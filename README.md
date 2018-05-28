@@ -10,7 +10,7 @@ The basis of the grammar for the parsing of the Logstash configuration format is
 
 logstash-config uses [pigeon](https://github.com/mna/pigeon) to generate the parser from the PEG (parser expression grammar). Special thanks to Martin Angers ([mna](https://github.com/mna)).
 
-This package is currently under development, no API guaranties
+This package is currently under development, no API guaranties.
 
 ## Install
 
@@ -24,6 +24,11 @@ go get -t github.com/breml/logstash-config/...
 
 `cmd/ls-config-check` contains the source code for a small sample tool, which uses just allow to parse a given Logstash config file. If the file could be parsed successfully, the tool just exits with exit code `0`. If the parsing fails, the exit code is non zero and a error message, indicating the location, where the parsing failed, is printed.
 `ls-config-check <logstash-config-file>` could be used instead if `bin/logstash -f <logstash-config-file> -t`, which is orders of magnitude faster 😃.
+
+## Rebuild parser
+
+1. Get and install [pigeon](https://github.com/mna/pigeon).
+2. Run `go generate` in the root directory of this repository.
 
 ## Author
 
