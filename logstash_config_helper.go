@@ -1,6 +1,6 @@
 package config
 
-//go:generate pigeon -optimize-grammar -optimize-parser -o logstash_config.go logstash_config.peg
+//go:generate pigeon -nolint -optimize-grammar -optimize-parser -o logstash_config.go logstash_config.peg
 
 import (
 	"fmt"

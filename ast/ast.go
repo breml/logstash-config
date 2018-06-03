@@ -187,7 +187,7 @@ func (pa PluginAttribute) String() string {
 
 // ValueString returns the value of the node as a string representation
 func (pa PluginAttribute) ValueString() string {
-	return fmt.Sprintf("%s", pa.value.String())
+	return pa.value.String()
 }
 
 const (
@@ -317,7 +317,7 @@ func (aa ArrayAttribute) ValueString() string {
 			} else {
 				s.WriteString(", ")
 			}
-			s.WriteString(fmt.Sprintf("%s", a.ValueString()))
+			s.WriteString(a.ValueString())
 		}
 	}
 	s.WriteString(fmt.Sprintf(" ]"))
