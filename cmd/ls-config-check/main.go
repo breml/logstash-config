@@ -7,31 +7,40 @@ import (
 	"github.com/breml/logstash-config"
 )
 
-func main() {
-	in := os.Stdin
-	nm := "stdin"
-	log.SetFlags(0)
-	if len(os.Args) > 1 {
-		f, err := os.Open(os.Args[1])
-		if err != nil {
-			log.Fatal(err)
-		}
-		defer func() {
-			err := f.Close()
-			if err != nil {
-				log.Fatal(err)
-			}
-		}()
-		in = f
-		nm = os.Args[1]
-	}
-
-	_, err := config.ParseReader(nm, in)
+func checkFile(f *os.File, name string) bool {
+	_, err := config.ParseReader(name, f)
 	if err != nil {
 		errMsg := err.Error()
 		if farthestFailure, hasErr := config.GetFarthestFailure(); hasErr {
 			errMsg = farthestFailure
 		}
-		log.Fatal(errMsg)
+		log.Printf("%s: %s", name, errMsg)
+		return false
+	}
+	return true
+}
+
+func main() {
+	success := true
+	log.SetFlags(0)
+	if len(os.Args) > 1 {
+		for _, path := range os.Args[1:] {
+			f, err := os.Open(path)
+			if err != nil {
+				log.Print(err)
+				success = false
+				continue
+			}
+			success = checkFile(f, path) && success
+			if err := f.Close(); err != nil {
+				log.Print(err)
+				success = false
+			}
+		}
+	} else {
+		success = checkFile(os.Stdin, "stdin") && success
+	}
+	if !success {
+		os.Exit(1)
 	}
 }
