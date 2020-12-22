@@ -11,6 +11,7 @@ import (
 	"math"
 	"os"
 	"sort"
+	"strconv"
 	"strings"
 	"unicode"
 	"unicode/utf8"
@@ -95,6 +96,7 @@ var g = &grammar{
 																			pos:        position{line: 38, col: 18, offset: 799},
 																			val:        "#",
 																			ignoreCase: false,
+																			want:       "\"#\"",
 																		},
 																		&zeroOrMoreExpr{
 																			pos: position{line: 38, col: 22, offset: 803},
@@ -112,6 +114,7 @@ var g = &grammar{
 																				pos:        position{line: 38, col: 31, offset: 812},
 																				val:        "\r",
 																				ignoreCase: false,
+																				want:       "\"\\r\"",
 																			},
 																		},
 																		&choiceExpr{
@@ -121,6 +124,7 @@ var g = &grammar{
 																					pos:        position{line: 38, col: 38, offset: 819},
 																					val:        "\n",
 																					ignoreCase: false,
+																					want:       "\"\\n\"",
 																				},
 																				&notExpr{
 																					pos: position{line: 622, col: 7, offset: 13636},
@@ -198,6 +202,7 @@ var g = &grammar{
 													pos:        position{line: 38, col: 18, offset: 799},
 													val:        "#",
 													ignoreCase: false,
+													want:       "\"#\"",
 												},
 												&zeroOrMoreExpr{
 													pos: position{line: 38, col: 22, offset: 803},
@@ -215,6 +220,7 @@ var g = &grammar{
 														pos:        position{line: 38, col: 31, offset: 812},
 														val:        "\r",
 														ignoreCase: false,
+														want:       "\"\\r\"",
 													},
 												},
 												&choiceExpr{
@@ -224,6 +230,7 @@ var g = &grammar{
 															pos:        position{line: 38, col: 38, offset: 819},
 															val:        "\n",
 															ignoreCase: false,
+															want:       "\"\\n\"",
 														},
 														&notExpr{
 															pos: position{line: 622, col: 7, offset: 13636},
@@ -284,6 +291,7 @@ var g = &grammar{
 													pos:        position{line: 38, col: 18, offset: 799},
 													val:        "#",
 													ignoreCase: false,
+													want:       "\"#\"",
 												},
 												&zeroOrMoreExpr{
 													pos: position{line: 38, col: 22, offset: 803},
@@ -301,6 +309,7 @@ var g = &grammar{
 														pos:        position{line: 38, col: 31, offset: 812},
 														val:        "\r",
 														ignoreCase: false,
+														want:       "\"\\r\"",
 													},
 												},
 												&choiceExpr{
@@ -310,6 +319,7 @@ var g = &grammar{
 															pos:        position{line: 38, col: 38, offset: 819},
 															val:        "\n",
 															ignoreCase: false,
+															want:       "\"\\n\"",
 														},
 														&notExpr{
 															pos: position{line: 622, col: 7, offset: 13636},
@@ -373,6 +383,7 @@ var g = &grammar{
 																		pos:        position{line: 38, col: 18, offset: 799},
 																		val:        "#",
 																		ignoreCase: false,
+																		want:       "\"#\"",
 																	},
 																	&zeroOrMoreExpr{
 																		pos: position{line: 38, col: 22, offset: 803},
@@ -390,6 +401,7 @@ var g = &grammar{
 																			pos:        position{line: 38, col: 31, offset: 812},
 																			val:        "\r",
 																			ignoreCase: false,
+																			want:       "\"\\r\"",
 																		},
 																	},
 																	&choiceExpr{
@@ -399,6 +411,7 @@ var g = &grammar{
 																				pos:        position{line: 38, col: 38, offset: 819},
 																				val:        "\n",
 																				ignoreCase: false,
+																				want:       "\"\\n\"",
 																			},
 																			&notExpr{
 																				pos: position{line: 622, col: 7, offset: 13636},
@@ -464,6 +477,7 @@ var g = &grammar{
 													pos:        position{line: 38, col: 18, offset: 799},
 													val:        "#",
 													ignoreCase: false,
+													want:       "\"#\"",
 												},
 												&zeroOrMoreExpr{
 													pos: position{line: 38, col: 22, offset: 803},
@@ -481,6 +495,7 @@ var g = &grammar{
 														pos:        position{line: 38, col: 31, offset: 812},
 														val:        "\r",
 														ignoreCase: false,
+														want:       "\"\\r\"",
 													},
 												},
 												&choiceExpr{
@@ -490,6 +505,7 @@ var g = &grammar{
 															pos:        position{line: 38, col: 38, offset: 819},
 															val:        "\n",
 															ignoreCase: false,
+															want:       "\"\\n\"",
 														},
 														&notExpr{
 															pos: position{line: 622, col: 7, offset: 13636},
@@ -547,6 +563,7 @@ var g = &grammar{
 											pos:        position{line: 86, col: 5, offset: 1667},
 											val:        "input",
 											ignoreCase: false,
+											want:       "\"input\"",
 										},
 									},
 									&actionExpr{
@@ -556,6 +573,7 @@ var g = &grammar{
 											pos:        position{line: 88, col: 9, offset: 1715},
 											val:        "filter",
 											ignoreCase: false,
+											want:       "\"filter\"",
 										},
 									},
 									&actionExpr{
@@ -565,6 +583,7 @@ var g = &grammar{
 											pos:        position{line: 90, col: 9, offset: 1765},
 											val:        "output",
 											ignoreCase: false,
+											want:       "\"output\"",
 										},
 									},
 									&andCodeExpr{
@@ -601,6 +620,7 @@ var g = &grammar{
 													pos:        position{line: 38, col: 18, offset: 799},
 													val:        "#",
 													ignoreCase: false,
+													want:       "\"#\"",
 												},
 												&zeroOrMoreExpr{
 													pos: position{line: 38, col: 22, offset: 803},
@@ -618,6 +638,7 @@ var g = &grammar{
 														pos:        position{line: 38, col: 31, offset: 812},
 														val:        "\r",
 														ignoreCase: false,
+														want:       "\"\\r\"",
 													},
 												},
 												&choiceExpr{
@@ -627,6 +648,7 @@ var g = &grammar{
 															pos:        position{line: 38, col: 38, offset: 819},
 															val:        "\n",
 															ignoreCase: false,
+															want:       "\"\\n\"",
 														},
 														&notExpr{
 															pos: position{line: 622, col: 7, offset: 13636},
@@ -656,6 +678,7 @@ var g = &grammar{
 							pos:        position{line: 62, col: 21, offset: 1245},
 							val:        "{",
 							ignoreCase: false,
+							want:       "\"{\"",
 						},
 						&zeroOrMoreExpr{
 							pos: position{line: 45, col: 5, offset: 928},
@@ -684,6 +707,7 @@ var g = &grammar{
 													pos:        position{line: 38, col: 18, offset: 799},
 													val:        "#",
 													ignoreCase: false,
+													want:       "\"#\"",
 												},
 												&zeroOrMoreExpr{
 													pos: position{line: 38, col: 22, offset: 803},
@@ -701,6 +725,7 @@ var g = &grammar{
 														pos:        position{line: 38, col: 31, offset: 812},
 														val:        "\r",
 														ignoreCase: false,
+														want:       "\"\\r\"",
 													},
 												},
 												&choiceExpr{
@@ -710,6 +735,7 @@ var g = &grammar{
 															pos:        position{line: 38, col: 38, offset: 819},
 															val:        "\n",
 															ignoreCase: false,
+															want:       "\"\\n\"",
 														},
 														&notExpr{
 															pos: position{line: 622, col: 7, offset: 13636},
@@ -781,6 +807,7 @@ var g = &grammar{
 																		pos:        position{line: 38, col: 18, offset: 799},
 																		val:        "#",
 																		ignoreCase: false,
+																		want:       "\"#\"",
 																	},
 																	&zeroOrMoreExpr{
 																		pos: position{line: 38, col: 22, offset: 803},
@@ -798,6 +825,7 @@ var g = &grammar{
 																			pos:        position{line: 38, col: 31, offset: 812},
 																			val:        "\r",
 																			ignoreCase: false,
+																			want:       "\"\\r\"",
 																		},
 																	},
 																	&choiceExpr{
@@ -807,6 +835,7 @@ var g = &grammar{
 																				pos:        position{line: 38, col: 38, offset: 819},
 																				val:        "\n",
 																				ignoreCase: false,
+																				want:       "\"\\n\"",
 																			},
 																			&notExpr{
 																				pos: position{line: 622, col: 7, offset: 13636},
@@ -844,6 +873,7 @@ var g = &grammar{
 									pos:        position{line: 67, col: 9, offset: 1344},
 									val:        "}",
 									ignoreCase: false,
+									want:       "\"}\"",
 								},
 								&andCodeExpr{
 									pos: position{line: 67, col: 15, offset: 1350},
@@ -933,6 +963,7 @@ var g = &grammar{
 																					pos:        position{line: 197, col: 7, offset: 4083},
 																					val:        "\"",
 																					ignoreCase: false,
+																					want:       "\"\\\"\"",
 																				},
 																				&zeroOrMoreExpr{
 																					pos: position{line: 197, col: 11, offset: 4087},
@@ -943,6 +974,7 @@ var g = &grammar{
 																								pos:        position{line: 197, col: 13, offset: 4089},
 																								val:        "\\\"",
 																								ignoreCase: false,
+																								want:       "\"\\\\\\\"\"",
 																							},
 																							&seqExpr{
 																								pos: position{line: 197, col: 20, offset: 4096},
@@ -953,6 +985,7 @@ var g = &grammar{
 																											pos:        position{line: 197, col: 21, offset: 4097},
 																											val:        "\"",
 																											ignoreCase: false,
+																											want:       "\"\\\"\"",
 																										},
 																									},
 																									&anyMatcher{
@@ -970,6 +1003,7 @@ var g = &grammar{
 																							pos:        position{line: 198, col: 9, offset: 4116},
 																							val:        "\"",
 																							ignoreCase: false,
+																							want:       "\"\\\"\"",
 																						},
 																						&andCodeExpr{
 																							pos: position{line: 198, col: 15, offset: 4122},
@@ -998,6 +1032,7 @@ var g = &grammar{
 																					pos:        position{line: 210, col: 7, offset: 4392},
 																					val:        "'",
 																					ignoreCase: false,
+																					want:       "\"'\"",
 																				},
 																				&zeroOrMoreExpr{
 																					pos: position{line: 210, col: 11, offset: 4396},
@@ -1008,6 +1043,7 @@ var g = &grammar{
 																								pos:        position{line: 210, col: 13, offset: 4398},
 																								val:        "\\'",
 																								ignoreCase: false,
+																								want:       "\"\\\\'\"",
 																							},
 																							&seqExpr{
 																								pos: position{line: 210, col: 20, offset: 4405},
@@ -1018,6 +1054,7 @@ var g = &grammar{
 																											pos:        position{line: 210, col: 21, offset: 4406},
 																											val:        "'",
 																											ignoreCase: false,
+																											want:       "\"'\"",
 																										},
 																									},
 																									&anyMatcher{
@@ -1035,6 +1072,7 @@ var g = &grammar{
 																							pos:        position{line: 211, col: 9, offset: 4425},
 																							val:        "'",
 																							ignoreCase: false,
+																							want:       "\"'\"",
 																						},
 																						&andCodeExpr{
 																							pos: position{line: 211, col: 15, offset: 4431},
@@ -1083,6 +1121,7 @@ var g = &grammar{
 													pos:        position{line: 38, col: 18, offset: 799},
 													val:        "#",
 													ignoreCase: false,
+													want:       "\"#\"",
 												},
 												&zeroOrMoreExpr{
 													pos: position{line: 38, col: 22, offset: 803},
@@ -1100,6 +1139,7 @@ var g = &grammar{
 														pos:        position{line: 38, col: 31, offset: 812},
 														val:        "\r",
 														ignoreCase: false,
+														want:       "\"\\r\"",
 													},
 												},
 												&choiceExpr{
@@ -1109,6 +1149,7 @@ var g = &grammar{
 															pos:        position{line: 38, col: 38, offset: 819},
 															val:        "\n",
 															ignoreCase: false,
+															want:       "\"\\n\"",
 														},
 														&notExpr{
 															pos: position{line: 622, col: 7, offset: 13636},
@@ -1138,6 +1179,7 @@ var g = &grammar{
 							pos:        position{line: 124, col: 17, offset: 2479},
 							val:        "{",
 							ignoreCase: false,
+							want:       "\"{\"",
 						},
 						&zeroOrMoreExpr{
 							pos: position{line: 45, col: 5, offset: 928},
@@ -1166,6 +1208,7 @@ var g = &grammar{
 													pos:        position{line: 38, col: 18, offset: 799},
 													val:        "#",
 													ignoreCase: false,
+													want:       "\"#\"",
 												},
 												&zeroOrMoreExpr{
 													pos: position{line: 38, col: 22, offset: 803},
@@ -1183,6 +1226,7 @@ var g = &grammar{
 														pos:        position{line: 38, col: 31, offset: 812},
 														val:        "\r",
 														ignoreCase: false,
+														want:       "\"\\r\"",
 													},
 												},
 												&choiceExpr{
@@ -1192,6 +1236,7 @@ var g = &grammar{
 															pos:        position{line: 38, col: 38, offset: 819},
 															val:        "\n",
 															ignoreCase: false,
+															want:       "\"\\n\"",
 														},
 														&notExpr{
 															pos: position{line: 622, col: 7, offset: 13636},
@@ -1284,6 +1329,7 @@ var g = &grammar{
 																							pos:        position{line: 38, col: 18, offset: 799},
 																							val:        "#",
 																							ignoreCase: false,
+																							want:       "\"#\"",
 																						},
 																						&zeroOrMoreExpr{
 																							pos: position{line: 38, col: 22, offset: 803},
@@ -1301,6 +1347,7 @@ var g = &grammar{
 																								pos:        position{line: 38, col: 31, offset: 812},
 																								val:        "\r",
 																								ignoreCase: false,
+																								want:       "\"\\r\"",
 																							},
 																						},
 																						&choiceExpr{
@@ -1310,6 +1357,7 @@ var g = &grammar{
 																									pos:        position{line: 38, col: 38, offset: 819},
 																									val:        "\n",
 																									ignoreCase: false,
+																									want:       "\"\\n\"",
 																								},
 																								&notExpr{
 																									pos: position{line: 622, col: 7, offset: 13636},
@@ -1380,6 +1428,7 @@ var g = &grammar{
 													pos:        position{line: 38, col: 18, offset: 799},
 													val:        "#",
 													ignoreCase: false,
+													want:       "\"#\"",
 												},
 												&zeroOrMoreExpr{
 													pos: position{line: 38, col: 22, offset: 803},
@@ -1397,6 +1446,7 @@ var g = &grammar{
 														pos:        position{line: 38, col: 31, offset: 812},
 														val:        "\r",
 														ignoreCase: false,
+														want:       "\"\\r\"",
 													},
 												},
 												&choiceExpr{
@@ -1406,6 +1456,7 @@ var g = &grammar{
 															pos:        position{line: 38, col: 38, offset: 819},
 															val:        "\n",
 															ignoreCase: false,
+															want:       "\"\\n\"",
 														},
 														&notExpr{
 															pos: position{line: 622, col: 7, offset: 13636},
@@ -1438,6 +1489,7 @@ var g = &grammar{
 									pos:        position{line: 133, col: 9, offset: 2723},
 									val:        "}",
 									ignoreCase: false,
+									want:       "\"}\"",
 								},
 								&andCodeExpr{
 									pos: position{line: 133, col: 15, offset: 2729},
@@ -1510,6 +1562,7 @@ var g = &grammar{
 																					pos:        position{line: 197, col: 7, offset: 4083},
 																					val:        "\"",
 																					ignoreCase: false,
+																					want:       "\"\\\"\"",
 																				},
 																				&zeroOrMoreExpr{
 																					pos: position{line: 197, col: 11, offset: 4087},
@@ -1520,6 +1573,7 @@ var g = &grammar{
 																								pos:        position{line: 197, col: 13, offset: 4089},
 																								val:        "\\\"",
 																								ignoreCase: false,
+																								want:       "\"\\\\\\\"\"",
 																							},
 																							&seqExpr{
 																								pos: position{line: 197, col: 20, offset: 4096},
@@ -1530,6 +1584,7 @@ var g = &grammar{
 																											pos:        position{line: 197, col: 21, offset: 4097},
 																											val:        "\"",
 																											ignoreCase: false,
+																											want:       "\"\\\"\"",
 																										},
 																									},
 																									&anyMatcher{
@@ -1547,6 +1602,7 @@ var g = &grammar{
 																							pos:        position{line: 198, col: 9, offset: 4116},
 																							val:        "\"",
 																							ignoreCase: false,
+																							want:       "\"\\\"\"",
 																						},
 																						&andCodeExpr{
 																							pos: position{line: 198, col: 15, offset: 4122},
@@ -1575,6 +1631,7 @@ var g = &grammar{
 																					pos:        position{line: 210, col: 7, offset: 4392},
 																					val:        "'",
 																					ignoreCase: false,
+																					want:       "\"'\"",
 																				},
 																				&zeroOrMoreExpr{
 																					pos: position{line: 210, col: 11, offset: 4396},
@@ -1585,6 +1642,7 @@ var g = &grammar{
 																								pos:        position{line: 210, col: 13, offset: 4398},
 																								val:        "\\'",
 																								ignoreCase: false,
+																								want:       "\"\\\\'\"",
 																							},
 																							&seqExpr{
 																								pos: position{line: 210, col: 20, offset: 4405},
@@ -1595,6 +1653,7 @@ var g = &grammar{
 																											pos:        position{line: 210, col: 21, offset: 4406},
 																											val:        "'",
 																											ignoreCase: false,
+																											want:       "\"'\"",
 																										},
 																									},
 																									&anyMatcher{
@@ -1612,6 +1671,7 @@ var g = &grammar{
 																							pos:        position{line: 211, col: 9, offset: 4425},
 																							val:        "'",
 																							ignoreCase: false,
+																							want:       "\"'\"",
 																						},
 																						&andCodeExpr{
 																							pos: position{line: 211, col: 15, offset: 4431},
@@ -1660,6 +1720,7 @@ var g = &grammar{
 													pos:        position{line: 38, col: 18, offset: 799},
 													val:        "#",
 													ignoreCase: false,
+													want:       "\"#\"",
 												},
 												&zeroOrMoreExpr{
 													pos: position{line: 38, col: 22, offset: 803},
@@ -1677,6 +1738,7 @@ var g = &grammar{
 														pos:        position{line: 38, col: 31, offset: 812},
 														val:        "\r",
 														ignoreCase: false,
+														want:       "\"\\r\"",
 													},
 												},
 												&choiceExpr{
@@ -1686,6 +1748,7 @@ var g = &grammar{
 															pos:        position{line: 38, col: 38, offset: 819},
 															val:        "\n",
 															ignoreCase: false,
+															want:       "\"\\n\"",
 														},
 														&notExpr{
 															pos: position{line: 622, col: 7, offset: 13636},
@@ -1715,6 +1778,7 @@ var g = &grammar{
 							pos:        position{line: 160, col: 17, offset: 3236},
 							val:        "=>",
 							ignoreCase: false,
+							want:       "\"=>\"",
 						},
 						&zeroOrMoreExpr{
 							pos: position{line: 45, col: 5, offset: 928},
@@ -1743,6 +1807,7 @@ var g = &grammar{
 													pos:        position{line: 38, col: 18, offset: 799},
 													val:        "#",
 													ignoreCase: false,
+													want:       "\"#\"",
 												},
 												&zeroOrMoreExpr{
 													pos: position{line: 38, col: 22, offset: 803},
@@ -1760,6 +1825,7 @@ var g = &grammar{
 														pos:        position{line: 38, col: 31, offset: 812},
 														val:        "\r",
 														ignoreCase: false,
+														want:       "\"\\r\"",
 													},
 												},
 												&choiceExpr{
@@ -1769,6 +1835,7 @@ var g = &grammar{
 															pos:        position{line: 38, col: 38, offset: 819},
 															val:        "\n",
 															ignoreCase: false,
+															want:       "\"\\n\"",
 														},
 														&notExpr{
 															pos: position{line: 622, col: 7, offset: 13636},
@@ -1869,6 +1936,7 @@ var g = &grammar{
 															pos:        position{line: 197, col: 7, offset: 4083},
 															val:        "\"",
 															ignoreCase: false,
+															want:       "\"\\\"\"",
 														},
 														&zeroOrMoreExpr{
 															pos: position{line: 197, col: 11, offset: 4087},
@@ -1879,6 +1947,7 @@ var g = &grammar{
 																		pos:        position{line: 197, col: 13, offset: 4089},
 																		val:        "\\\"",
 																		ignoreCase: false,
+																		want:       "\"\\\\\\\"\"",
 																	},
 																	&seqExpr{
 																		pos: position{line: 197, col: 20, offset: 4096},
@@ -1889,6 +1958,7 @@ var g = &grammar{
 																					pos:        position{line: 197, col: 21, offset: 4097},
 																					val:        "\"",
 																					ignoreCase: false,
+																					want:       "\"\\\"\"",
 																				},
 																			},
 																			&anyMatcher{
@@ -1906,6 +1976,7 @@ var g = &grammar{
 																	pos:        position{line: 198, col: 9, offset: 4116},
 																	val:        "\"",
 																	ignoreCase: false,
+																	want:       "\"\\\"\"",
 																},
 																&andCodeExpr{
 																	pos: position{line: 198, col: 15, offset: 4122},
@@ -1934,6 +2005,7 @@ var g = &grammar{
 															pos:        position{line: 210, col: 7, offset: 4392},
 															val:        "'",
 															ignoreCase: false,
+															want:       "\"'\"",
 														},
 														&zeroOrMoreExpr{
 															pos: position{line: 210, col: 11, offset: 4396},
@@ -1944,6 +2016,7 @@ var g = &grammar{
 																		pos:        position{line: 210, col: 13, offset: 4398},
 																		val:        "\\'",
 																		ignoreCase: false,
+																		want:       "\"\\\\'\"",
 																	},
 																	&seqExpr{
 																		pos: position{line: 210, col: 20, offset: 4405},
@@ -1954,6 +2027,7 @@ var g = &grammar{
 																					pos:        position{line: 210, col: 21, offset: 4406},
 																					val:        "'",
 																					ignoreCase: false,
+																					want:       "\"'\"",
 																				},
 																			},
 																			&anyMatcher{
@@ -1971,6 +2045,7 @@ var g = &grammar{
 																	pos:        position{line: 211, col: 9, offset: 4425},
 																	val:        "'",
 																	ignoreCase: false,
+																	want:       "\"'\"",
 																},
 																&andCodeExpr{
 																	pos: position{line: 211, col: 15, offset: 4431},
@@ -1999,6 +2074,7 @@ var g = &grammar{
 										pos:        position{line: 250, col: 5, offset: 5310},
 										val:        "-",
 										ignoreCase: false,
+										want:       "\"-\"",
 									},
 								},
 								&oneOrMoreExpr{
@@ -2020,6 +2096,7 @@ var g = &grammar{
 												pos:        position{line: 250, col: 18, offset: 5323},
 												val:        ".",
 												ignoreCase: false,
+												want:       "\".\"",
 											},
 											&zeroOrMoreExpr{
 												pos: position{line: 250, col: 22, offset: 5327},
@@ -2053,239 +2130,6 @@ var g = &grammar{
 			},
 		},
 		{
-			name: "bareword",
-			pos:  position{line: 187, col: 1, offset: 3821},
-			expr: &actionExpr{
-				pos: position{line: 188, col: 5, offset: 3836},
-				run: (*parser).callonbareword1,
-				expr: &seqExpr{
-					pos: position{line: 188, col: 5, offset: 3836},
-					exprs: []interface{}{
-						&charClassMatcher{
-							pos:        position{line: 188, col: 5, offset: 3836},
-							val:        "[_A-Za-z]",
-							chars:      []rune{'_'},
-							ranges:     []rune{'A', 'Z', 'a', 'z'},
-							ignoreCase: false,
-							inverted:   false,
-						},
-						&oneOrMoreExpr{
-							pos: position{line: 188, col: 15, offset: 3846},
-							expr: &charClassMatcher{
-								pos:        position{line: 188, col: 15, offset: 3846},
-								val:        "[_A-Za-z0-9]",
-								chars:      []rune{'_'},
-								ranges:     []rune{'A', 'Z', 'a', 'z', '0', '9'},
-								ignoreCase: false,
-								inverted:   false,
-							},
-						},
-					},
-				},
-			},
-		},
-		{
-			name: "stringValue",
-			pos:  position{line: 222, col: 1, offset: 4639},
-			expr: &actionExpr{
-				pos: position{line: 223, col: 5, offset: 4657},
-				run: (*parser).callonstringValue1,
-				expr: &labeledExpr{
-					pos:   position{line: 223, col: 5, offset: 4657},
-					label: "str",
-					expr: &choiceExpr{
-						pos: position{line: 223, col: 11, offset: 4663},
-						alternatives: []interface{}{
-							&actionExpr{
-								pos: position{line: 223, col: 11, offset: 4663},
-								run: (*parser).callonstringValue4,
-								expr: &labeledExpr{
-									pos:   position{line: 223, col: 11, offset: 4663},
-									label: "str",
-									expr: &actionExpr{
-										pos: position{line: 197, col: 5, offset: 4081},
-										run: (*parser).callonstringValue6,
-										expr: &seqExpr{
-											pos: position{line: 197, col: 7, offset: 4083},
-											exprs: []interface{}{
-												&litMatcher{
-													pos:        position{line: 197, col: 7, offset: 4083},
-													val:        "\"",
-													ignoreCase: false,
-												},
-												&zeroOrMoreExpr{
-													pos: position{line: 197, col: 11, offset: 4087},
-													expr: &choiceExpr{
-														pos: position{line: 197, col: 13, offset: 4089},
-														alternatives: []interface{}{
-															&litMatcher{
-																pos:        position{line: 197, col: 13, offset: 4089},
-																val:        "\\\"",
-																ignoreCase: false,
-															},
-															&seqExpr{
-																pos: position{line: 197, col: 20, offset: 4096},
-																exprs: []interface{}{
-																	&notExpr{
-																		pos: position{line: 197, col: 20, offset: 4096},
-																		expr: &litMatcher{
-																			pos:        position{line: 197, col: 21, offset: 4097},
-																			val:        "\"",
-																			ignoreCase: false,
-																		},
-																	},
-																	&anyMatcher{
-																		line: 197, col: 25, offset: 4101,
-																	},
-																},
-															},
-														},
-													},
-												},
-												&choiceExpr{
-													pos: position{line: 198, col: 9, offset: 4116},
-													alternatives: []interface{}{
-														&litMatcher{
-															pos:        position{line: 198, col: 9, offset: 4116},
-															val:        "\"",
-															ignoreCase: false,
-														},
-														&andCodeExpr{
-															pos: position{line: 198, col: 15, offset: 4122},
-															run: (*parser).callonstringValue18,
-														},
-													},
-												},
-											},
-										},
-									},
-								},
-							},
-							&actionExpr{
-								pos: position{line: 225, col: 9, offset: 4775},
-								run: (*parser).callonstringValue19,
-								expr: &labeledExpr{
-									pos:   position{line: 225, col: 9, offset: 4775},
-									label: "str",
-									expr: &actionExpr{
-										pos: position{line: 210, col: 5, offset: 4390},
-										run: (*parser).callonstringValue21,
-										expr: &seqExpr{
-											pos: position{line: 210, col: 7, offset: 4392},
-											exprs: []interface{}{
-												&litMatcher{
-													pos:        position{line: 210, col: 7, offset: 4392},
-													val:        "'",
-													ignoreCase: false,
-												},
-												&zeroOrMoreExpr{
-													pos: position{line: 210, col: 11, offset: 4396},
-													expr: &choiceExpr{
-														pos: position{line: 210, col: 13, offset: 4398},
-														alternatives: []interface{}{
-															&litMatcher{
-																pos:        position{line: 210, col: 13, offset: 4398},
-																val:        "\\'",
-																ignoreCase: false,
-															},
-															&seqExpr{
-																pos: position{line: 210, col: 20, offset: 4405},
-																exprs: []interface{}{
-																	&notExpr{
-																		pos: position{line: 210, col: 20, offset: 4405},
-																		expr: &litMatcher{
-																			pos:        position{line: 210, col: 21, offset: 4406},
-																			val:        "'",
-																			ignoreCase: false,
-																		},
-																	},
-																	&anyMatcher{
-																		line: 210, col: 25, offset: 4410,
-																	},
-																},
-															},
-														},
-													},
-												},
-												&choiceExpr{
-													pos: position{line: 211, col: 9, offset: 4425},
-													alternatives: []interface{}{
-														&litMatcher{
-															pos:        position{line: 211, col: 9, offset: 4425},
-															val:        "'",
-															ignoreCase: false,
-														},
-														&andCodeExpr{
-															pos: position{line: 211, col: 15, offset: 4431},
-															run: (*parser).callonstringValue33,
-														},
-													},
-												},
-											},
-										},
-									},
-								},
-							},
-						},
-					},
-				},
-			},
-		},
-		{
-			name: "number",
-			pos:  position{line: 249, col: 1, offset: 5297},
-			expr: &actionExpr{
-				pos: position{line: 250, col: 5, offset: 5310},
-				run: (*parser).callonnumber1,
-				expr: &seqExpr{
-					pos: position{line: 250, col: 5, offset: 5310},
-					exprs: []interface{}{
-						&zeroOrOneExpr{
-							pos: position{line: 250, col: 5, offset: 5310},
-							expr: &litMatcher{
-								pos:        position{line: 250, col: 5, offset: 5310},
-								val:        "-",
-								ignoreCase: false,
-							},
-						},
-						&oneOrMoreExpr{
-							pos: position{line: 250, col: 10, offset: 5315},
-							expr: &charClassMatcher{
-								pos:        position{line: 250, col: 10, offset: 5315},
-								val:        "[0-9]",
-								ranges:     []rune{'0', '9'},
-								ignoreCase: false,
-								inverted:   false,
-							},
-						},
-						&zeroOrOneExpr{
-							pos: position{line: 250, col: 17, offset: 5322},
-							expr: &seqExpr{
-								pos: position{line: 250, col: 18, offset: 5323},
-								exprs: []interface{}{
-									&litMatcher{
-										pos:        position{line: 250, col: 18, offset: 5323},
-										val:        ".",
-										ignoreCase: false,
-									},
-									&zeroOrMoreExpr{
-										pos: position{line: 250, col: 22, offset: 5327},
-										expr: &charClassMatcher{
-											pos:        position{line: 250, col: 22, offset: 5327},
-											val:        "[0-9]",
-											ranges:     []rune{'0', '9'},
-											ignoreCase: false,
-											inverted:   false,
-										},
-									},
-								},
-							},
-						},
-					},
-				},
-			},
-		},
-		{
 			name: "array",
 			pos:  position{line: 266, col: 1, offset: 5644},
 			expr: &actionExpr{
@@ -2298,6 +2142,7 @@ var g = &grammar{
 							pos:        position{line: 267, col: 5, offset: 5656},
 							val:        "[",
 							ignoreCase: false,
+							want:       "\"[\"",
 						},
 						&zeroOrMoreExpr{
 							pos: position{line: 45, col: 5, offset: 928},
@@ -2326,6 +2171,7 @@ var g = &grammar{
 													pos:        position{line: 38, col: 18, offset: 799},
 													val:        "#",
 													ignoreCase: false,
+													want:       "\"#\"",
 												},
 												&zeroOrMoreExpr{
 													pos: position{line: 38, col: 22, offset: 803},
@@ -2343,6 +2189,7 @@ var g = &grammar{
 														pos:        position{line: 38, col: 31, offset: 812},
 														val:        "\r",
 														ignoreCase: false,
+														want:       "\"\\r\"",
 													},
 												},
 												&choiceExpr{
@@ -2352,6 +2199,7 @@ var g = &grammar{
 															pos:        position{line: 38, col: 38, offset: 819},
 															val:        "\n",
 															ignoreCase: false,
+															want:       "\"\\n\"",
 														},
 														&notExpr{
 															pos: position{line: 622, col: 7, offset: 13636},
@@ -2434,6 +2282,7 @@ var g = &grammar{
 																							pos:        position{line: 38, col: 18, offset: 799},
 																							val:        "#",
 																							ignoreCase: false,
+																							want:       "\"#\"",
 																						},
 																						&zeroOrMoreExpr{
 																							pos: position{line: 38, col: 22, offset: 803},
@@ -2451,6 +2300,7 @@ var g = &grammar{
 																								pos:        position{line: 38, col: 31, offset: 812},
 																								val:        "\r",
 																								ignoreCase: false,
+																								want:       "\"\\r\"",
 																							},
 																						},
 																						&choiceExpr{
@@ -2460,6 +2310,7 @@ var g = &grammar{
 																									pos:        position{line: 38, col: 38, offset: 819},
 																									val:        "\n",
 																									ignoreCase: false,
+																									want:       "\"\\n\"",
 																								},
 																								&notExpr{
 																									pos: position{line: 622, col: 7, offset: 13636},
@@ -2489,6 +2340,7 @@ var g = &grammar{
 																	pos:        position{line: 269, col: 15, offset: 5713},
 																	val:        ",",
 																	ignoreCase: false,
+																	want:       "\",\"",
 																},
 																&zeroOrMoreExpr{
 																	pos: position{line: 45, col: 5, offset: 928},
@@ -2517,6 +2369,7 @@ var g = &grammar{
 																							pos:        position{line: 38, col: 18, offset: 799},
 																							val:        "#",
 																							ignoreCase: false,
+																							want:       "\"#\"",
 																						},
 																						&zeroOrMoreExpr{
 																							pos: position{line: 38, col: 22, offset: 803},
@@ -2534,6 +2387,7 @@ var g = &grammar{
 																								pos:        position{line: 38, col: 31, offset: 812},
 																								val:        "\r",
 																								ignoreCase: false,
+																								want:       "\"\\r\"",
 																							},
 																						},
 																						&choiceExpr{
@@ -2543,6 +2397,7 @@ var g = &grammar{
 																									pos:        position{line: 38, col: 38, offset: 819},
 																									val:        "\n",
 																									ignoreCase: false,
+																									want:       "\"\\n\"",
 																								},
 																								&notExpr{
 																									pos: position{line: 622, col: 7, offset: 13636},
@@ -2613,6 +2468,7 @@ var g = &grammar{
 													pos:        position{line: 38, col: 18, offset: 799},
 													val:        "#",
 													ignoreCase: false,
+													want:       "\"#\"",
 												},
 												&zeroOrMoreExpr{
 													pos: position{line: 38, col: 22, offset: 803},
@@ -2630,6 +2486,7 @@ var g = &grammar{
 														pos:        position{line: 38, col: 31, offset: 812},
 														val:        "\r",
 														ignoreCase: false,
+														want:       "\"\\r\"",
 													},
 												},
 												&choiceExpr{
@@ -2639,6 +2496,7 @@ var g = &grammar{
 															pos:        position{line: 38, col: 38, offset: 819},
 															val:        "\n",
 															ignoreCase: false,
+															want:       "\"\\n\"",
 														},
 														&notExpr{
 															pos: position{line: 622, col: 7, offset: 13636},
@@ -2671,6 +2529,7 @@ var g = &grammar{
 									pos:        position{line: 276, col: 9, offset: 5868},
 									val:        "]",
 									ignoreCase: false,
+									want:       "\"]\"",
 								},
 								&andCodeExpr{
 									pos: position{line: 276, col: 15, offset: 5874},
@@ -2695,6 +2554,7 @@ var g = &grammar{
 							pos:        position{line: 293, col: 5, offset: 6135},
 							val:        "{",
 							ignoreCase: false,
+							want:       "\"{\"",
 						},
 						&zeroOrMoreExpr{
 							pos: position{line: 45, col: 5, offset: 928},
@@ -2723,6 +2583,7 @@ var g = &grammar{
 													pos:        position{line: 38, col: 18, offset: 799},
 													val:        "#",
 													ignoreCase: false,
+													want:       "\"#\"",
 												},
 												&zeroOrMoreExpr{
 													pos: position{line: 38, col: 22, offset: 803},
@@ -2740,6 +2601,7 @@ var g = &grammar{
 														pos:        position{line: 38, col: 31, offset: 812},
 														val:        "\r",
 														ignoreCase: false,
+														want:       "\"\\r\"",
 													},
 												},
 												&choiceExpr{
@@ -2749,6 +2611,7 @@ var g = &grammar{
 															pos:        position{line: 38, col: 38, offset: 819},
 															val:        "\n",
 															ignoreCase: false,
+															want:       "\"\\n\"",
 														},
 														&notExpr{
 															pos: position{line: 622, col: 7, offset: 13636},
@@ -2812,6 +2675,7 @@ var g = &grammar{
 													pos:        position{line: 38, col: 18, offset: 799},
 													val:        "#",
 													ignoreCase: false,
+													want:       "\"#\"",
 												},
 												&zeroOrMoreExpr{
 													pos: position{line: 38, col: 22, offset: 803},
@@ -2829,6 +2693,7 @@ var g = &grammar{
 														pos:        position{line: 38, col: 31, offset: 812},
 														val:        "\r",
 														ignoreCase: false,
+														want:       "\"\\r\"",
 													},
 												},
 												&choiceExpr{
@@ -2838,6 +2703,7 @@ var g = &grammar{
 															pos:        position{line: 38, col: 38, offset: 819},
 															val:        "\n",
 															ignoreCase: false,
+															want:       "\"\\n\"",
 														},
 														&notExpr{
 															pos: position{line: 622, col: 7, offset: 13636},
@@ -2870,6 +2736,7 @@ var g = &grammar{
 									pos:        position{line: 294, col: 9, offset: 6174},
 									val:        "}",
 									ignoreCase: false,
+									want:       "\"}\"",
 								},
 								&andCodeExpr{
 									pos: position{line: 294, col: 15, offset: 6180},
@@ -2963,6 +2830,7 @@ var g = &grammar{
 														pos:        position{line: 250, col: 5, offset: 5310},
 														val:        "-",
 														ignoreCase: false,
+														want:       "\"-\"",
 													},
 												},
 												&oneOrMoreExpr{
@@ -2984,6 +2852,7 @@ var g = &grammar{
 																pos:        position{line: 250, col: 18, offset: 5323},
 																val:        ".",
 																ignoreCase: false,
+																want:       "\".\"",
 															},
 															&zeroOrMoreExpr{
 																pos: position{line: 250, col: 22, offset: 5327},
@@ -3054,6 +2923,7 @@ var g = &grammar{
 																			pos:        position{line: 197, col: 7, offset: 4083},
 																			val:        "\"",
 																			ignoreCase: false,
+																			want:       "\"\\\"\"",
 																		},
 																		&zeroOrMoreExpr{
 																			pos: position{line: 197, col: 11, offset: 4087},
@@ -3064,6 +2934,7 @@ var g = &grammar{
 																						pos:        position{line: 197, col: 13, offset: 4089},
 																						val:        "\\\"",
 																						ignoreCase: false,
+																						want:       "\"\\\\\\\"\"",
 																					},
 																					&seqExpr{
 																						pos: position{line: 197, col: 20, offset: 4096},
@@ -3074,6 +2945,7 @@ var g = &grammar{
 																									pos:        position{line: 197, col: 21, offset: 4097},
 																									val:        "\"",
 																									ignoreCase: false,
+																									want:       "\"\\\"\"",
 																								},
 																							},
 																							&anyMatcher{
@@ -3091,6 +2963,7 @@ var g = &grammar{
 																					pos:        position{line: 198, col: 9, offset: 4116},
 																					val:        "\"",
 																					ignoreCase: false,
+																					want:       "\"\\\"\"",
 																				},
 																				&andCodeExpr{
 																					pos: position{line: 198, col: 15, offset: 4122},
@@ -3119,6 +2992,7 @@ var g = &grammar{
 																			pos:        position{line: 210, col: 7, offset: 4392},
 																			val:        "'",
 																			ignoreCase: false,
+																			want:       "\"'\"",
 																		},
 																		&zeroOrMoreExpr{
 																			pos: position{line: 210, col: 11, offset: 4396},
@@ -3129,6 +3003,7 @@ var g = &grammar{
 																						pos:        position{line: 210, col: 13, offset: 4398},
 																						val:        "\\'",
 																						ignoreCase: false,
+																						want:       "\"\\\\'\"",
 																					},
 																					&seqExpr{
 																						pos: position{line: 210, col: 20, offset: 4405},
@@ -3139,6 +3014,7 @@ var g = &grammar{
 																									pos:        position{line: 210, col: 21, offset: 4406},
 																									val:        "'",
 																									ignoreCase: false,
+																									want:       "\"'\"",
 																								},
 																							},
 																							&anyMatcher{
@@ -3156,6 +3032,7 @@ var g = &grammar{
 																					pos:        position{line: 211, col: 9, offset: 4425},
 																					val:        "'",
 																					ignoreCase: false,
+																					want:       "\"'\"",
 																				},
 																				&andCodeExpr{
 																					pos: position{line: 211, col: 15, offset: 4431},
@@ -3202,6 +3079,7 @@ var g = &grammar{
 													pos:        position{line: 38, col: 18, offset: 799},
 													val:        "#",
 													ignoreCase: false,
+													want:       "\"#\"",
 												},
 												&zeroOrMoreExpr{
 													pos: position{line: 38, col: 22, offset: 803},
@@ -3219,6 +3097,7 @@ var g = &grammar{
 														pos:        position{line: 38, col: 31, offset: 812},
 														val:        "\r",
 														ignoreCase: false,
+														want:       "\"\\r\"",
 													},
 												},
 												&choiceExpr{
@@ -3228,6 +3107,7 @@ var g = &grammar{
 															pos:        position{line: 38, col: 38, offset: 819},
 															val:        "\n",
 															ignoreCase: false,
+															want:       "\"\\n\"",
 														},
 														&notExpr{
 															pos: position{line: 622, col: 7, offset: 13636},
@@ -3257,6 +3137,7 @@ var g = &grammar{
 							pos:        position{line: 321, col: 46, offset: 6810},
 							val:        "=>",
 							ignoreCase: false,
+							want:       "\"=>\"",
 						},
 						&zeroOrMoreExpr{
 							pos: position{line: 45, col: 5, offset: 928},
@@ -3285,6 +3166,7 @@ var g = &grammar{
 													pos:        position{line: 38, col: 18, offset: 799},
 													val:        "#",
 													ignoreCase: false,
+													want:       "\"#\"",
 												},
 												&zeroOrMoreExpr{
 													pos: position{line: 38, col: 22, offset: 803},
@@ -3302,6 +3184,7 @@ var g = &grammar{
 														pos:        position{line: 38, col: 31, offset: 812},
 														val:        "\r",
 														ignoreCase: false,
+														want:       "\"\\r\"",
 													},
 												},
 												&choiceExpr{
@@ -3311,6 +3194,7 @@ var g = &grammar{
 															pos:        position{line: 38, col: 38, offset: 819},
 															val:        "\n",
 															ignoreCase: false,
+															want:       "\"\\n\"",
 														},
 														&notExpr{
 															pos: position{line: 622, col: 7, offset: 13636},
@@ -3403,6 +3287,7 @@ var g = &grammar{
 																		pos:        position{line: 38, col: 18, offset: 799},
 																		val:        "#",
 																		ignoreCase: false,
+																		want:       "\"#\"",
 																	},
 																	&zeroOrMoreExpr{
 																		pos: position{line: 38, col: 22, offset: 803},
@@ -3420,6 +3305,7 @@ var g = &grammar{
 																			pos:        position{line: 38, col: 31, offset: 812},
 																			val:        "\r",
 																			ignoreCase: false,
+																			want:       "\"\\r\"",
 																		},
 																	},
 																	&choiceExpr{
@@ -3429,6 +3315,7 @@ var g = &grammar{
 																				pos:        position{line: 38, col: 38, offset: 819},
 																				val:        "\n",
 																				ignoreCase: false,
+																				want:       "\"\\n\"",
 																			},
 																			&notExpr{
 																				pos: position{line: 622, col: 7, offset: 13636},
@@ -3505,6 +3392,7 @@ var g = &grammar{
 																		pos:        position{line: 38, col: 18, offset: 799},
 																		val:        "#",
 																		ignoreCase: false,
+																		want:       "\"#\"",
 																	},
 																	&zeroOrMoreExpr{
 																		pos: position{line: 38, col: 22, offset: 803},
@@ -3522,6 +3410,7 @@ var g = &grammar{
 																			pos:        position{line: 38, col: 31, offset: 812},
 																			val:        "\r",
 																			ignoreCase: false,
+																			want:       "\"\\r\"",
 																		},
 																	},
 																	&choiceExpr{
@@ -3531,6 +3420,7 @@ var g = &grammar{
 																				pos:        position{line: 38, col: 38, offset: 819},
 																				val:        "\n",
 																				ignoreCase: false,
+																				want:       "\"\\n\"",
 																			},
 																			&notExpr{
 																				pos: position{line: 622, col: 7, offset: 13636},
@@ -3586,6 +3476,7 @@ var g = &grammar{
 							pos:        position{line: 351, col: 5, offset: 7403},
 							val:        "if",
 							ignoreCase: false,
+							want:       "\"if\"",
 						},
 						&zeroOrMoreExpr{
 							pos: position{line: 45, col: 5, offset: 928},
@@ -3614,6 +3505,7 @@ var g = &grammar{
 													pos:        position{line: 38, col: 18, offset: 799},
 													val:        "#",
 													ignoreCase: false,
+													want:       "\"#\"",
 												},
 												&zeroOrMoreExpr{
 													pos: position{line: 38, col: 22, offset: 803},
@@ -3631,6 +3523,7 @@ var g = &grammar{
 														pos:        position{line: 38, col: 31, offset: 812},
 														val:        "\r",
 														ignoreCase: false,
+														want:       "\"\\r\"",
 													},
 												},
 												&choiceExpr{
@@ -3640,6 +3533,7 @@ var g = &grammar{
 															pos:        position{line: 38, col: 38, offset: 819},
 															val:        "\n",
 															ignoreCase: false,
+															want:       "\"\\n\"",
 														},
 														&notExpr{
 															pos: position{line: 622, col: 7, offset: 13636},
@@ -3700,6 +3594,7 @@ var g = &grammar{
 													pos:        position{line: 38, col: 18, offset: 799},
 													val:        "#",
 													ignoreCase: false,
+													want:       "\"#\"",
 												},
 												&zeroOrMoreExpr{
 													pos: position{line: 38, col: 22, offset: 803},
@@ -3717,6 +3612,7 @@ var g = &grammar{
 														pos:        position{line: 38, col: 31, offset: 812},
 														val:        "\r",
 														ignoreCase: false,
+														want:       "\"\\r\"",
 													},
 												},
 												&choiceExpr{
@@ -3726,6 +3622,7 @@ var g = &grammar{
 															pos:        position{line: 38, col: 38, offset: 819},
 															val:        "\n",
 															ignoreCase: false,
+															want:       "\"\\n\"",
 														},
 														&notExpr{
 															pos: position{line: 622, col: 7, offset: 13636},
@@ -3755,6 +3652,7 @@ var g = &grammar{
 							pos:        position{line: 351, col: 29, offset: 7427},
 							val:        "{",
 							ignoreCase: false,
+							want:       "\"{\"",
 						},
 						&zeroOrMoreExpr{
 							pos: position{line: 45, col: 5, offset: 928},
@@ -3783,6 +3681,7 @@ var g = &grammar{
 													pos:        position{line: 38, col: 18, offset: 799},
 													val:        "#",
 													ignoreCase: false,
+													want:       "\"#\"",
 												},
 												&zeroOrMoreExpr{
 													pos: position{line: 38, col: 22, offset: 803},
@@ -3800,6 +3699,7 @@ var g = &grammar{
 														pos:        position{line: 38, col: 31, offset: 812},
 														val:        "\r",
 														ignoreCase: false,
+														want:       "\"\\r\"",
 													},
 												},
 												&choiceExpr{
@@ -3809,6 +3709,7 @@ var g = &grammar{
 															pos:        position{line: 38, col: 38, offset: 819},
 															val:        "\n",
 															ignoreCase: false,
+															want:       "\"\\n\"",
 														},
 														&notExpr{
 															pos: position{line: 622, col: 7, offset: 13636},
@@ -3880,6 +3781,7 @@ var g = &grammar{
 																		pos:        position{line: 38, col: 18, offset: 799},
 																		val:        "#",
 																		ignoreCase: false,
+																		want:       "\"#\"",
 																	},
 																	&zeroOrMoreExpr{
 																		pos: position{line: 38, col: 22, offset: 803},
@@ -3897,6 +3799,7 @@ var g = &grammar{
 																			pos:        position{line: 38, col: 31, offset: 812},
 																			val:        "\r",
 																			ignoreCase: false,
+																			want:       "\"\\r\"",
 																		},
 																	},
 																	&choiceExpr{
@@ -3906,6 +3809,7 @@ var g = &grammar{
 																				pos:        position{line: 38, col: 38, offset: 819},
 																				val:        "\n",
 																				ignoreCase: false,
+																				want:       "\"\\n\"",
 																			},
 																			&notExpr{
 																				pos: position{line: 622, col: 7, offset: 13636},
@@ -3943,6 +3847,7 @@ var g = &grammar{
 									pos:        position{line: 356, col: 13, offset: 7546},
 									val:        "}",
 									ignoreCase: false,
+									want:       "\"}\"",
 								},
 								&andCodeExpr{
 									pos: position{line: 356, col: 19, offset: 7552},
@@ -3967,6 +3872,7 @@ var g = &grammar{
 							pos:        position{line: 369, col: 5, offset: 7839},
 							val:        "else",
 							ignoreCase: false,
+							want:       "\"else\"",
 						},
 						&zeroOrMoreExpr{
 							pos: position{line: 45, col: 5, offset: 928},
@@ -3995,6 +3901,7 @@ var g = &grammar{
 													pos:        position{line: 38, col: 18, offset: 799},
 													val:        "#",
 													ignoreCase: false,
+													want:       "\"#\"",
 												},
 												&zeroOrMoreExpr{
 													pos: position{line: 38, col: 22, offset: 803},
@@ -4012,6 +3919,7 @@ var g = &grammar{
 														pos:        position{line: 38, col: 31, offset: 812},
 														val:        "\r",
 														ignoreCase: false,
+														want:       "\"\\r\"",
 													},
 												},
 												&choiceExpr{
@@ -4021,6 +3929,7 @@ var g = &grammar{
 															pos:        position{line: 38, col: 38, offset: 819},
 															val:        "\n",
 															ignoreCase: false,
+															want:       "\"\\n\"",
 														},
 														&notExpr{
 															pos: position{line: 622, col: 7, offset: 13636},
@@ -4050,6 +3959,7 @@ var g = &grammar{
 							pos:        position{line: 369, col: 14, offset: 7848},
 							val:        "if",
 							ignoreCase: false,
+							want:       "\"if\"",
 						},
 						&zeroOrMoreExpr{
 							pos: position{line: 45, col: 5, offset: 928},
@@ -4078,6 +3988,7 @@ var g = &grammar{
 													pos:        position{line: 38, col: 18, offset: 799},
 													val:        "#",
 													ignoreCase: false,
+													want:       "\"#\"",
 												},
 												&zeroOrMoreExpr{
 													pos: position{line: 38, col: 22, offset: 803},
@@ -4095,6 +4006,7 @@ var g = &grammar{
 														pos:        position{line: 38, col: 31, offset: 812},
 														val:        "\r",
 														ignoreCase: false,
+														want:       "\"\\r\"",
 													},
 												},
 												&choiceExpr{
@@ -4104,6 +4016,7 @@ var g = &grammar{
 															pos:        position{line: 38, col: 38, offset: 819},
 															val:        "\n",
 															ignoreCase: false,
+															want:       "\"\\n\"",
 														},
 														&notExpr{
 															pos: position{line: 622, col: 7, offset: 13636},
@@ -4164,6 +4077,7 @@ var g = &grammar{
 													pos:        position{line: 38, col: 18, offset: 799},
 													val:        "#",
 													ignoreCase: false,
+													want:       "\"#\"",
 												},
 												&zeroOrMoreExpr{
 													pos: position{line: 38, col: 22, offset: 803},
@@ -4181,6 +4095,7 @@ var g = &grammar{
 														pos:        position{line: 38, col: 31, offset: 812},
 														val:        "\r",
 														ignoreCase: false,
+														want:       "\"\\r\"",
 													},
 												},
 												&choiceExpr{
@@ -4190,6 +4105,7 @@ var g = &grammar{
 															pos:        position{line: 38, col: 38, offset: 819},
 															val:        "\n",
 															ignoreCase: false,
+															want:       "\"\\n\"",
 														},
 														&notExpr{
 															pos: position{line: 622, col: 7, offset: 13636},
@@ -4219,6 +4135,7 @@ var g = &grammar{
 							pos:        position{line: 369, col: 38, offset: 7872},
 							val:        "{",
 							ignoreCase: false,
+							want:       "\"{\"",
 						},
 						&zeroOrMoreExpr{
 							pos: position{line: 45, col: 5, offset: 928},
@@ -4247,6 +4164,7 @@ var g = &grammar{
 													pos:        position{line: 38, col: 18, offset: 799},
 													val:        "#",
 													ignoreCase: false,
+													want:       "\"#\"",
 												},
 												&zeroOrMoreExpr{
 													pos: position{line: 38, col: 22, offset: 803},
@@ -4264,6 +4182,7 @@ var g = &grammar{
 														pos:        position{line: 38, col: 31, offset: 812},
 														val:        "\r",
 														ignoreCase: false,
+														want:       "\"\\r\"",
 													},
 												},
 												&choiceExpr{
@@ -4273,6 +4192,7 @@ var g = &grammar{
 															pos:        position{line: 38, col: 38, offset: 819},
 															val:        "\n",
 															ignoreCase: false,
+															want:       "\"\\n\"",
 														},
 														&notExpr{
 															pos: position{line: 622, col: 7, offset: 13636},
@@ -4344,6 +4264,7 @@ var g = &grammar{
 																		pos:        position{line: 38, col: 18, offset: 799},
 																		val:        "#",
 																		ignoreCase: false,
+																		want:       "\"#\"",
 																	},
 																	&zeroOrMoreExpr{
 																		pos: position{line: 38, col: 22, offset: 803},
@@ -4361,6 +4282,7 @@ var g = &grammar{
 																			pos:        position{line: 38, col: 31, offset: 812},
 																			val:        "\r",
 																			ignoreCase: false,
+																			want:       "\"\\r\"",
 																		},
 																	},
 																	&choiceExpr{
@@ -4370,6 +4292,7 @@ var g = &grammar{
 																				pos:        position{line: 38, col: 38, offset: 819},
 																				val:        "\n",
 																				ignoreCase: false,
+																				want:       "\"\\n\"",
 																			},
 																			&notExpr{
 																				pos: position{line: 622, col: 7, offset: 13636},
@@ -4407,6 +4330,7 @@ var g = &grammar{
 									pos:        position{line: 374, col: 9, offset: 7971},
 									val:        "}",
 									ignoreCase: false,
+									want:       "\"}\"",
 								},
 								&andCodeExpr{
 									pos: position{line: 374, col: 15, offset: 7977},
@@ -4431,6 +4355,7 @@ var g = &grammar{
 							pos:        position{line: 387, col: 5, offset: 8234},
 							val:        "else",
 							ignoreCase: false,
+							want:       "\"else\"",
 						},
 						&zeroOrMoreExpr{
 							pos: position{line: 45, col: 5, offset: 928},
@@ -4459,6 +4384,7 @@ var g = &grammar{
 													pos:        position{line: 38, col: 18, offset: 799},
 													val:        "#",
 													ignoreCase: false,
+													want:       "\"#\"",
 												},
 												&zeroOrMoreExpr{
 													pos: position{line: 38, col: 22, offset: 803},
@@ -4476,6 +4402,7 @@ var g = &grammar{
 														pos:        position{line: 38, col: 31, offset: 812},
 														val:        "\r",
 														ignoreCase: false,
+														want:       "\"\\r\"",
 													},
 												},
 												&choiceExpr{
@@ -4485,6 +4412,7 @@ var g = &grammar{
 															pos:        position{line: 38, col: 38, offset: 819},
 															val:        "\n",
 															ignoreCase: false,
+															want:       "\"\\n\"",
 														},
 														&notExpr{
 															pos: position{line: 622, col: 7, offset: 13636},
@@ -4514,6 +4442,7 @@ var g = &grammar{
 							pos:        position{line: 387, col: 14, offset: 8243},
 							val:        "{",
 							ignoreCase: false,
+							want:       "\"{\"",
 						},
 						&zeroOrMoreExpr{
 							pos: position{line: 45, col: 5, offset: 928},
@@ -4542,6 +4471,7 @@ var g = &grammar{
 													pos:        position{line: 38, col: 18, offset: 799},
 													val:        "#",
 													ignoreCase: false,
+													want:       "\"#\"",
 												},
 												&zeroOrMoreExpr{
 													pos: position{line: 38, col: 22, offset: 803},
@@ -4559,6 +4489,7 @@ var g = &grammar{
 														pos:        position{line: 38, col: 31, offset: 812},
 														val:        "\r",
 														ignoreCase: false,
+														want:       "\"\\r\"",
 													},
 												},
 												&choiceExpr{
@@ -4568,6 +4499,7 @@ var g = &grammar{
 															pos:        position{line: 38, col: 38, offset: 819},
 															val:        "\n",
 															ignoreCase: false,
+															want:       "\"\\n\"",
 														},
 														&notExpr{
 															pos: position{line: 622, col: 7, offset: 13636},
@@ -4639,6 +4571,7 @@ var g = &grammar{
 																		pos:        position{line: 38, col: 18, offset: 799},
 																		val:        "#",
 																		ignoreCase: false,
+																		want:       "\"#\"",
 																	},
 																	&zeroOrMoreExpr{
 																		pos: position{line: 38, col: 22, offset: 803},
@@ -4656,6 +4589,7 @@ var g = &grammar{
 																			pos:        position{line: 38, col: 31, offset: 812},
 																			val:        "\r",
 																			ignoreCase: false,
+																			want:       "\"\\r\"",
 																		},
 																	},
 																	&choiceExpr{
@@ -4665,6 +4599,7 @@ var g = &grammar{
 																				pos:        position{line: 38, col: 38, offset: 819},
 																				val:        "\n",
 																				ignoreCase: false,
+																				want:       "\"\\n\"",
 																			},
 																			&notExpr{
 																				pos: position{line: 622, col: 7, offset: 13636},
@@ -4702,6 +4637,7 @@ var g = &grammar{
 									pos:        position{line: 392, col: 9, offset: 8342},
 									val:        "}",
 									ignoreCase: false,
+									want:       "\"}\"",
 								},
 								&andCodeExpr{
 									pos: position{line: 392, col: 15, offset: 8348},
@@ -4768,6 +4704,7 @@ var g = &grammar{
 																		pos:        position{line: 38, col: 18, offset: 799},
 																		val:        "#",
 																		ignoreCase: false,
+																		want:       "\"#\"",
 																	},
 																	&zeroOrMoreExpr{
 																		pos: position{line: 38, col: 22, offset: 803},
@@ -4785,6 +4722,7 @@ var g = &grammar{
 																			pos:        position{line: 38, col: 31, offset: 812},
 																			val:        "\r",
 																			ignoreCase: false,
+																			want:       "\"\\r\"",
 																		},
 																	},
 																	&choiceExpr{
@@ -4794,6 +4732,7 @@ var g = &grammar{
 																				pos:        position{line: 38, col: 38, offset: 819},
 																				val:        "\n",
 																				ignoreCase: false,
+																				want:       "\"\\n\"",
 																			},
 																			&notExpr{
 																				pos: position{line: 622, col: 7, offset: 13636},
@@ -4832,21 +4771,25 @@ var g = &grammar{
 																pos:        position{line: 592, col: 6, offset: 12989},
 																val:        "and",
 																ignoreCase: false,
+																want:       "\"and\"",
 															},
 															&litMatcher{
 																pos:        position{line: 592, col: 14, offset: 12997},
 																val:        "or",
 																ignoreCase: false,
+																want:       "\"or\"",
 															},
 															&litMatcher{
 																pos:        position{line: 592, col: 21, offset: 13004},
 																val:        "xor",
 																ignoreCase: false,
+																want:       "\"xor\"",
 															},
 															&litMatcher{
 																pos:        position{line: 592, col: 29, offset: 13012},
 																val:        "nand",
 																ignoreCase: false,
+																want:       "\"nand\"",
 															},
 															&andCodeExpr{
 																pos: position{line: 592, col: 38, offset: 13021},
@@ -4883,6 +4826,7 @@ var g = &grammar{
 																		pos:        position{line: 38, col: 18, offset: 799},
 																		val:        "#",
 																		ignoreCase: false,
+																		want:       "\"#\"",
 																	},
 																	&zeroOrMoreExpr{
 																		pos: position{line: 38, col: 22, offset: 803},
@@ -4900,6 +4844,7 @@ var g = &grammar{
 																			pos:        position{line: 38, col: 31, offset: 812},
 																			val:        "\r",
 																			ignoreCase: false,
+																			want:       "\"\\r\"",
 																		},
 																	},
 																	&choiceExpr{
@@ -4909,6 +4854,7 @@ var g = &grammar{
 																				pos:        position{line: 38, col: 38, offset: 819},
 																				val:        "\n",
 																				ignoreCase: false,
+																				want:       "\"\\n\"",
 																			},
 																			&notExpr{
 																				pos: position{line: 622, col: 7, offset: 13636},
@@ -4967,6 +4913,7 @@ var g = &grammar{
 									pos:        position{line: 428, col: 13, offset: 9113},
 									val:        "(",
 									ignoreCase: false,
+									want:       "\"(\"",
 								},
 								&zeroOrMoreExpr{
 									pos: position{line: 45, col: 5, offset: 928},
@@ -4995,6 +4942,7 @@ var g = &grammar{
 															pos:        position{line: 38, col: 18, offset: 799},
 															val:        "#",
 															ignoreCase: false,
+															want:       "\"#\"",
 														},
 														&zeroOrMoreExpr{
 															pos: position{line: 38, col: 22, offset: 803},
@@ -5012,6 +4960,7 @@ var g = &grammar{
 																pos:        position{line: 38, col: 31, offset: 812},
 																val:        "\r",
 																ignoreCase: false,
+																want:       "\"\\r\"",
 															},
 														},
 														&choiceExpr{
@@ -5021,6 +4970,7 @@ var g = &grammar{
 																	pos:        position{line: 38, col: 38, offset: 819},
 																	val:        "\n",
 																	ignoreCase: false,
+																	want:       "\"\\n\"",
 																},
 																&notExpr{
 																	pos: position{line: 622, col: 7, offset: 13636},
@@ -5081,6 +5031,7 @@ var g = &grammar{
 															pos:        position{line: 38, col: 18, offset: 799},
 															val:        "#",
 															ignoreCase: false,
+															want:       "\"#\"",
 														},
 														&zeroOrMoreExpr{
 															pos: position{line: 38, col: 22, offset: 803},
@@ -5098,6 +5049,7 @@ var g = &grammar{
 																pos:        position{line: 38, col: 31, offset: 812},
 																val:        "\r",
 																ignoreCase: false,
+																want:       "\"\\r\"",
 															},
 														},
 														&choiceExpr{
@@ -5107,6 +5059,7 @@ var g = &grammar{
 																	pos:        position{line: 38, col: 38, offset: 819},
 																	val:        "\n",
 																	ignoreCase: false,
+																	want:       "\"\\n\"",
 																},
 																&notExpr{
 																	pos: position{line: 622, col: 7, offset: 13636},
@@ -5136,6 +5089,7 @@ var g = &grammar{
 									pos:        position{line: 428, col: 36, offset: 9136},
 									val:        ")",
 									ignoreCase: false,
+									want:       "\")\"",
 								},
 							},
 						},
@@ -5191,6 +5145,7 @@ var g = &grammar{
 									pos:        position{line: 453, col: 13, offset: 9682},
 									val:        "!",
 									ignoreCase: false,
+									want:       "\"!\"",
 								},
 								&zeroOrMoreExpr{
 									pos: position{line: 45, col: 5, offset: 928},
@@ -5219,6 +5174,7 @@ var g = &grammar{
 															pos:        position{line: 38, col: 18, offset: 799},
 															val:        "#",
 															ignoreCase: false,
+															want:       "\"#\"",
 														},
 														&zeroOrMoreExpr{
 															pos: position{line: 38, col: 22, offset: 803},
@@ -5236,6 +5192,7 @@ var g = &grammar{
 																pos:        position{line: 38, col: 31, offset: 812},
 																val:        "\r",
 																ignoreCase: false,
+																want:       "\"\\r\"",
 															},
 														},
 														&choiceExpr{
@@ -5245,6 +5202,7 @@ var g = &grammar{
 																	pos:        position{line: 38, col: 38, offset: 819},
 																	val:        "\n",
 																	ignoreCase: false,
+																	want:       "\"\\n\"",
 																},
 																&notExpr{
 																	pos: position{line: 622, col: 7, offset: 13636},
@@ -5274,6 +5232,7 @@ var g = &grammar{
 									pos:        position{line: 453, col: 19, offset: 9688},
 									val:        "(",
 									ignoreCase: false,
+									want:       "\"(\"",
 								},
 								&zeroOrMoreExpr{
 									pos: position{line: 45, col: 5, offset: 928},
@@ -5302,6 +5261,7 @@ var g = &grammar{
 															pos:        position{line: 38, col: 18, offset: 799},
 															val:        "#",
 															ignoreCase: false,
+															want:       "\"#\"",
 														},
 														&zeroOrMoreExpr{
 															pos: position{line: 38, col: 22, offset: 803},
@@ -5319,6 +5279,7 @@ var g = &grammar{
 																pos:        position{line: 38, col: 31, offset: 812},
 																val:        "\r",
 																ignoreCase: false,
+																want:       "\"\\r\"",
 															},
 														},
 														&choiceExpr{
@@ -5328,6 +5289,7 @@ var g = &grammar{
 																	pos:        position{line: 38, col: 38, offset: 819},
 																	val:        "\n",
 																	ignoreCase: false,
+																	want:       "\"\\n\"",
 																},
 																&notExpr{
 																	pos: position{line: 622, col: 7, offset: 13636},
@@ -5388,6 +5350,7 @@ var g = &grammar{
 															pos:        position{line: 38, col: 18, offset: 799},
 															val:        "#",
 															ignoreCase: false,
+															want:       "\"#\"",
 														},
 														&zeroOrMoreExpr{
 															pos: position{line: 38, col: 22, offset: 803},
@@ -5405,6 +5368,7 @@ var g = &grammar{
 																pos:        position{line: 38, col: 31, offset: 812},
 																val:        "\r",
 																ignoreCase: false,
+																want:       "\"\\r\"",
 															},
 														},
 														&choiceExpr{
@@ -5414,6 +5378,7 @@ var g = &grammar{
 																	pos:        position{line: 38, col: 38, offset: 819},
 																	val:        "\n",
 																	ignoreCase: false,
+																	want:       "\"\\n\"",
 																},
 																&notExpr{
 																	pos: position{line: 622, col: 7, offset: 13636},
@@ -5446,6 +5411,7 @@ var g = &grammar{
 											pos:        position{line: 454, col: 17, offset: 9729},
 											val:        ")",
 											ignoreCase: false,
+											want:       "\")\"",
 										},
 										&andCodeExpr{
 											pos: position{line: 454, col: 23, offset: 9735},
@@ -5466,6 +5432,7 @@ var g = &grammar{
 									pos:        position{line: 462, col: 11, offset: 9935},
 									val:        "!",
 									ignoreCase: false,
+									want:       "\"!\"",
 								},
 								&zeroOrMoreExpr{
 									pos: position{line: 45, col: 5, offset: 928},
@@ -5494,6 +5461,7 @@ var g = &grammar{
 															pos:        position{line: 38, col: 18, offset: 799},
 															val:        "#",
 															ignoreCase: false,
+															want:       "\"#\"",
 														},
 														&zeroOrMoreExpr{
 															pos: position{line: 38, col: 22, offset: 803},
@@ -5511,6 +5479,7 @@ var g = &grammar{
 																pos:        position{line: 38, col: 31, offset: 812},
 																val:        "\r",
 																ignoreCase: false,
+																want:       "\"\\r\"",
 															},
 														},
 														&choiceExpr{
@@ -5520,6 +5489,7 @@ var g = &grammar{
 																	pos:        position{line: 38, col: 38, offset: 819},
 																	val:        "\n",
 																	ignoreCase: false,
+																	want:       "\"\\n\"",
 																},
 																&notExpr{
 																	pos: position{line: 622, col: 7, offset: 13636},
@@ -5566,6 +5536,7 @@ var g = &grammar{
 																pos:        position{line: 614, col: 5, offset: 13462},
 																val:        "[",
 																ignoreCase: false,
+																want:       "\"[\"",
 															},
 															&oneOrMoreExpr{
 																pos: position{line: 614, col: 9, offset: 13466},
@@ -5584,6 +5555,7 @@ var g = &grammar{
 																		pos:        position{line: 615, col: 9, offset: 13484},
 																		val:        "]",
 																		ignoreCase: false,
+																		want:       "\"]\"",
 																	},
 																	&andCodeExpr{
 																		pos: position{line: 615, col: 15, offset: 13490},
@@ -5648,6 +5620,7 @@ var g = &grammar{
 													pos:        position{line: 38, col: 18, offset: 799},
 													val:        "#",
 													ignoreCase: false,
+													want:       "\"#\"",
 												},
 												&zeroOrMoreExpr{
 													pos: position{line: 38, col: 22, offset: 803},
@@ -5665,6 +5638,7 @@ var g = &grammar{
 														pos:        position{line: 38, col: 31, offset: 812},
 														val:        "\r",
 														ignoreCase: false,
+														want:       "\"\\r\"",
 													},
 												},
 												&choiceExpr{
@@ -5674,6 +5648,7 @@ var g = &grammar{
 															pos:        position{line: 38, col: 38, offset: 819},
 															val:        "\n",
 															ignoreCase: false,
+															want:       "\"\\n\"",
 														},
 														&notExpr{
 															pos: position{line: 622, col: 7, offset: 13636},
@@ -5706,6 +5681,7 @@ var g = &grammar{
 									pos:        position{line: 493, col: 5, offset: 10539},
 									val:        "in",
 									ignoreCase: false,
+									want:       "\"in\"",
 								},
 								&andCodeExpr{
 									pos: position{line: 493, col: 12, offset: 10546},
@@ -5740,6 +5716,7 @@ var g = &grammar{
 													pos:        position{line: 38, col: 18, offset: 799},
 													val:        "#",
 													ignoreCase: false,
+													want:       "\"#\"",
 												},
 												&zeroOrMoreExpr{
 													pos: position{line: 38, col: 22, offset: 803},
@@ -5757,6 +5734,7 @@ var g = &grammar{
 														pos:        position{line: 38, col: 31, offset: 812},
 														val:        "\r",
 														ignoreCase: false,
+														want:       "\"\\r\"",
 													},
 												},
 												&choiceExpr{
@@ -5766,6 +5744,7 @@ var g = &grammar{
 															pos:        position{line: 38, col: 38, offset: 819},
 															val:        "\n",
 															ignoreCase: false,
+															want:       "\"\\n\"",
 														},
 														&notExpr{
 															pos: position{line: 622, col: 7, offset: 13636},
@@ -5847,6 +5826,7 @@ var g = &grammar{
 													pos:        position{line: 38, col: 18, offset: 799},
 													val:        "#",
 													ignoreCase: false,
+													want:       "\"#\"",
 												},
 												&zeroOrMoreExpr{
 													pos: position{line: 38, col: 22, offset: 803},
@@ -5864,6 +5844,7 @@ var g = &grammar{
 														pos:        position{line: 38, col: 31, offset: 812},
 														val:        "\r",
 														ignoreCase: false,
+														want:       "\"\\r\"",
 													},
 												},
 												&choiceExpr{
@@ -5873,6 +5854,7 @@ var g = &grammar{
 															pos:        position{line: 38, col: 38, offset: 819},
 															val:        "\n",
 															ignoreCase: false,
+															want:       "\"\\n\"",
 														},
 														&notExpr{
 															pos: position{line: 622, col: 7, offset: 13636},
@@ -5908,6 +5890,7 @@ var g = &grammar{
 											pos:        position{line: 502, col: 5, offset: 10688},
 											val:        "not ",
 											ignoreCase: false,
+											want:       "\"not \"",
 										},
 										&zeroOrMoreExpr{
 											pos: position{line: 45, col: 5, offset: 928},
@@ -5936,6 +5919,7 @@ var g = &grammar{
 																	pos:        position{line: 38, col: 18, offset: 799},
 																	val:        "#",
 																	ignoreCase: false,
+																	want:       "\"#\"",
 																},
 																&zeroOrMoreExpr{
 																	pos: position{line: 38, col: 22, offset: 803},
@@ -5953,6 +5937,7 @@ var g = &grammar{
 																		pos:        position{line: 38, col: 31, offset: 812},
 																		val:        "\r",
 																		ignoreCase: false,
+																		want:       "\"\\r\"",
 																	},
 																},
 																&choiceExpr{
@@ -5962,6 +5947,7 @@ var g = &grammar{
 																			pos:        position{line: 38, col: 38, offset: 819},
 																			val:        "\n",
 																			ignoreCase: false,
+																			want:       "\"\\n\"",
 																		},
 																		&notExpr{
 																			pos: position{line: 622, col: 7, offset: 13636},
@@ -5991,6 +5977,7 @@ var g = &grammar{
 											pos:        position{line: 502, col: 14, offset: 10697},
 											val:        "in",
 											ignoreCase: false,
+											want:       "\"in\"",
 										},
 									},
 								},
@@ -6027,6 +6014,7 @@ var g = &grammar{
 													pos:        position{line: 38, col: 18, offset: 799},
 													val:        "#",
 													ignoreCase: false,
+													want:       "\"#\"",
 												},
 												&zeroOrMoreExpr{
 													pos: position{line: 38, col: 22, offset: 803},
@@ -6044,6 +6032,7 @@ var g = &grammar{
 														pos:        position{line: 38, col: 31, offset: 812},
 														val:        "\r",
 														ignoreCase: false,
+														want:       "\"\\r\"",
 													},
 												},
 												&choiceExpr{
@@ -6053,6 +6042,7 @@ var g = &grammar{
 															pos:        position{line: 38, col: 38, offset: 819},
 															val:        "\n",
 															ignoreCase: false,
+															want:       "\"\\n\"",
 														},
 														&notExpr{
 															pos: position{line: 622, col: 7, offset: 13636},
@@ -6121,6 +6111,7 @@ var g = &grammar{
 															pos:        position{line: 197, col: 7, offset: 4083},
 															val:        "\"",
 															ignoreCase: false,
+															want:       "\"\\\"\"",
 														},
 														&zeroOrMoreExpr{
 															pos: position{line: 197, col: 11, offset: 4087},
@@ -6131,6 +6122,7 @@ var g = &grammar{
 																		pos:        position{line: 197, col: 13, offset: 4089},
 																		val:        "\\\"",
 																		ignoreCase: false,
+																		want:       "\"\\\\\\\"\"",
 																	},
 																	&seqExpr{
 																		pos: position{line: 197, col: 20, offset: 4096},
@@ -6141,6 +6133,7 @@ var g = &grammar{
 																					pos:        position{line: 197, col: 21, offset: 4097},
 																					val:        "\"",
 																					ignoreCase: false,
+																					want:       "\"\\\"\"",
 																				},
 																			},
 																			&anyMatcher{
@@ -6158,6 +6151,7 @@ var g = &grammar{
 																	pos:        position{line: 198, col: 9, offset: 4116},
 																	val:        "\"",
 																	ignoreCase: false,
+																	want:       "\"\\\"\"",
 																},
 																&andCodeExpr{
 																	pos: position{line: 198, col: 15, offset: 4122},
@@ -6186,6 +6180,7 @@ var g = &grammar{
 															pos:        position{line: 210, col: 7, offset: 4392},
 															val:        "'",
 															ignoreCase: false,
+															want:       "\"'\"",
 														},
 														&zeroOrMoreExpr{
 															pos: position{line: 210, col: 11, offset: 4396},
@@ -6196,6 +6191,7 @@ var g = &grammar{
 																		pos:        position{line: 210, col: 13, offset: 4398},
 																		val:        "\\'",
 																		ignoreCase: false,
+																		want:       "\"\\\\'\"",
 																	},
 																	&seqExpr{
 																		pos: position{line: 210, col: 20, offset: 4405},
@@ -6206,6 +6202,7 @@ var g = &grammar{
 																					pos:        position{line: 210, col: 21, offset: 4406},
 																					val:        "'",
 																					ignoreCase: false,
+																					want:       "\"'\"",
 																				},
 																			},
 																			&anyMatcher{
@@ -6223,6 +6220,7 @@ var g = &grammar{
 																	pos:        position{line: 211, col: 9, offset: 4425},
 																	val:        "'",
 																	ignoreCase: false,
+																	want:       "\"'\"",
 																},
 																&andCodeExpr{
 																	pos: position{line: 211, col: 15, offset: 4431},
@@ -6251,6 +6249,7 @@ var g = &grammar{
 										pos:        position{line: 250, col: 5, offset: 5310},
 										val:        "-",
 										ignoreCase: false,
+										want:       "\"-\"",
 									},
 								},
 								&oneOrMoreExpr{
@@ -6272,6 +6271,7 @@ var g = &grammar{
 												pos:        position{line: 250, col: 18, offset: 5323},
 												val:        ".",
 												ignoreCase: false,
+												want:       "\".\"",
 											},
 											&zeroOrMoreExpr{
 												pos: position{line: 250, col: 22, offset: 5327},
@@ -6307,6 +6307,7 @@ var g = &grammar{
 												pos:        position{line: 614, col: 5, offset: 13462},
 												val:        "[",
 												ignoreCase: false,
+												want:       "\"[\"",
 											},
 											&oneOrMoreExpr{
 												pos: position{line: 614, col: 9, offset: 13466},
@@ -6325,6 +6326,7 @@ var g = &grammar{
 														pos:        position{line: 615, col: 9, offset: 13484},
 														val:        "]",
 														ignoreCase: false,
+														want:       "\"]\"",
 													},
 													&andCodeExpr{
 														pos: position{line: 615, col: 15, offset: 13490},
@@ -6352,6 +6354,7 @@ var g = &grammar{
 									pos:        position{line: 236, col: 7, offset: 5032},
 									val:        "/",
 									ignoreCase: false,
+									want:       "\"/\"",
 								},
 								&zeroOrMoreExpr{
 									pos: position{line: 236, col: 11, offset: 5036},
@@ -6362,6 +6365,7 @@ var g = &grammar{
 												pos:        position{line: 236, col: 13, offset: 5038},
 												val:        "\\/",
 												ignoreCase: false,
+												want:       "\"\\\\/\"",
 											},
 											&seqExpr{
 												pos: position{line: 236, col: 20, offset: 5045},
@@ -6372,6 +6376,7 @@ var g = &grammar{
 															pos:        position{line: 236, col: 21, offset: 5046},
 															val:        "/",
 															ignoreCase: false,
+															want:       "\"/\"",
 														},
 													},
 													&anyMatcher{
@@ -6389,6 +6394,7 @@ var g = &grammar{
 											pos:        position{line: 237, col: 9, offset: 5065},
 											val:        "/",
 											ignoreCase: false,
+											want:       "\"/\"",
 										},
 										&andCodeExpr{
 											pos: position{line: 237, col: 15, offset: 5071},
@@ -6450,6 +6456,7 @@ var g = &grammar{
 													pos:        position{line: 38, col: 18, offset: 799},
 													val:        "#",
 													ignoreCase: false,
+													want:       "\"#\"",
 												},
 												&zeroOrMoreExpr{
 													pos: position{line: 38, col: 22, offset: 803},
@@ -6467,6 +6474,7 @@ var g = &grammar{
 														pos:        position{line: 38, col: 31, offset: 812},
 														val:        "\r",
 														ignoreCase: false,
+														want:       "\"\\r\"",
 													},
 												},
 												&choiceExpr{
@@ -6476,6 +6484,7 @@ var g = &grammar{
 															pos:        position{line: 38, col: 38, offset: 819},
 															val:        "\n",
 															ignoreCase: false,
+															want:       "\"\\n\"",
 														},
 														&notExpr{
 															pos: position{line: 622, col: 7, offset: 13636},
@@ -6514,21 +6523,25 @@ var g = &grammar{
 											pos:        position{line: 559, col: 6, offset: 12111},
 											val:        "==",
 											ignoreCase: false,
+											want:       "\"==\"",
 										},
 										&litMatcher{
 											pos:        position{line: 559, col: 13, offset: 12118},
 											val:        "!=",
 											ignoreCase: false,
+											want:       "\"!=\"",
 										},
 										&litMatcher{
 											pos:        position{line: 559, col: 20, offset: 12125},
 											val:        "<=",
 											ignoreCase: false,
+											want:       "\"<=\"",
 										},
 										&litMatcher{
 											pos:        position{line: 559, col: 27, offset: 12132},
 											val:        ">=",
 											ignoreCase: false,
+											want:       "\">=\"",
 										},
 										&charClassMatcher{
 											pos:        position{line: 559, col: 34, offset: 12139},
@@ -6572,6 +6585,7 @@ var g = &grammar{
 													pos:        position{line: 38, col: 18, offset: 799},
 													val:        "#",
 													ignoreCase: false,
+													want:       "\"#\"",
 												},
 												&zeroOrMoreExpr{
 													pos: position{line: 38, col: 22, offset: 803},
@@ -6589,6 +6603,7 @@ var g = &grammar{
 														pos:        position{line: 38, col: 31, offset: 812},
 														val:        "\r",
 														ignoreCase: false,
+														want:       "\"\\r\"",
 													},
 												},
 												&choiceExpr{
@@ -6598,6 +6613,7 @@ var g = &grammar{
 															pos:        position{line: 38, col: 38, offset: 819},
 															val:        "\n",
 															ignoreCase: false,
+															want:       "\"\\n\"",
 														},
 														&notExpr{
 															pos: position{line: 622, col: 7, offset: 13636},
@@ -6679,6 +6695,7 @@ var g = &grammar{
 													pos:        position{line: 38, col: 18, offset: 799},
 													val:        "#",
 													ignoreCase: false,
+													want:       "\"#\"",
 												},
 												&zeroOrMoreExpr{
 													pos: position{line: 38, col: 22, offset: 803},
@@ -6696,6 +6713,7 @@ var g = &grammar{
 														pos:        position{line: 38, col: 31, offset: 812},
 														val:        "\r",
 														ignoreCase: false,
+														want:       "\"\\r\"",
 													},
 												},
 												&choiceExpr{
@@ -6705,6 +6723,7 @@ var g = &grammar{
 															pos:        position{line: 38, col: 38, offset: 819},
 															val:        "\n",
 															ignoreCase: false,
+															want:       "\"\\n\"",
 														},
 														&notExpr{
 															pos: position{line: 622, col: 7, offset: 13636},
@@ -6743,11 +6762,13 @@ var g = &grammar{
 											pos:        position{line: 580, col: 6, offset: 12689},
 											val:        "=~",
 											ignoreCase: false,
+											want:       "\"=~\"",
 										},
 										&litMatcher{
 											pos:        position{line: 580, col: 13, offset: 12696},
 											val:        "!~",
 											ignoreCase: false,
+											want:       "\"!~\"",
 										},
 										&andCodeExpr{
 											pos: position{line: 580, col: 20, offset: 12703},
@@ -6784,6 +6805,7 @@ var g = &grammar{
 													pos:        position{line: 38, col: 18, offset: 799},
 													val:        "#",
 													ignoreCase: false,
+													want:       "\"#\"",
 												},
 												&zeroOrMoreExpr{
 													pos: position{line: 38, col: 22, offset: 803},
@@ -6801,6 +6823,7 @@ var g = &grammar{
 														pos:        position{line: 38, col: 31, offset: 812},
 														val:        "\r",
 														ignoreCase: false,
+														want:       "\"\\r\"",
 													},
 												},
 												&choiceExpr{
@@ -6810,6 +6833,7 @@ var g = &grammar{
 															pos:        position{line: 38, col: 38, offset: 819},
 															val:        "\n",
 															ignoreCase: false,
+															want:       "\"\\n\"",
 														},
 														&notExpr{
 															pos: position{line: 622, col: 7, offset: 13636},
@@ -6866,6 +6890,7 @@ var g = &grammar{
 																			pos:        position{line: 197, col: 7, offset: 4083},
 																			val:        "\"",
 																			ignoreCase: false,
+																			want:       "\"\\\"\"",
 																		},
 																		&zeroOrMoreExpr{
 																			pos: position{line: 197, col: 11, offset: 4087},
@@ -6876,6 +6901,7 @@ var g = &grammar{
 																						pos:        position{line: 197, col: 13, offset: 4089},
 																						val:        "\\\"",
 																						ignoreCase: false,
+																						want:       "\"\\\\\\\"\"",
 																					},
 																					&seqExpr{
 																						pos: position{line: 197, col: 20, offset: 4096},
@@ -6886,6 +6912,7 @@ var g = &grammar{
 																									pos:        position{line: 197, col: 21, offset: 4097},
 																									val:        "\"",
 																									ignoreCase: false,
+																									want:       "\"\\\"\"",
 																								},
 																							},
 																							&anyMatcher{
@@ -6903,6 +6930,7 @@ var g = &grammar{
 																					pos:        position{line: 198, col: 9, offset: 4116},
 																					val:        "\"",
 																					ignoreCase: false,
+																					want:       "\"\\\"\"",
 																				},
 																				&andCodeExpr{
 																					pos: position{line: 198, col: 15, offset: 4122},
@@ -6931,6 +6959,7 @@ var g = &grammar{
 																			pos:        position{line: 210, col: 7, offset: 4392},
 																			val:        "'",
 																			ignoreCase: false,
+																			want:       "\"'\"",
 																		},
 																		&zeroOrMoreExpr{
 																			pos: position{line: 210, col: 11, offset: 4396},
@@ -6941,6 +6970,7 @@ var g = &grammar{
 																						pos:        position{line: 210, col: 13, offset: 4398},
 																						val:        "\\'",
 																						ignoreCase: false,
+																						want:       "\"\\\\'\"",
 																					},
 																					&seqExpr{
 																						pos: position{line: 210, col: 20, offset: 4405},
@@ -6951,6 +6981,7 @@ var g = &grammar{
 																									pos:        position{line: 210, col: 21, offset: 4406},
 																									val:        "'",
 																									ignoreCase: false,
+																									want:       "\"'\"",
 																								},
 																							},
 																							&anyMatcher{
@@ -6968,6 +6999,7 @@ var g = &grammar{
 																					pos:        position{line: 211, col: 9, offset: 4425},
 																					val:        "'",
 																					ignoreCase: false,
+																					want:       "\"'\"",
 																				},
 																				&andCodeExpr{
 																					pos: position{line: 211, col: 15, offset: 4431},
@@ -6994,6 +7026,7 @@ var g = &grammar{
 													pos:        position{line: 236, col: 7, offset: 5032},
 													val:        "/",
 													ignoreCase: false,
+													want:       "\"/\"",
 												},
 												&zeroOrMoreExpr{
 													pos: position{line: 236, col: 11, offset: 5036},
@@ -7004,6 +7037,7 @@ var g = &grammar{
 																pos:        position{line: 236, col: 13, offset: 5038},
 																val:        "\\/",
 																ignoreCase: false,
+																want:       "\"\\\\/\"",
 															},
 															&seqExpr{
 																pos: position{line: 236, col: 20, offset: 5045},
@@ -7014,6 +7048,7 @@ var g = &grammar{
 																			pos:        position{line: 236, col: 21, offset: 5046},
 																			val:        "/",
 																			ignoreCase: false,
+																			want:       "\"/\"",
 																		},
 																	},
 																	&anyMatcher{
@@ -7031,6 +7066,7 @@ var g = &grammar{
 															pos:        position{line: 237, col: 9, offset: 5065},
 															val:        "/",
 															ignoreCase: false,
+															want:       "\"/\"",
 														},
 														&andCodeExpr{
 															pos: position{line: 237, col: 15, offset: 5071},
@@ -7555,105 +7591,6 @@ func (p *parser) callonvalue54() (bool, error) {
 	stack := p.vstack[len(p.vstack)-1]
 	_ = stack
 	return p.cur.onvalue54()
-}
-
-func (c *current) onbareword1() (interface{}, error) {
-	return ast.NewStringAttribute("", string(c.text), ast.Bareword), nil
-
-}
-
-func (p *parser) callonbareword1() (interface{}, error) {
-	stack := p.vstack[len(p.vstack)-1]
-	_ = stack
-	return p.cur.onbareword1()
-}
-
-func (c *current) onstringValue18() (bool, error) {
-	return fatalError("expect closing double quotes (\")", c)
-
-}
-
-func (p *parser) callonstringValue18() (bool, error) {
-	stack := p.vstack[len(p.vstack)-1]
-	_ = stack
-	return p.cur.onstringValue18()
-}
-
-func (c *current) onstringValue6() (interface{}, error) {
-	return enclosedValue(c)
-
-}
-
-func (p *parser) callonstringValue6() (interface{}, error) {
-	stack := p.vstack[len(p.vstack)-1]
-	_ = stack
-	return p.cur.onstringValue6()
-}
-
-func (c *current) onstringValue4(str interface{}) (interface{}, error) {
-	return ast.NewStringAttribute("", str.(string), ast.DoubleQuoted), nil
-
-}
-
-func (p *parser) callonstringValue4() (interface{}, error) {
-	stack := p.vstack[len(p.vstack)-1]
-	_ = stack
-	return p.cur.onstringValue4(stack["str"])
-}
-
-func (c *current) onstringValue33() (bool, error) {
-	return fatalError("expect closing single quote (')", c)
-
-}
-
-func (p *parser) callonstringValue33() (bool, error) {
-	stack := p.vstack[len(p.vstack)-1]
-	_ = stack
-	return p.cur.onstringValue33()
-}
-
-func (c *current) onstringValue21() (interface{}, error) {
-	return enclosedValue(c)
-
-}
-
-func (p *parser) callonstringValue21() (interface{}, error) {
-	stack := p.vstack[len(p.vstack)-1]
-	_ = stack
-	return p.cur.onstringValue21()
-}
-
-func (c *current) onstringValue19(str interface{}) (interface{}, error) {
-	return ast.NewStringAttribute("", str.(string), ast.SingleQuoted), nil
-
-}
-
-func (p *parser) callonstringValue19() (interface{}, error) {
-	stack := p.vstack[len(p.vstack)-1]
-	_ = stack
-	return p.cur.onstringValue19(stack["str"])
-}
-
-func (c *current) onstringValue1(str interface{}) (interface{}, error) {
-	return ret(str)
-
-}
-
-func (p *parser) callonstringValue1() (interface{}, error) {
-	stack := p.vstack[len(p.vstack)-1]
-	_ = stack
-	return p.cur.onstringValue1(stack["str"])
-}
-
-func (c *current) onnumber1() (interface{}, error) {
-	return number(string(c.text))
-
-}
-
-func (p *parser) callonnumber1() (interface{}, error) {
-	stack := p.vstack[len(p.vstack)-1]
-	_ = stack
-	return p.cur.onnumber1()
 }
 
 func (c *current) onarray30(value interface{}) (interface{}, error) {
@@ -8608,7 +8545,7 @@ type position struct {
 }
 
 func (p position) String() string {
-	return fmt.Sprintf("%d:%d [%d]", p.line, p.col, p.offset)
+	return strconv.Itoa(p.line) + ":" + strconv.Itoa(p.col) + " [" + strconv.Itoa(p.offset) + "]"
 }
 
 // savepoint stores all state required to go back to this point in the
@@ -8724,6 +8661,7 @@ type litMatcher struct {
 	pos        position
 	val        string
 	ignoreCase bool
+	want       string
 }
 
 // nolint: structcheck
@@ -8905,9 +8843,6 @@ type parser struct {
 	choiceNoMatch string
 	// recovery expression stack, keeps track of the currently available recovery expression, these are traversed in reverse
 	recoveryStack []map[string]interface{}
-
-	// emptyState contains an empty storeDict, which is used to optimize cloneState if global "state" store is not used.
-	emptyState storeDict
 }
 
 // push a variable set on the vstack.
@@ -9124,7 +9059,7 @@ func listJoin(list []string, sep string, lastSep string) string {
 	case 1:
 		return list[0]
 	default:
-		return fmt.Sprintf("%s %s %s", strings.Join(list[:len(list)-1], sep), lastSep, list[len(list)-1])
+		return strings.Join(list[:len(list)-1], sep) + " " + lastSep + " " + list[len(list)-1]
 	}
 }
 
@@ -9326,11 +9261,6 @@ func (p *parser) parseLabeledExpr(lab *labeledExpr) (interface{}, bool) {
 }
 
 func (p *parser) parseLitMatcher(lit *litMatcher) (interface{}, bool) {
-	ignoreCase := ""
-	if lit.ignoreCase {
-		ignoreCase = "i"
-	}
-	val := fmt.Sprintf("%q%s", lit.val, ignoreCase)
 	start := p.pt
 	for _, want := range lit.val {
 		cur := p.pt.rn
@@ -9338,13 +9268,13 @@ func (p *parser) parseLitMatcher(lit *litMatcher) (interface{}, bool) {
 			cur = unicode.ToLower(cur)
 		}
 		if cur != want {
-			p.failAt(false, start.position, val)
+			p.failAt(false, start.position, lit.want)
 			p.restore(start)
 			return nil, false
 		}
 		p.read()
 	}
-	p.failAt(true, start.position, val)
+	p.failAt(true, start.position, lit.want)
 	return p.sliceFrom(start), true
 }
 
