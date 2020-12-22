@@ -121,24 +121,29 @@ func (Branch) branchOrPlugin() {}
 // A Plugin node represents a Logstash plugin.
 type Plugin struct {
 	name       string
-	attributes []Attribute
+	Attributes []Attribute
 }
 
 // NewPlugin creates a new plugin.
 func NewPlugin(name string, attributes ...Attribute) Plugin {
 	return Plugin{
 		name:       name,
-		attributes: attributes,
+		Attributes: attributes,
 	}
+}
+
+// Name returns the name of the attribute.
+func (p Plugin) Name() string {
+	return p.name
 }
 
 // String returns a string representation of a plugin.
 func (p Plugin) String() string {
 	var s bytes.Buffer
-	s.WriteString(fmt.Sprintln(p.name, "{"))
-	if p.attributes != nil && len(p.attributes) > 0 {
+	s.WriteString(fmt.Sprintln(p.Name(), "{"))
+	if p.Attributes != nil && len(p.Attributes) > 0 {
 		var ss bytes.Buffer
-		for _, attr := range p.attributes {
+		for _, attr := range p.Attributes {
 			if attr != nil {
 				ss.WriteString(fmt.Sprintln(attr.String()))
 			}
@@ -151,6 +156,7 @@ func (p Plugin) String() string {
 
 // Attribute interface combines Logstash plugin attribute types.
 type Attribute interface {
+	Name() string
 	String() string
 	ValueString() string
 	attributeNode()
@@ -178,9 +184,14 @@ func NewPluginAttribute(name string, value Plugin) PluginAttribute {
 	}
 }
 
+// Name returns the name of the attribute.
+func (pa PluginAttribute) Name() string {
+	return pa.name
+}
+
 // String returns a string representation of a plugin attribute.
 func (pa PluginAttribute) String() string {
-	return fmt.Sprintf("%s => %s", pa.name, pa.ValueString())
+	return fmt.Sprintf("%s => %s", pa.Name(), pa.ValueString())
 }
 
 // ValueString returns the value of the node as a string representation.
@@ -234,9 +245,14 @@ func NewStringAttribute(name, value string, sat StringAttributeType) StringAttri
 	}
 }
 
+// Name returns the name of the attribute.
+func (sa StringAttribute) Name() string {
+	return sa.name
+}
+
 // String returns a string representation of a string attribute.
 func (sa StringAttribute) String() string {
-	return fmt.Sprintf("%s => %s", sa.name, sa.ValueString())
+	return fmt.Sprintf("%s => %s", sa.Name(), sa.ValueString())
 }
 
 // ValueString returns the value of the node as a string representation.
@@ -268,9 +284,14 @@ func NewNumberAttribute(name string, value float64) NumberAttribute {
 	}
 }
 
+// Name returns the name of the attribute.
+func (na NumberAttribute) Name() string {
+	return na.name
+}
+
 // String returns a string representation of a number attribute.
 func (na NumberAttribute) String() string {
-	return fmt.Sprintf("%s => %s", na.name, na.ValueString())
+	return fmt.Sprintf("%s => %s", na.Name(), na.ValueString())
 }
 
 // ValueString returns the value of the node as a string representation.
@@ -297,9 +318,14 @@ func NewArrayAttribute(name string, value ...Attribute) ArrayAttribute {
 	}
 }
 
+// Name returns the name of the attribute.
+func (aa ArrayAttribute) Name() string {
+	return aa.name
+}
+
 // String returns a string representation of a array attribute.
 func (aa ArrayAttribute) String() string {
-	return fmt.Sprintf("%s => %s", aa.name, aa.ValueString())
+	return fmt.Sprintf("%s => %s", aa.Name(), aa.ValueString())
 }
 
 // ValueString returns the value of the node as a string representation.
@@ -341,9 +367,14 @@ func NewHashAttribute(name string, value ...HashEntry) HashAttribute {
 	}
 }
 
+// Name returns the name of the attribute.
+func (ha HashAttribute) Name() string {
+	return ha.name
+}
+
 // String returns a string representation of a hash attribute.
 func (ha HashAttribute) String() string {
-	return fmt.Sprintf("%s => %s", ha.name, ha.ValueString())
+	return fmt.Sprintf("%s => %s", ha.Name(), ha.ValueString())
 }
 
 // ValueString returns the value of the node as a string representation.
@@ -380,9 +411,14 @@ func NewHashEntry(name string, value Attribute) HashEntry {
 	}
 }
 
+// Name returns the name of the attribute.
+func (he HashEntry) Name() string {
+	return he.name
+}
+
 // String returns a string representation of a hash entry.
 func (he HashEntry) String() string {
-	return fmt.Sprintf("%s => %s", he.name, he.ValueString())
+	return fmt.Sprintf("%s => %s", he.Name(), he.ValueString())
 }
 
 // ValueString returns the value of the node as a string representation.
