@@ -1,6 +1,6 @@
 # logstash-config : parser and abstract syntax tree for [Logstash](https://github.com/elastic/logstash) config files
 
-[![Build Status](https://travis-ci.org/breml/logstash-config.svg)](https://travis-ci.org/breml/logstash-config) [![Go Report Card](https://goreportcard.com/badge/github.com/breml/logstash-config)](https://goreportcard.com/report/github.com/breml/logstash-config)  
+[![Go Report Card](https://goreportcard.com/badge/github.com/breml/logstash-config)](https://goreportcard.com/report/github.com/breml/logstash-config)\
 [![GoDoc](https://godoc.org/github.com/breml/logstash-config?status.svg)](https://godoc.org/github.com/breml/logstash-config) [![License](https://img.shields.io/badge/license-Apache_2.0-blue.svg)](LICENSE)
 
 ## Overview
@@ -15,7 +15,7 @@ This package is currently under development, no API guaranties.
 
 ## Install
 
-```
+```bash
 go get -t github.com/breml/logstash-config/...
 ```
 
