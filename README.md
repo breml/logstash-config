@@ -1,6 +1,7 @@
 # logstash-config : parser and abstract syntax tree for [Logstash](https://github.com/elastic/logstash) config files
 
-[![Go Report Card](https://goreportcard.com/badge/github.com/breml/logstash-config)](https://goreportcard.com/report/github.com/breml/logstash-config)\
+[![Test Status](https://github.com/breml/logstash-config/workflows/Test/badge.svg)](https://github.com/breml/logstash-config/actions?query=workflow%3ATest)
+ [![Go Report Card](https://goreportcard.com/badge/github.com/breml/logstash-config)](https://goreportcard.com/report/github.com/breml/logstash-config)\
 [![GoDoc](https://godoc.org/github.com/breml/logstash-config?status.svg)](https://godoc.org/github.com/breml/logstash-config) [![License](https://img.shields.io/badge/license-Apache_2.0-blue.svg)](LICENSE)
 
 ## Overview
