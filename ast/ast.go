@@ -387,7 +387,7 @@ func (he HashEntry) String() string {
 
 // ValueString returns the value of the node as a string representation.
 func (he HashEntry) ValueString() string {
-	return he.value.ValueString()
+	return he.Value().ValueString()
 }
 
 // Value returns the value of the node.
@@ -581,7 +581,7 @@ func (be *BoolExpression) SetBoolOperator(bo BooleanOperator) {
 
 // String returns a string representation of a boolean expression.
 func (be BoolExpression) String() string {
-	return be.boolOperator.String()
+	return be.BoolOperator().String()
 }
 
 // A ConditionExpression node represents an Expression, which is enclosed in parentheses.

@@ -591,3 +591,155 @@ func TestPluginType(t *testing.T) {
 		}
 	}
 }
+
+func TestStringAttributeType(t *testing.T) {
+	cases := []struct {
+		input    StringAttributeType
+		expected string
+	}{
+		{
+			input:    DoubleQuoted,
+			expected: `"`,
+		},
+		{
+			input:    SingleQuoted,
+			expected: `'`,
+		},
+		{
+			input:    Bareword,
+			expected: ``,
+		},
+		{
+			input:    0,
+			expected: "undefined string attribute type",
+		},
+		{
+			input:    4,
+			expected: "undefined string attribute type",
+		},
+	}
+
+	for _, test := range cases {
+		if test.input.String() != test.expected {
+			t.Errorf("Expected: %s, Got: %s", test.expected, test.input)
+		}
+	}
+}
+
+func TestCompareOperator(t *testing.T) {
+	cases := []struct {
+		input    CompareOperator
+		expected string
+	}{
+		{
+			input:    Equal,
+			expected: `==`,
+		},
+		{
+			input:    NotEqual,
+			expected: `!=`,
+		},
+		{
+			input:    LessOrEqual,
+			expected: `<=`,
+		},
+		{
+			input:    GreaterOrEqual,
+			expected: ">=",
+		},
+		{
+			input:    LessThan,
+			expected: "<",
+		},
+		{
+			input:    GreaterThan,
+			expected: ">",
+		},
+		{
+			input:    0,
+			expected: "undefined compare operator",
+		},
+		{
+			input:    7,
+			expected: "undefined compare operator",
+		},
+	}
+
+	for _, test := range cases {
+		if test.input.String() != test.expected {
+			t.Errorf("Expected: %s, Got: %s", test.expected, test.input)
+		}
+	}
+}
+
+func TestRegexpOperator(t *testing.T) {
+	cases := []struct {
+		input    RegexpOperator
+		expected string
+	}{
+		{
+			input:    RegexpMatch,
+			expected: `=~`,
+		},
+		{
+			input:    RegexpNotMatch,
+			expected: `!~`,
+		},
+		{
+			input:    0,
+			expected: "undefined regexp operator",
+		},
+		{
+			input:    3,
+			expected: "undefined regexp operator",
+		},
+	}
+
+	for _, test := range cases {
+		if test.input.String() != test.expected {
+			t.Errorf("Expected: %s, Got: %s", test.expected, test.input)
+		}
+	}
+}
+
+func TestBooleanOperator(t *testing.T) {
+	cases := []struct {
+		input    BooleanOperator
+		expected string
+	}{
+		{
+			input:    NoOperator,
+			expected: ``,
+		},
+		{
+			input:    And,
+			expected: ` and `,
+		},
+		{
+			input:    Or,
+			expected: ` or `,
+		},
+		{
+			input:    Nand,
+			expected: ` nand `,
+		},
+		{
+			input:    Xor,
+			expected: ` xor `,
+		},
+		{
+			input:    0,
+			expected: "undefined boolean operator",
+		},
+		{
+			input:    6,
+			expected: "undefined boolean operator",
+		},
+	}
+
+	for _, test := range cases {
+		if test.input.String() != test.expected {
+			t.Errorf("Expected: %s, Got: %s", test.expected, test.input)
+		}
+	}
+}
