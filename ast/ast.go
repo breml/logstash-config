@@ -307,7 +307,7 @@ func (aa ArrayAttribute) String() string {
 // ValueString returns the value of the node as a string representation
 func (aa ArrayAttribute) ValueString() string {
 	var s bytes.Buffer
-	s.WriteString(fmt.Sprintf("[ "))
+	s.WriteString("[ ")
 
 	first := true
 	for _, a := range aa.Value() {
@@ -320,7 +320,7 @@ func (aa ArrayAttribute) ValueString() string {
 			s.WriteString(a.ValueString())
 		}
 	}
-	s.WriteString(fmt.Sprintf(" ]"))
+	s.WriteString(" ]")
 	return s.String()
 }
 
@@ -351,7 +351,7 @@ func (ha HashAttribute) String() string {
 // ValueString returns the value of the node as a string representation
 func (ha HashAttribute) ValueString() string {
 	var s bytes.Buffer
-	s.WriteString(fmt.Sprintln("{"))
+	s.WriteString("{\n")
 	if len(ha.value) > 0 {
 		var ss bytes.Buffer
 		for _, v := range ha.Value() {
@@ -359,7 +359,7 @@ func (ha HashAttribute) ValueString() string {
 		}
 		s.WriteString(prefix(ss.String()))
 	}
-	s.WriteString(fmt.Sprint("}"))
+	s.WriteString("}")
 	return s.String()
 }
 
@@ -457,7 +457,7 @@ func (ib IfBlock) String() string {
 		}
 		s.WriteString(prefix(ss.String()))
 	}
-	s.WriteString(fmt.Sprint("}"))
+	s.WriteString("}")
 	return s.String()
 }
 
@@ -488,7 +488,7 @@ func (eib ElseIfBlock) String() string {
 		}
 		s.WriteString(prefix(ss.String()))
 	}
-	s.WriteString(fmt.Sprint("}"))
+	s.WriteString("}")
 	return s.String()
 }
 
@@ -859,9 +859,9 @@ const (
 func (ro RegexpOperator) String() string {
 	switch ro {
 	case RegexpMatch:
-		return fmt.Sprint("=~")
+		return "=~"
 	case RegexpNotMatch:
-		return fmt.Sprint("!~")
+		return "!~"
 	default:
 		return "undefined regexp operator"
 	}
