@@ -433,9 +433,9 @@ func (he HashEntry) Value() Attribute {
 
 // A Branch node represents a conditional branch within a Logstash configuration.
 type Branch struct {
-	ifBlock     IfBlock
-	elseIfBlock []ElseIfBlock
-	elseBlock   ElseBlock
+	IfBlock     IfBlock
+	ElseIfBlock []ElseIfBlock
+	ElseBlock   ElseBlock
 }
 
 // NewBranch creates a new branch.
@@ -443,9 +443,9 @@ type Branch struct {
 // This is due to the variadic nature of the elseIfBlock argument.
 func NewBranch(ifBlock IfBlock, elseBlock ElseBlock, elseIfBlock ...ElseIfBlock) Branch {
 	return Branch{
-		ifBlock:     ifBlock,
-		elseIfBlock: elseIfBlock,
-		elseBlock:   elseBlock,
+		IfBlock:     ifBlock,
+		ElseIfBlock: elseIfBlock,
+		ElseBlock:   elseBlock,
 	}
 }
 
@@ -454,37 +454,37 @@ func NewBranch(ifBlock IfBlock, elseBlock ElseBlock, elseIfBlock ...ElseIfBlock)
 // String returns a string representation of a branch.
 func (b Branch) String() string {
 	var s bytes.Buffer
-	s.WriteString(fmt.Sprint(b.ifBlock))
-	if b.elseIfBlock != nil && len(b.elseIfBlock) > 0 {
-		for _, block := range b.elseIfBlock {
+	s.WriteString(fmt.Sprint(b.IfBlock))
+	if b.ElseIfBlock != nil && len(b.ElseIfBlock) > 0 {
+		for _, block := range b.ElseIfBlock {
 			s.WriteString(fmt.Sprint(block))
 		}
 	}
-	s.WriteString(fmt.Sprintln(b.elseBlock))
+	s.WriteString(fmt.Sprintln(b.ElseBlock))
 	return s.String()
 }
 
 // A IfBlock node represents an if-block of a Branch.
 type IfBlock struct {
-	condition Condition
-	block     []BranchOrPlugin
+	Condition Condition
+	Block     []BranchOrPlugin
 }
 
 // NewIfBlock creates a new if-block.
 func NewIfBlock(condition Condition, block ...BranchOrPlugin) IfBlock {
 	return IfBlock{
-		condition: condition,
-		block:     block,
+		Condition: condition,
+		Block:     block,
 	}
 }
 
 // String returns a string representation of an if-block.
 func (ib IfBlock) String() string {
 	var s bytes.Buffer
-	s.WriteString(fmt.Sprintf("if %v {\n", ib.condition))
-	if ib.block != nil && len(ib.block) > 0 {
+	s.WriteString(fmt.Sprintf("if %v {\n", ib.Condition))
+	if ib.Block != nil && len(ib.Block) > 0 {
 		var ss bytes.Buffer
-		for _, block := range ib.block {
+		for _, block := range ib.Block {
 			if block != nil {
 				ss.WriteString(fmt.Sprint(block))
 			}
@@ -497,25 +497,25 @@ func (ib IfBlock) String() string {
 
 // A ElseIfBlock node represents an else-if-block of a Branch.
 type ElseIfBlock struct {
-	condition Condition
-	block     []BranchOrPlugin
+	Condition Condition
+	Block     []BranchOrPlugin
 }
 
 // NewElseIfBlock creates a new else-if-block of a Branch.
 func NewElseIfBlock(condition Condition, block ...BranchOrPlugin) ElseIfBlock {
 	return ElseIfBlock{
-		condition: condition,
-		block:     block,
+		Condition: condition,
+		Block:     block,
 	}
 }
 
 // String returns a string representation of an else if block.
 func (eib ElseIfBlock) String() string {
 	var s bytes.Buffer
-	s.WriteString(fmt.Sprintf(" else if %v {\n", eib.condition))
-	if eib.block != nil && len(eib.block) > 0 {
+	s.WriteString(fmt.Sprintf(" else if %v {\n", eib.Condition))
+	if eib.Block != nil && len(eib.Block) > 0 {
 		var ss bytes.Buffer
-		for _, block := range eib.block {
+		for _, block := range eib.Block {
 			if block != nil {
 				ss.WriteString(fmt.Sprint(block))
 			}
@@ -528,26 +528,26 @@ func (eib ElseIfBlock) String() string {
 
 // A ElseBlock node represents a else-block of a Branch.
 type ElseBlock struct {
-	block []BranchOrPlugin
+	Block []BranchOrPlugin
 }
 
 // NewElseBlock creates a new else-block
 func NewElseBlock(block ...BranchOrPlugin) ElseBlock {
 	return ElseBlock{
-		block: block,
+		Block: block,
 	}
 }
 
 // String returns a string representation of an else block.
 func (eb ElseBlock) String() string {
-	if eb.block == nil || len(eb.block) == 0 {
+	if eb.Block == nil || len(eb.Block) == 0 {
 		return ""
 	}
 
 	var s bytes.Buffer
 	s.WriteString(fmt.Sprintln(" else {"))
 	var ss bytes.Buffer
-	for _, block := range eb.block {
+	for _, block := range eb.Block {
 		if block != nil {
 			ss.WriteString(fmt.Sprint(block))
 		}
