@@ -582,6 +582,79 @@ output {
 	}
 }
 
+func TestPluginID(t *testing.T) {
+	cases := []struct {
+		name   string
+		plugin Plugin
+
+		wantID  string
+		wantErr bool
+	}{
+		{
+			name: "double quoted id",
+			plugin: NewPlugin("stdin",
+				NewStringAttribute("id", "123", DoubleQuoted),
+			),
+
+			wantID: "123",
+		},
+		{
+			name: "bareword id",
+			plugin: NewPlugin("stdin",
+				NewStringAttribute("id", "123", Bareword),
+			),
+
+			wantID: "123",
+		},
+		{
+			name: "bareword id",
+			plugin: NewPlugin("stdin",
+				NewNumberAttribute("id", 123),
+			),
+
+			wantID:  "",
+			wantErr: true,
+		},
+		{
+			name: "multiple attributes with id",
+			plugin: NewPlugin("stdin",
+				NewStringAttribute("name", "fobar", Bareword),
+				NewStringAttribute("id", "123", Bareword),
+				NewStringAttribute("description", "the description", DoubleQuoted),
+			),
+
+			wantID: "123",
+		},
+		{
+			name: "multiple attributes without id",
+			plugin: NewPlugin("stdin",
+				NewStringAttribute("name", "fobar", Bareword),
+				NewStringAttribute("alternative", "baz", Bareword),
+				NewStringAttribute("description", "the description", DoubleQuoted),
+			),
+
+			wantID:  "",
+			wantErr: true,
+		},
+	}
+
+	for _, test := range cases {
+		t.Run(test.name, func(t *testing.T) {
+			id, err := test.plugin.ID()
+
+			if test.wantErr && err == nil {
+				t.Error("Expected an error, but go none.")
+			}
+			if !test.wantErr && err != nil {
+				t.Errorf("Expected no error but got: %v", err)
+			}
+			if test.wantID != id {
+				t.Errorf("Expected id to be %q, but got %q", test.wantID, id)
+			}
+		})
+	}
+}
+
 func TestPluginType(t *testing.T) {
 	cases := []struct {
 		name     string

@@ -2,6 +2,7 @@ package ast
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 )
 
@@ -158,6 +159,24 @@ func (p Plugin) String() string {
 
 	s.WriteString(fmt.Sprintln("}"))
 	return s.String()
+}
+
+// ID returns the id of a Logstash plugin.
+// The id attribute is one of the common options, that is optionally available
+// on every Logstash plugin. In generall, it is highly recommended for a Logstash
+// plugin to have an id.
+func (p Plugin) ID() (string, error) {
+	for _, attr := range p.Attributes {
+		if attr != nil && attr.Name() == "id" {
+			switch stringAttr := attr.(type) {
+			case StringAttribute:
+				return stringAttr.value, nil
+			default:
+				return "", errors.New("attribut id is not of type string attribute")
+			}
+		}
+	}
+	return "", fmt.Errorf("plugin %s does not contain an id attribute", p.name)
 }
 
 // Attribute interface combines Logstash plugin attribute types.
