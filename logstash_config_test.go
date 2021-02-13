@@ -30,37 +30,35 @@ func ExampleParseReader() {
 
 func TestParserIdentic(t *testing.T) {
 	cases := []struct {
+		name string
+
 		input string
 	}{
-		// Empty file
 		{
+			name:  "Empty file",
 			input: ``,
 		},
-
-		// Single PluginSection
 		{
+			name: "Single PluginSection",
 			input: `input {}
 `,
 		},
-
-		// All PluginSections empty
 		{
+			name: "All PluginSections empty",
 			input: `input {}
 filter {}
 output {}
 `,
 		},
-
-		// Plugin without attributes
 		{
+			name: "Plugin without attributes",
 			input: `input {
   stdin {}
 }
 `,
 		},
-
-		// Multiple plugins
 		{
+			name: "Multiple plugins",
 			input: `input {
   stdin {}
   file {}
@@ -75,9 +73,8 @@ output {
 }
 `,
 		},
-
-		// Plugin with all attribute types
 		{
+			name: "Plugin with all attribte types",
 			input: `input {
   stdin {
     doublequotedstring => "doublequotedstring with escaped \" "
@@ -105,8 +102,8 @@ output {
 }
 `,
 		},
-		// Simple if (without else) branch
 		{
+			name: "Simple if (without else) branch",
 			input: `filter {
   if 1 == 1 {
     date {}
@@ -114,8 +111,8 @@ output {
 }
 `,
 		},
-		// if with else-if and a final else branch
 		{
+			name: "if with else-if and a final else branch",
 			input: `filter {
   if 1 == 1 {
     date {}
@@ -127,9 +124,8 @@ output {
 }
 `,
 		},
-		// if with multiple else-if and a final else branch
-		// multiple plugins in each branch
 		{
+			name: "if with multiple else-if and a final else branch, multiple plugins in each branch",
 			input: `filter {
   if 1 == 1 {
     date {}
@@ -150,9 +146,8 @@ output {
 }
 `,
 		},
-		// if with multiple else-if and a final else branch
-		// test for different condition types
 		{
+			name: "if with multiple else-if and a final else branch, test for different condition types",
 			input: `filter {
   if 1 != 1 {
     date {}
@@ -168,8 +163,8 @@ output {
 }
 `,
 		},
-		// if with multiple compare operators
 		{
+			name: "if with multiple compare operators",
 			input: `filter {
   if "true" == "true" and "true1" == "true1" or "true2" == "true2" nand "true3" == "true3" xor "true4" == "true4" {
     plugin {}
@@ -177,8 +172,8 @@ output {
 }
 `,
 		},
-		// Condition in parentheses
 		{
+			name: "Condition in parentheses",
 			input: `filter {
   if ("tag" in [tags]) {
     plugin {}
@@ -186,8 +181,8 @@ output {
 }
 `,
 		},
-		// Multiple conditions in parentheses
 		{
+			name: "Multiple conditions in parentheses",
 			input: `filter {
   if ("tag" in [tags] or ("true" == "true" and 1 == 1)) {
     plugin {}
@@ -195,8 +190,8 @@ output {
 }
 `,
 		},
-		// Negative condition
 		{
+			name: "Negative condition",
 			input: `filter {
   if ! ("true" == "true") {
     plugin {}
@@ -204,8 +199,8 @@ output {
 }
 `,
 		},
-		// Negative Selector for value in subfield
 		{
+			name: "Negative Selector for value in subfield",
 			input: `filter {
   if ! [field][subfield] {
     plugin {}
@@ -213,8 +208,8 @@ output {
 }
 `,
 		},
-		// InExpression
 		{
+			name: "InExpression",
 			input: `filter {
   if "tag" in [tags] {
     plugin {}
@@ -222,8 +217,8 @@ output {
 }
 `,
 		},
-		// NotInExpression
 		{
+			name: "NotInExpression",
 			input: `filter {
   if "tag" not in [field][subfield] {
     plugin {}
@@ -231,8 +226,8 @@ output {
 }
 `,
 		},
-		// RegexpExpression (Match)
 		{
+			name: "RegexpExpression (Match)",
 			input: `filter {
   if [field] =~ /.*/ {
     plugin {}
@@ -240,8 +235,8 @@ output {
 }
 `,
 		},
-		// RegexpExpression (Not Match)
 		{
+			name: "RegexpExpression (Not Match)",
 			input: `filter {
   if [field] !~ /.*/ {
     plugin {}
@@ -249,8 +244,8 @@ output {
 }
 `,
 		},
-		// Rvalue
 		{
+			name: "Rvalue",
 			input: `filter {
   if "string" or 10 or [field][subfield] or /.*/ {
     plugin {}
@@ -258,8 +253,8 @@ output {
 }
 `,
 		},
-		// Empty array
 		{
+			name: "Empty array",
 			input: `filter {
   plugin {
     value => [  ]
@@ -270,41 +265,45 @@ output {
 	}
 
 	for _, test := range cases {
-		got, err := ParseReader("test", strings.NewReader(test.input))
-		if err != nil {
-			t.Fatalf("Expected to parse without error: %s, input:\n|%s|", err, test.input)
-		}
-		if test.input != fmt.Sprintf("%v", got) {
-			t.Errorf("Expected parsed input to print the same as input, input:\n|%s|\n\nparsed:\n|%v|", test.input, got)
-		}
+		t.Run(test.name, func(t *testing.T) {
+			got, err := ParseReader("test", strings.NewReader(test.input))
+			if err != nil {
+				t.Fatalf("Expected to parse without error: %s, input:\n|%s|", err, test.input)
+			}
+			if test.input != fmt.Sprintf("%v", got) {
+				t.Errorf("Expected parsed input to print the same as input, input:\n|%s|\n\nparsed:\n|%v|", test.input, got)
+			}
+		})
 	}
 }
 
 func TestParser(t *testing.T) {
 	cases := []struct {
+		name     string
 		input    string
 		expected string
 	}{
-		// Whitespace, tab and newlines only
 		{
+			name: "Whitespace, tab and newlines only",
 			input: `
       
 			`,
 			expected: ``,
 		},
-		// Single comment (one line without newline)
 		{
+			name:     "Single comment (one line without newline)",
 			input:    `# comment only`,
 			expected: ``,
 		},
-		// Comment surrounded by empty lines
 		{
+			name: "Comment surrounded by empty lines",
 			input: `
 # comment only
 `,
 			expected: ``,
 		},
 		{
+			name:  "Reformat plugins",
 			input: `input { stdin {} }`,
 			expected: `input {
   stdin {}
@@ -312,6 +311,7 @@ func TestParser(t *testing.T) {
 `,
 		},
 		{
+			name: "Comments and whitespace",
 			input: `input { 
   # Comment
   stdin {
@@ -326,22 +326,26 @@ func TestParser(t *testing.T) {
 	}
 
 	for _, test := range cases {
-		got, err := ParseReader("test", strings.NewReader(test.input))
-		if err != nil {
-			t.Fatalf("Expected to parse without error: %s, input:\n|%s|", err, test.input)
-		}
-		if test.expected != fmt.Sprintf("%v", got) {
-			t.Errorf("Expected output does not match parsed output, expected:\n|%s|\n\nparsed:\n|%v|", test.expected, got)
-		}
+		t.Run(test.name, func(t *testing.T) {
+			got, err := ParseReader("test", strings.NewReader(test.input))
+			if err != nil {
+				t.Fatalf("Expected to parse without error: %s, input:\n|%s|", err, test.input)
+			}
+			if test.expected != fmt.Sprintf("%v", got) {
+				t.Errorf("Expected output does not match parsed output, expected:\n|%s|\n\nparsed:\n|%v|", test.expected, got)
+			}
+		})
 	}
 }
 
 func TestParseErrors(t *testing.T) {
 	cases := []struct {
+		name          string
 		input         string
 		expectedError string
 	}{
 		{
+			name: "misspelled plugin section",
 			input: `FILTER {
   if 1 == 1 {
     plugin{}
@@ -350,6 +354,7 @@ func TestParseErrors(t *testing.T) {
 			expectedError: `expect plugin type`,
 		},
 		{
+			name: "missing closing curly backet (pluginsection)",
 			input: `filter {
   if 1 == 1 {
     plugin{}
@@ -358,6 +363,7 @@ func TestParseErrors(t *testing.T) {
 			expectedError: `expect closing curly bracket`,
 		},
 		{
+			name: "missing closing curly bracket (plugin)",
 			input: `filter {
   plugin {}
   plugin2 {
@@ -366,6 +372,7 @@ func TestParseErrors(t *testing.T) {
 			expectedError: `expect closing curly bracket`,
 		},
 		{
+			name: "invalid value",
 			input: `filter {
   plugin {
     value => #invalid#
@@ -374,6 +381,7 @@ func TestParseErrors(t *testing.T) {
 			expectedError: `expect closing curly bracket`,
 		},
 		{
+			name: "invalid array value",
 			input: `filter {
   plugin {
     value => [ #invalid# ]
@@ -384,6 +392,7 @@ func TestParseErrors(t *testing.T) {
 			expectedError: `expect closing square bracket`,
 		},
 		{
+			name: "missing closing double quotes",
 			input: `filter {
   plugin {
     value => "invalid
@@ -392,6 +401,7 @@ func TestParseErrors(t *testing.T) {
 			expectedError: `expect closing double quotes (")`,
 		},
 		{
+			name: "missing closing single quotes",
 			input: `filter {
   plugin {
     value => 'invalid
@@ -400,6 +410,7 @@ func TestParseErrors(t *testing.T) {
 			expectedError: `expect closing single quote (')`,
 		},
 		{
+			name: "missing closing double slash for regexp",
 			input: `filter {
   if [field] =~ /.*
     plugin {}
@@ -408,6 +419,7 @@ func TestParseErrors(t *testing.T) {
 			expectedError: `expect closing slash (/) for regexp`,
 		},
 		{
+			name: "missing closing squre bracket",
 			input: `filter {
   plugin {
     value => [ "bar" 
@@ -416,6 +428,7 @@ func TestParseErrors(t *testing.T) {
 			expectedError: `expect closing square bracket`,
 		},
 		{
+			name: "missing closing curly bracket (value)",
 			input: `filter {
   plugin {
     value => { "bar" => "bar"
@@ -424,6 +437,7 @@ func TestParseErrors(t *testing.T) {
 			expectedError: `expect closing curly bracket`,
 		},
 		{
+			name: "missing closing curly bracket (if)",
 			input: `filter {
   if 1 == 1 {
     plugin {}
@@ -434,6 +448,7 @@ func TestParseErrors(t *testing.T) {
 			expectedError: `expect closing curly bracket`,
 		},
 		{
+			name: "missing closing curly bracket (else)",
 			input: `filter {
   if 1 == 1 {
     plugin {}
@@ -443,6 +458,7 @@ func TestParseErrors(t *testing.T) {
 			expectedError: `expect closing curly bracket`,
 		},
 		{
+			name: "missing closing curly bracket (else if)",
 			input: `filter {
   if 1 == 1 {
     plugin {}
@@ -455,6 +471,7 @@ func TestParseErrors(t *testing.T) {
 			expectedError: `expect closing curly bracket`,
 		},
 		// 		{
+		// 			name: "not valid if condition"
 		// 			input: `filter {
 		//   if this is not valid {
 		//     plugin {}
@@ -463,6 +480,7 @@ func TestParseErrors(t *testing.T) {
 		// 			expectedError: `xxxxxxxxxxxxx`,
 		// 		},
 		{
+			name: "missing closing parenthesis",
 			input: `filter {
   if ! ( 1 == 1 {
     plugin {}
@@ -471,6 +489,7 @@ func TestParseErrors(t *testing.T) {
 			expectedError: `expect closing parenthesis`,
 		},
 		{
+			name: "invalid value for expression",
 			input: `filter {
   if [test] == #test# {
     plugin {}
@@ -479,6 +498,7 @@ func TestParseErrors(t *testing.T) {
 			expectedError: ` invalid value for expression`,
 		},
 		{
+			name: "invalid boolean operator",
 			input: `filter {
   if 1 == 1 nor 2 == 2 {
     plugin{}
@@ -487,6 +507,7 @@ func TestParseErrors(t *testing.T) {
 			expectedError: `expect boolean operator`,
 		},
 		{
+			name: "invalid comparison operator",
 			input: `filter {
   if [field] ?~ /.*/ {
     plugin{}
@@ -495,6 +516,7 @@ func TestParseErrors(t *testing.T) {
 			expectedError: `expect regexp comparison operator`,
 		},
 		{
+			name: "invalid compare operator",
 			input: `filter {
   if "test" =! "test" {
     plugin{}
@@ -503,14 +525,7 @@ func TestParseErrors(t *testing.T) {
 			expectedError: `expect compare operator`,
 		},
 		{
-			input: `filter {
-  if "test" =! "test" {
-    plugin{}
-  }
-}`,
-			expectedError: `expect compare operator`,
-		},
-		{
+			name: "invalid in operator",
 			input: `filter {
   if "test" on [field] {
     plugin{}
@@ -519,6 +534,7 @@ func TestParseErrors(t *testing.T) {
 			expectedError: `expect in operator`,
 		},
 		{
+			name: "invalid not in operator",
 			input: `filter {
   if "test" no in [field] {
     plugin{}
@@ -527,6 +543,7 @@ func TestParseErrors(t *testing.T) {
 			expectedError: `expect not in operator`,
 		},
 		{
+			name: "missing closing squre bracket",
 			input: `filter {
   if "test" in [field][subfield {
     plugin{}
@@ -539,16 +556,18 @@ func TestParseErrors(t *testing.T) {
 	var errMsg string
 	var hasErr bool
 	for _, test := range cases {
-		_, err := ParseReader("parse errors", strings.NewReader(test.input))
-		if err == nil {
-			t.Errorf("Expected parsing to fail with error: %s, input: %s", test.expectedError, test.input)
-		} else {
-			if errMsg, hasErr = GetFarthestFailure(); !hasErr {
-				errMsg = err.Error()
+		t.Run(test.name, func(t *testing.T) {
+			_, err := ParseReader("parse errors", strings.NewReader(test.input))
+			if err == nil {
+				t.Errorf("Expected parsing to fail with error: %s, input: %s", test.expectedError, test.input)
+			} else {
+				if errMsg, hasErr = GetFarthestFailure(); !hasErr {
+					errMsg = err.Error()
+				}
+				if !strings.Contains(errMsg, test.expectedError) {
+					t.Errorf("Expected parsing to fail with error containing: %s, got error: %s, input: %s", test.expectedError, errMsg, test.input)
+				}
 			}
-			if !strings.Contains(errMsg, test.expectedError) {
-				t.Errorf("Expected parsing to fail with error containing: %s, got error: %s, input: %s", test.expectedError, errMsg, test.input)
-			}
-		}
+		})
 	}
 }
