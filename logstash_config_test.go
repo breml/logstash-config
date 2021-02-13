@@ -39,32 +39,22 @@ func TestParserIdentic(t *testing.T) {
 
 		// Single PluginSection
 		{
-			input: `input {
-  
-}
+			input: `input {}
 `,
 		},
 
 		// All PluginSections empty
 		{
-			input: `input {
-  
-}
-filter {
-  
-}
-output {
-  
-}
+			input: `input {}
+filter {}
+output {}
 `,
 		},
 
 		// Plugin without attributes
 		{
 			input: `input {
-  stdin {
-    
-  }
+  stdin {}
 }
 `,
 		},
@@ -72,28 +62,16 @@ output {
 		// Multiple plugins
 		{
 			input: `input {
-  stdin {
-    
-  }
-  file {
-    
-  }
+  stdin {}
+  file {}
 }
 filter {
-  mutate {
-    
-  }
-  mutate {
-    
-  }
-  mutate {
-    
-  }
+  mutate {}
+  mutate {}
+  mutate {}
 }
 output {
-  stdout {
-    
-  }
+  stdout {}
 }
 `,
 		},
@@ -131,9 +109,7 @@ output {
 		{
 			input: `filter {
   if 1 == 1 {
-    date {
-      
-    }
+    date {}
   }
 }
 `,
@@ -142,17 +118,11 @@ output {
 		{
 			input: `filter {
   if 1 == 1 {
-    date {
-      
-    }
+    date {}
   } else if 1 == 1 {
-    date {
-      
-    }
+    date {}
   } else {
-    date {
-      
-    }
+    date {}
   }
 }
 `,
@@ -162,42 +132,20 @@ output {
 		{
 			input: `filter {
   if 1 == 1 {
-    date {
-      
-    }
-    date {
-      
-    }
+    date {}
+    date {}
   } else if 1 == 1 {
-    date {
-      
-    }
-    date {
-      
-    }
-    date {
-      
-    }
+    date {}
+    date {}
+    date {}
   } else if 1 == 1 {
-    date {
-      
-    }
-    date {
-      
-    }
-    date {
-      
-    }
+    date {}
+    date {}
+    date {}
   } else {
-    date {
-      
-    }
-    date {
-      
-    }
-    date {
-      
-    }
+    date {}
+    date {}
+    date {}
   }
 }
 `,
@@ -207,25 +155,15 @@ output {
 		{
 			input: `filter {
   if 1 != 1 {
-    date {
-      
-    }
+    date {}
   } else if 1 <= 1 {
-    date {
-      
-    }
+    date {}
   } else if 1 >= 1 {
-    date {
-      
-    }
+    date {}
   } else if 1 < 1 {
-    date {
-      
-    }
+    date {}
   } else if 1 > 1 {
-    date {
-      
-    }
+    date {}
   }
 }
 `,
@@ -234,9 +172,7 @@ output {
 		{
 			input: `filter {
   if "true" == "true" and "true1" == "true1" or "true2" == "true2" nand "true3" == "true3" xor "true4" == "true4" {
-    plugin {
-      
-    }
+    plugin {}
   }
 }
 `,
@@ -245,9 +181,7 @@ output {
 		{
 			input: `filter {
   if ("tag" in [tags]) {
-    plugin {
-      
-    }
+    plugin {}
   }
 }
 `,
@@ -256,9 +190,7 @@ output {
 		{
 			input: `filter {
   if ("tag" in [tags] or ("true" == "true" and 1 == 1)) {
-    plugin {
-      
-    }
+    plugin {}
   }
 }
 `,
@@ -267,9 +199,7 @@ output {
 		{
 			input: `filter {
   if ! ("true" == "true") {
-    plugin {
-      
-    }
+    plugin {}
   }
 }
 `,
@@ -278,9 +208,7 @@ output {
 		{
 			input: `filter {
   if ! [field][subfield] {
-    plugin {
-      
-    }
+    plugin {}
   }
 }
 `,
@@ -289,9 +217,7 @@ output {
 		{
 			input: `filter {
   if "tag" in [tags] {
-    plugin {
-      
-    }
+    plugin {}
   }
 }
 `,
@@ -300,9 +226,7 @@ output {
 		{
 			input: `filter {
   if "tag" not in [field][subfield] {
-    plugin {
-      
-    }
+    plugin {}
   }
 }
 `,
@@ -311,9 +235,7 @@ output {
 		{
 			input: `filter {
   if [field] =~ /.*/ {
-    plugin {
-      
-    }
+    plugin {}
   }
 }
 `,
@@ -322,9 +244,7 @@ output {
 		{
 			input: `filter {
   if [field] !~ /.*/ {
-    plugin {
-      
-    }
+    plugin {}
   }
 }
 `,
@@ -333,9 +253,7 @@ output {
 		{
 			input: `filter {
   if "string" or 10 or [field][subfield] or /.*/ {
-    plugin {
-      
-    }
+    plugin {}
   }
 }
 `,
@@ -389,9 +307,7 @@ func TestParser(t *testing.T) {
 		{
 			input: `input { stdin {} }`,
 			expected: `input {
-  stdin {
-    
-  }
+  stdin {}
 }
 `,
 		},
@@ -403,9 +319,7 @@ func TestParser(t *testing.T) {
   }
 }`,
 			expected: `input {
-  stdin {
-    
-  }
+  stdin {}
 }
 `,
 		},

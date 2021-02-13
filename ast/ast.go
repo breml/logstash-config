@@ -33,16 +33,18 @@ func (c Config) String() string {
 }
 
 func pluginSectionString(pluginType string, ps []PluginSection) string {
-	var s bytes.Buffer
-	if len(ps) > 0 {
-		s.WriteString(fmt.Sprintln(pluginType + " {"))
-		var ss bytes.Buffer
-		for _, p := range ps {
-			ss.WriteString(fmt.Sprintf("%v", p))
-		}
-		s.WriteString(prefix(ss.String()))
-		s.WriteString(fmt.Sprintln("}"))
+	if len(ps) == 0 {
+		return ""
 	}
+
+	var s bytes.Buffer
+	s.WriteString(fmt.Sprint(pluginType + " {"))
+	var ss bytes.Buffer
+	for _, p := range ps {
+		ss.WriteString(fmt.Sprintf("%v", p))
+	}
+	s.WriteString(prefix(ss.String(), false))
+	s.WriteString(fmt.Sprintln("}"))
 	return s.String()
 }
 
@@ -103,6 +105,9 @@ func NewPluginSections(pt PluginType, bop ...BranchOrPlugin) []PluginSection {
 func (ps PluginSection) String() string {
 	var s bytes.Buffer
 	for _, bop := range ps.BranchOrPlugins {
+		if bop == nil {
+			continue
+		}
 		s.WriteString(fmt.Sprintf("%v", bop))
 	}
 	return s.String()
@@ -140,16 +145,17 @@ func (p Plugin) Name() string {
 // String returns a string representation of a plugin.
 func (p Plugin) String() string {
 	var s bytes.Buffer
-	s.WriteString(fmt.Sprintln(p.Name(), "{"))
-	if p.Attributes != nil && len(p.Attributes) > 0 {
-		var ss bytes.Buffer
-		for _, attr := range p.Attributes {
-			if attr != nil {
-				ss.WriteString(fmt.Sprintln(attr.String()))
-			}
+	s.WriteString(fmt.Sprint(p.Name(), " {"))
+
+	var ss bytes.Buffer
+	for _, attr := range p.Attributes {
+		if attr == nil {
+			continue
 		}
-		s.WriteString(prefix(ss.String()))
+		ss.WriteString(fmt.Sprintln(attr.String()))
 	}
+	s.WriteString(prefix(ss.String(), false))
+
 	s.WriteString(fmt.Sprintln("}"))
 	return s.String()
 }
@@ -335,14 +341,15 @@ func (aa ArrayAttribute) ValueString() string {
 
 	first := true
 	for _, a := range aa.Value() {
-		if a != nil {
-			if first {
-				first = false
-			} else {
-				s.WriteString(", ")
-			}
-			s.WriteString(a.ValueString())
+		if a == nil {
+			continue
 		}
+		if first {
+			first = false
+		} else {
+			s.WriteString(", ")
+		}
+		s.WriteString(a.ValueString())
 	}
 	s.WriteString(" ]")
 	return s.String()
@@ -380,14 +387,14 @@ func (ha HashAttribute) String() string {
 // ValueString returns the value of the node as a string representation.
 func (ha HashAttribute) ValueString() string {
 	var s bytes.Buffer
-	s.WriteString("{\n")
-	if len(ha.value) > 0 {
-		var ss bytes.Buffer
-		for _, v := range ha.Value() {
-			ss.WriteString(fmt.Sprintln(v.String()))
-		}
-		s.WriteString(prefix(ss.String()))
+	s.WriteString("{")
+
+	var ss bytes.Buffer
+	for _, v := range ha.Value() {
+		ss.WriteString(fmt.Sprintln(v.String()))
 	}
+	s.WriteString(prefix(ss.String(), false))
+
 	s.WriteString("}")
 	return s.String()
 }
@@ -423,6 +430,9 @@ func (he HashEntry) String() string {
 
 // ValueString returns the value of the node as a string representation.
 func (he HashEntry) ValueString() string {
+	if he.value == nil {
+		return ""
+	}
 	return he.Value().ValueString()
 }
 
@@ -455,10 +465,8 @@ func NewBranch(ifBlock IfBlock, elseBlock ElseBlock, elseIfBlock ...ElseIfBlock)
 func (b Branch) String() string {
 	var s bytes.Buffer
 	s.WriteString(fmt.Sprint(b.IfBlock))
-	if b.ElseIfBlock != nil && len(b.ElseIfBlock) > 0 {
-		for _, block := range b.ElseIfBlock {
-			s.WriteString(fmt.Sprint(block))
-		}
+	for _, block := range b.ElseIfBlock {
+		s.WriteString(fmt.Sprint(block))
 	}
 	s.WriteString(fmt.Sprintln(b.ElseBlock))
 	return s.String()
@@ -481,16 +489,17 @@ func NewIfBlock(condition Condition, block ...BranchOrPlugin) IfBlock {
 // String returns a string representation of an if-block.
 func (ib IfBlock) String() string {
 	var s bytes.Buffer
-	s.WriteString(fmt.Sprintf("if %v {\n", ib.Condition))
-	if ib.Block != nil && len(ib.Block) > 0 {
-		var ss bytes.Buffer
-		for _, block := range ib.Block {
-			if block != nil {
-				ss.WriteString(fmt.Sprint(block))
-			}
+	s.WriteString(fmt.Sprintf("if %v {", ib.Condition))
+
+	var ss bytes.Buffer
+	for _, block := range ib.Block {
+		if block == nil {
+			continue
 		}
-		s.WriteString(prefix(ss.String()))
+		ss.WriteString(fmt.Sprint(block))
 	}
+	s.WriteString(prefix(ss.String(), true))
+
 	s.WriteString("}")
 	return s.String()
 }
@@ -512,16 +521,17 @@ func NewElseIfBlock(condition Condition, block ...BranchOrPlugin) ElseIfBlock {
 // String returns a string representation of an else if block.
 func (eib ElseIfBlock) String() string {
 	var s bytes.Buffer
-	s.WriteString(fmt.Sprintf(" else if %v {\n", eib.Condition))
-	if eib.Block != nil && len(eib.Block) > 0 {
-		var ss bytes.Buffer
-		for _, block := range eib.Block {
-			if block != nil {
-				ss.WriteString(fmt.Sprint(block))
-			}
+	s.WriteString(fmt.Sprintf(" else if %v {", eib.Condition))
+
+	var ss bytes.Buffer
+	for _, block := range eib.Block {
+		if block == nil {
+			continue
 		}
-		s.WriteString(prefix(ss.String()))
+		ss.WriteString(fmt.Sprint(block))
 	}
+	s.WriteString(prefix(ss.String(), true))
+
 	s.WriteString("}")
 	return s.String()
 }
@@ -545,15 +555,16 @@ func (eb ElseBlock) String() string {
 	}
 
 	var s bytes.Buffer
-	s.WriteString(fmt.Sprintln(" else {"))
+	s.WriteString(" else {")
 	var ss bytes.Buffer
 	for _, block := range eb.Block {
-		if block != nil {
-			ss.WriteString(fmt.Sprint(block))
+		if block == nil {
+			continue
 		}
+		ss.WriteString(fmt.Sprint(block))
 	}
-	s.WriteString(prefix(ss.String()))
-	s.WriteString(fmt.Sprintln("}"))
+	s.WriteString(prefix(ss.String(), true))
+	s.WriteString("}")
 	return s.String()
 }
 
@@ -573,9 +584,10 @@ func NewCondition(expression ...Expression) Condition {
 func (c Condition) String() string {
 	var s bytes.Buffer
 	for _, expression := range c.expression {
-		if expression != nil {
-			s.WriteString(fmt.Sprint(expression))
+		if expression == nil {
+			continue
 		}
+		s.WriteString(fmt.Sprint(expression))
 	}
 	return s.String()
 }
@@ -726,7 +738,15 @@ func NewNotInExpression(boolOperator BooleanOperator, lvalue Rvalue, rvalue Rval
 
 // String returns a string representation of a not in expression.
 func (nie NotInExpression) String() string {
-	return fmt.Sprintf("%v%v not in %v", nie.BoolExpression, nie.lvalue.ValueString(), nie.rvalue.ValueString())
+	var lvalue string
+	var rvalue string
+	if nie.lvalue != nil {
+		lvalue = nie.lvalue.ValueString()
+	}
+	if nie.rvalue != nil {
+		rvalue = nie.rvalue.ValueString()
+	}
+	return fmt.Sprintf("%v%v not in %v", nie.BoolExpression, lvalue, rvalue)
 }
 
 // A Rvalue node represents an right (or in some cases also an left) side value of an expression.
@@ -762,7 +782,11 @@ func NewRvalueExpression(boolOperator BooleanOperator, rvalue Rvalue) RvalueExpr
 
 // String returns a string representation of a rvalue expression.
 func (re RvalueExpression) String() string {
-	return fmt.Sprintf("%v%v", re.BoolExpression, re.rvalue.ValueString())
+	var rvalue string
+	if re.rvalue != nil {
+		rvalue = re.rvalue.ValueString()
+	}
+	return fmt.Sprintf("%v%v", re.BoolExpression, rvalue)
 }
 
 // A CompareExpression node represents a expression, which compares lvalue and rvalue
@@ -788,7 +812,15 @@ func NewCompareExpression(boolOperator BooleanOperator, lvalue Rvalue, compareOp
 
 // String returns a string representation of a compare expression.
 func (ce CompareExpression) String() string {
-	return fmt.Sprintf("%v%v %v %v", ce.BoolExpression, ce.lvalue.ValueString(), ce.compareOperator, ce.rvalue.ValueString())
+	var lvalue string
+	var rvalue string
+	if ce.lvalue != nil {
+		lvalue = ce.lvalue.ValueString()
+	}
+	if ce.rvalue != nil {
+		rvalue = ce.rvalue.ValueString()
+	}
+	return fmt.Sprintf("%v%v %v %v", ce.BoolExpression, lvalue, ce.compareOperator, rvalue)
 }
 
 // A CompareOperator represents the comparison operator, used to compare two values.
@@ -858,7 +890,15 @@ func NewRegexpExpression(boolOperator BooleanOperator, lvalue Rvalue, regexpOper
 
 // String returns a string representation of a regexp expression.
 func (re RegexpExpression) String() string {
-	return fmt.Sprintf("%v%v %v %v", re.BoolExpression, re.lvalue.ValueString(), re.regexpOperator, re.rvalue.ValueString())
+	var lvalue string
+	var rvalue string
+	if re.lvalue != nil {
+		lvalue = re.lvalue.ValueString()
+	}
+	if re.rvalue != nil {
+		rvalue = re.rvalue.ValueString()
+	}
+	return fmt.Sprintf("%v%v %v %v", re.BoolExpression, lvalue, re.regexpOperator, rvalue)
 }
 
 // A StringOrRegexp node is a string attribute node or a regexp node.

@@ -83,8 +83,7 @@ output {
 			),
 			expected: `filter {
   if "true" == "true" {
-    if-plugin {
-    }
+    if-plugin {}
   }
 }
 `,
@@ -113,11 +112,9 @@ output {
 			),
 			expected: `filter {
   if "true" == "true" {
-    if-plugin {
-    }
+    if-plugin {}
   } else {
-    else-plugin {
-    }
+    else-plugin {}
   }
 }
 `,
@@ -187,26 +184,19 @@ output {
 			),
 			expected: `filter {
   if "true" == "true" {
-    if-plugin {
-    }
+    if-plugin {}
   } else if "true" != "true" {
-    else-if-plugin-1 {
-    }
+    else-if-plugin-1 {}
   } else if 10 > 2 {
-    else-if-plugin-2 {
-    }
+    else-if-plugin-2 {}
   } else if 2 < 10 {
-    else-if-plugin-3 {
-    }
+    else-if-plugin-3 {}
   } else if 10 >= 2 {
-    else-if-plugin-4 {
-    }
+    else-if-plugin-4 {}
   } else if 2 <= 10 {
-    else-if-plugin-5 {
-    }
+    else-if-plugin-5 {}
   } else {
-    else-plugin {
-    }
+    else-plugin {}
   }
 }
 `,
@@ -245,8 +235,7 @@ output {
 			),
 			expected: `filter {
   if "true" == "true" and "true" == "true" or "true" == "true" nand "true" == "true" xor "true" == "true" {
-    plugin {
-    }
+    plugin {}
   }
 }
 `,
@@ -278,8 +267,7 @@ output {
 			),
 			expected: `filter {
   if ("tag" in [tags]) {
-    plugin {
-    }
+    plugin {}
   }
 }
 `,
@@ -328,8 +316,7 @@ output {
 			),
 			expected: `filter {
   if ("tag" in [tags] or ("true" == "true" and 1 == 1)) {
-    plugin {
-    }
+    plugin {}
   }
 }
 `,
@@ -364,8 +351,7 @@ output {
 			),
 			expected: `filter {
   if ! ("true" == "true") {
-    plugin {
-    }
+    plugin {}
   }
 }
 `,
@@ -393,8 +379,7 @@ output {
 			),
 			expected: `filter {
   if ! [field][subfield] {
-    plugin {
-    }
+    plugin {}
   }
 }
 `,
@@ -421,8 +406,7 @@ output {
 			),
 			expected: `filter {
   if "tag" in [tags] {
-    plugin {
-    }
+    plugin {}
   }
 }
 `,
@@ -449,8 +433,7 @@ output {
 			),
 			expected: `filter {
   if "tag" not in [field][subfield] {
-    plugin {
-    }
+    plugin {}
   }
 }
 `,
@@ -477,8 +460,7 @@ output {
 			),
 			expected: `filter {
   if [field] =~ /.*/ {
-    plugin {
-    }
+    plugin {}
   }
 }
 `,
@@ -505,8 +487,7 @@ output {
 			),
 			expected: `filter {
   if [field] !~ /.*/ {
-    plugin {
-    }
+    plugin {}
   }
 }
 `,
@@ -542,8 +523,63 @@ output {
 			),
 			expected: `filter {
   if "string" or 10 or [field][subfield] or /.*/ {
-    plugin {
+    plugin {}
+  }
+}
+`,
+		},
+
+		{
+			config: NewConfig(
+				nil,
+				NewPluginSections(
+					Filter,
+					nil,
+					NewPlugin("mutate", nil),
+					nil,
+					NewPlugin("alter",
+						nil,
+						NewStringAttribute("foo", "bar", Bareword),
+						NewArrayAttribute("nil", nil),
+						NewHashAttribute("nilHash", NewHashEntry("nilEntry", nil)),
+						nil,
+					),
+					NewBranch(
+						NewIfBlock(
+							NewCondition(
+								NewCompareExpression(
+									NoOperator, NewStringAttribute("", "true", DoubleQuoted), Equal, NewStringAttribute("", "true", DoubleQuoted),
+								),
+							),
+							nil,
+						),
+						NewElseBlock(nil),
+						NewElseIfBlock(
+							NewCondition(
+								NewCompareExpression(
+									NoOperator, NewStringAttribute("", "false", DoubleQuoted), Equal, nil,
+								),
+								nil,
+							),
+							nil,
+						),
+					),
+					nil,
+				),
+				nil,
+			),
+			expected: `filter {
+  mutate {}
+  alter {
+    foo => bar
+    nil => [  ]
+    nilHash => {
+      nilEntry => 
     }
+  }
+  if "true" == "true" {
+  } else if "false" ==  {
+  } else {
   }
 }
 `,
