@@ -7,9 +7,10 @@ import (
 
 // A Config node represents the root node of a Logstash configuration.
 type Config struct {
-	Input  []PluginSection
-	Filter []PluginSection
-	Output []PluginSection
+	Input    []PluginSection
+	Filter   []PluginSection
+	Output   []PluginSection
+	Warnings []string
 }
 
 // NewConfig creates a new Logstash config.

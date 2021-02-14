@@ -1,13 +1,30 @@
 package config
 
-//go:generate pigeon -nolint -optimize-grammar -optimize-parser -o logstash_config.go logstash_config.peg
+//go:generate pigeon -nolint -optimize-grammar -o logstash_config.go logstash_config.peg
 
 import (
+	"bytes"
 	"fmt"
 	"strconv"
 
 	"github.com/breml/logstash-config/ast"
 )
+
+type exceptionalCommentsWarnings []string
+
+func (w exceptionalCommentsWarnings) Clone() interface{} {
+	clone := make(exceptionalCommentsWarnings, 0, len(w))
+	clone = append(clone, w...)
+	return clone
+}
+
+func initState(c *current) error {
+	if _, ok := c.state[exceptionalCommentWarning]; !ok {
+		warnings := make(exceptionalCommentsWarnings, 0)
+		c.state[exceptionalCommentWarning] = warnings
+	}
+	return nil
+}
 
 func initParser() (bool, error) {
 	farthestFailure = []errPos{}
@@ -16,6 +33,15 @@ func initParser() (bool, error) {
 
 func ret(el interface{}) (interface{}, error) {
 	return el, nil
+}
+
+func retConfig(c *current, el interface{}) (interface{}, error) {
+	conf, _ := el.(ast.Config)
+
+	warnings, _ := c.state[exceptionalCommentWarning].(exceptionalCommentsWarnings)
+
+	conf.Warnings = warnings
+	return conf, nil
 }
 
 func config(ps1, pss1 interface{}) (ast.Config, error) {
@@ -50,6 +76,16 @@ func config(ps1, pss1 interface{}) (ast.Config, error) {
 		Filter: filter,
 		Output: output,
 	}, nil
+}
+
+func warnComment(c *current) error {
+	ok, _ := c.globalStore[exceptionalCommentWarning].(bool)
+	if ok && bytes.Contains(c.text, []byte("#")) {
+		warnings, _ := c.state[exceptionalCommentWarning].(exceptionalCommentsWarnings)
+		warnings = append(warnings, fmt.Sprintf("exceptional comment at %s", c.pos))
+		c.state[exceptionalCommentWarning] = warnings
+	}
+	return nil
 }
 
 func pluginSection(pt1, bops1 interface{}) (ast.PluginSection, error) {
@@ -87,7 +123,6 @@ func attributes(attribute, attributes1 interface{}) ([]ast.Attribute, error) {
 		} else {
 			return nil, fmt.Errorf("Argument is not an attribute")
 		}
-
 	}
 
 	return attributes, nil
@@ -164,7 +199,6 @@ func hashentries(attribute, attributes1 interface{}) ([]ast.HashEntry, error) {
 		} else {
 			return nil, fmt.Errorf("Argument is not an attribute")
 		}
-
 	}
 
 	return attributes, nil

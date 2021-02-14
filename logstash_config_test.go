@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	. "github.com/breml/logstash-config"
+	"github.com/breml/logstash-config/ast"
 )
 
 func ExampleParseReader() {
@@ -567,6 +568,115 @@ func TestParseErrors(t *testing.T) {
 				if !strings.Contains(errMsg, test.expectedError) {
 					t.Errorf("Expected parsing to fail with error containing: %s, got error: %s, input: %s", test.expectedError, errMsg, test.input)
 				}
+			}
+		})
+	}
+}
+
+func TestParseExceptionalComments(t *testing.T) {
+	cases := []struct {
+		name  string
+		input string
+	}{
+		{
+			name: "comments everywhere",
+			input: `# comment
+filter # exceptional_comment
+{
+  # comment
+  mutate # exceptional_comment
+  {
+    # comment
+    id # exceptional_comment
+    => # exceptional_comment
+    comment
+    # comment 1
+    add_tag # exceptional_comment
+    => # exceptional_comment
+    [
+      # comment
+      "value",
+      # comment
+      "value2"
+      # comment 2
+    ]
+    # comment
+    add_field # exceptional_comment
+    => # exceptional_comment
+    {
+      # comment
+      "key1" => "value"
+      "key2" => "value2"
+      # comment
+    }
+    # comment
+  }
+  # comment
+  if # exceptional_comment
+  ( # exceptional_comment
+  "true" # exceptional_comment
+  == # exceptional_comment
+  "false"
+  # exceptional_comment
+  ) # exceptional_comment
+  and # exceptional_comment
+  ! # exceptional_comment
+  [foobar] # exceptional_comment
+  or # exceptional_comment
+  "foo" # exceptional_comment
+  not # exceptional_comment
+  in # exceptional_comment
+  [bar]
+  { # comment
+    mutate {}
+    # comment
+  } # comment
+  else # exceptional_comment
+  if # exceptional_comment
+  [field] # exceptional_comment
+  =~ # exceptional_comment
+  /regex/ # exceptional_comment
+  and # exceptional_comment
+  ! # exceptional_comment
+  ( # exceptional_comment
+  1 # exceptional_comment
+  < # exceptional_comment
+  2 # exceptional_comment
+  ) # exceptional_comment
+  { # comment
+    mutate {}
+    # comment
+  } # comment
+  else # exceptional_comment
+  { # comment
+    mutate {}
+    # comment
+  } # comment
+}
+# comment
+`,
+		},
+	}
+
+	for _, test := range cases {
+		t.Run(test.name, func(t *testing.T) {
+			got, err := ParseReader(
+				"test",
+				strings.NewReader(test.input),
+				ExceptionalCommentsWarning(true),
+			)
+			if err != nil {
+				t.Fatalf("Expected to parse without error: %s, input:\n|%s|", err, test.input)
+			}
+			config, ok := got.(ast.Config)
+			if !ok {
+				t.Fatalf("Expected to parse to Config")
+			}
+			if strings.Count(test.input, "exceptional_comment") != len(config.Warnings) {
+				for _, line := range config.Warnings {
+					t.Log("line", line)
+				}
+				t.Fatalf("Expected %d warnings, got %d", strings.Count(test.input, "exceptional_comment"), len(config.Warnings))
 			}
 		})
 	}

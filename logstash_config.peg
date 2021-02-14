@@ -5,8 +5,11 @@
 
 // Parsing entry point
 init =
+    #{
+        return initState(c)
+    }
     &{
-        return initParser();
+        return initParser()
     } conf:(
         conf:config EOF {
             return ret(conf)
@@ -14,7 +17,7 @@ init =
             return ast.NewConfig(nil, nil, nil), nil
         }
     ) {
-        return ret(conf)
+        return retConfig(c, conf)
     }
 
 //  rule config
@@ -46,6 +49,16 @@ comment =
 _ =
     (comment / whitespace)*
 
+// Add __ rule, which keeps compatibility, with Logstash, but allows to warn
+// about comments in exceptional locations instead of just silently ignore them.
+
+__ =
+    ( (comment / whitespace)* {
+        return c.text, nil
+    } ) #{
+        return warnComment(c)
+    }
+
 //  rule whitespace
 //    [ \t\r\n]+ <LogStash::Config::AST::Whitespace>
 //  end
@@ -63,7 +76,7 @@ whitespace =
 // Moved _ after "{" to plugin / branch section to simplify comment handling
 
 pluginSection =
-    pt:pluginType _ "{" bops:(
+    pt:pluginType __ "{" bops:(
         bop:branchOrPlugin _ {
             return ret(bop)
         }
@@ -112,7 +125,7 @@ pluginType =
 //   end
 
 plugin =
-    _ name:name _ "{" _ attributes:(
+    _ name:name __ "{" _ attributes:(
         attribute:attribute attrs:(
             whitespace _ attribute:attribute {
                 return ret(attribute)
@@ -148,7 +161,7 @@ name =
 //   end
 
 attribute =
-    name:name _ "=>" _ value:value {
+    name:name __ "=>" __ value:value {
         return attribute(name, value)
     }
 
@@ -257,7 +270,7 @@ number =
 array =
     "[" _ value:(
         value:value values:(
-            _ "," _ value:value {
+            __ "," _ value:value {
                 return ret(value)
             }
         )* {
@@ -309,7 +322,7 @@ hashentries =
 //   end
 
 hashentry =
-    name:(number / bareword / stringValue) _ "=>" _ value:value {
+    name:(number / bareword / stringValue) __ "=>" __ value:value {
         return hashentry(name, value)
     }
 
@@ -341,7 +354,7 @@ branch =
 //   end
 
 ifCond =
-    "if" _ cond:condition _ "{" _ bops:(
+    "if" __ cond:condition __ "{" _ bops:(
             bop:branchOrPlugin _ {
                 return ret(bop)
             }
@@ -359,7 +372,7 @@ ifCond =
 //   end
 
 elseIf =
-    "else" _ "if" _ cond:condition _ "{" _ bops:(
+    "else" __ "if" __ cond:condition __ "{" _ bops:(
         bop:branchOrPlugin _ {
             return ret(bop)
         }
@@ -377,7 +390,7 @@ elseIf =
 //   end
 
 elseCond =
-    "else" _ "{" _ bops:(
+    "else" __ "{" _ bops:(
         bop:branchOrPlugin _ {
             return ret(bop)
         }
@@ -396,7 +409,7 @@ elseCond =
 
 condition =
     cond:expression conds:(
-        _ bo:booleanOperator _ cond:expression {
+        __ bo:booleanOperator __ cond:expression {
             return expression(bo, cond)
         }
     )* {
@@ -418,7 +431,7 @@ condition =
 expression =
     (
         (
-            "(" _ cond:condition _ ")" {
+            "(" __ cond:condition __ ")" {
                 return conditionExpression(cond)
             }
         )
@@ -443,7 +456,7 @@ expression =
 negativeExpression =
     (
         (
-            "!" _ "(" _ cond:condition _ (
+            "!" __ "(" __ cond:condition __ (
                 ")" / &{
                     return fatalError("expect closing parenthesis", c)
                 }
@@ -452,7 +465,7 @@ negativeExpression =
             }
         )
       / (
-          "!" _ sel:selector {
+          "!" __ sel:selector {
               return negativeSelector(sel)
           }
         )
@@ -464,7 +477,7 @@ negativeExpression =
 //   end
 
 inExpression =
-    lv:rvalue _ inOperator _ rv:rvalue {
+    lv:rvalue __ inOperator __ rv:rvalue {
         return inExpression(lv, rv)
     }
 
@@ -474,7 +487,7 @@ inExpression =
 //   end
 
 notInExpression =
-    lv:rvalue _ notInOperator _ rv:rvalue {
+    lv:rvalue __ notInOperator __ rv:rvalue {
         return notInExpression(lv, rv)
     }
 
@@ -492,7 +505,7 @@ inOperator =
 //   end
 
 notInOperator =
-    "not " _ "in" / &{
+    "not " __ "in" / &{
         return pushError("expect not in operator (not in)", c)
     }
 
@@ -539,7 +552,7 @@ rvalue =
 //   end
 
 compareExpression =
-    lv:rvalue _ co:compareOperator _ rv:rvalue {
+    lv:rvalue __ co:compareOperator __ rv:rvalue {
         return compareExpression(lv, co, rv)
     }
 
@@ -561,7 +574,7 @@ compareOperator =
 //   end
 
 regexpExpression =
-    lv:rvalue _  ro:regexpOperator _ rv:(stringValue / regexp) {
+    lv:rvalue __  ro:regexpOperator __ rv:(stringValue / regexp) {
         return regexpExpression(lv, ro, rv)
     }
 
