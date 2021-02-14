@@ -60,8 +60,10 @@ whitespace =
 //    <LogStash::Config::AST::PluginSection>
 //  end
 
+// Moved _ after "{" to plugin / branch section to simplify comment handling
+
 pluginSection =
-    pt:pluginType _ "{" _ bops:(
+    pt:pluginType _ "{" bops:(
         bop:branchOrPlugin _ {
             return ret(bop)
         }
@@ -123,7 +125,7 @@ pluginType =
 //   end
 
 plugin =
-    name:name _ "{" _ attributes:(
+    _ name:name _ "{" _ attributes:(
         attribute:attribute attrs:(
             whitespace _ attribute:attribute {
                 return ret(attribute)
@@ -331,8 +333,10 @@ hashentry =
 //     <LogStash::Config::AST::Branch>
 //   end
 
+// Added _ before ifBlock to simplify comment handling
+
 branch =
-    ifBlock:ifCond elseIfBlocks:(
+    _ ifBlock:ifCond elseIfBlocks:(
         _ eib:elseIf {
                 return ret(eib)
             }
