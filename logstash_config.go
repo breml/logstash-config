@@ -55,9 +55,9 @@ var g = &grammar{
 													},
 												},
 												&notExpr{
-													pos: position{line: 622, col: 7, offset: 13636},
+													pos: position{line: 622, col: 7, offset: 13639},
 													expr: &anyMatcher{
-														line: 622, col: 8, offset: 13637,
+														line: 622, col: 8, offset: 13640,
 													},
 												},
 											},
@@ -127,9 +127,9 @@ var g = &grammar{
 																					want:       "\"\\n\"",
 																				},
 																				&notExpr{
-																					pos: position{line: 622, col: 7, offset: 13636},
+																					pos: position{line: 622, col: 7, offset: 13639},
 																					expr: &anyMatcher{
-																						line: 622, col: 8, offset: 13637,
+																						line: 622, col: 8, offset: 13640,
 																					},
 																				},
 																			},
@@ -151,9 +151,9 @@ var g = &grammar{
 													},
 												},
 												&notExpr{
-													pos: position{line: 622, col: 7, offset: 13636},
+													pos: position{line: 622, col: 7, offset: 13639},
 													expr: &anyMatcher{
-														line: 622, col: 8, offset: 13637,
+														line: 622, col: 8, offset: 13640,
 													},
 												},
 											},
@@ -233,9 +233,9 @@ var g = &grammar{
 															want:       "\"\\n\"",
 														},
 														&notExpr{
-															pos: position{line: 622, col: 7, offset: 13636},
+															pos: position{line: 622, col: 7, offset: 13639},
 															expr: &anyMatcher{
-																line: 622, col: 8, offset: 13637,
+																line: 622, col: 8, offset: 13640,
 															},
 														},
 													},
@@ -322,9 +322,9 @@ var g = &grammar{
 															want:       "\"\\n\"",
 														},
 														&notExpr{
-															pos: position{line: 622, col: 7, offset: 13636},
+															pos: position{line: 622, col: 7, offset: 13639},
 															expr: &anyMatcher{
-																line: 622, col: 8, offset: 13637,
+																line: 622, col: 8, offset: 13640,
 															},
 														},
 													},
@@ -414,9 +414,9 @@ var g = &grammar{
 																				want:       "\"\\n\"",
 																			},
 																			&notExpr{
-																				pos: position{line: 622, col: 7, offset: 13636},
+																				pos: position{line: 622, col: 7, offset: 13639},
 																				expr: &anyMatcher{
-																					line: 622, col: 8, offset: 13637,
+																					line: 622, col: 8, offset: 13640,
 																				},
 																			},
 																		},
@@ -508,9 +508,9 @@ var g = &grammar{
 															want:       "\"\\n\"",
 														},
 														&notExpr{
-															pos: position{line: 622, col: 7, offset: 13636},
+															pos: position{line: 622, col: 7, offset: 13639},
 															expr: &anyMatcher{
-																line: 622, col: 8, offset: 13637,
+																line: 622, col: 8, offset: 13640,
 															},
 														},
 													},
@@ -532,9 +532,9 @@ var g = &grammar{
 							},
 						},
 						&notExpr{
-							pos: position{line: 622, col: 7, offset: 13636},
+							pos: position{line: 622, col: 7, offset: 13639},
 							expr: &anyMatcher{
-								line: 622, col: 8, offset: 13637,
+								line: 622, col: 8, offset: 13640,
 							},
 						},
 					},
@@ -651,9 +651,9 @@ var g = &grammar{
 															want:       "\"\\n\"",
 														},
 														&notExpr{
-															pos: position{line: 622, col: 7, offset: 13636},
+															pos: position{line: 622, col: 7, offset: 13639},
 															expr: &anyMatcher{
-																line: 622, col: 8, offset: 13637,
+																line: 622, col: 8, offset: 13640,
 															},
 														},
 													},
@@ -738,9 +738,9 @@ var g = &grammar{
 															want:       "\"\\n\"",
 														},
 														&notExpr{
-															pos: position{line: 622, col: 7, offset: 13636},
+															pos: position{line: 622, col: 7, offset: 13639},
 															expr: &anyMatcher{
-																line: 622, col: 8, offset: 13637,
+																line: 622, col: 8, offset: 13640,
 															},
 														},
 													},
@@ -838,9 +838,9 @@ var g = &grammar{
 																				want:       "\"\\n\"",
 																			},
 																			&notExpr{
-																				pos: position{line: 622, col: 7, offset: 13636},
+																				pos: position{line: 622, col: 7, offset: 13639},
 																				expr: &anyMatcher{
-																					line: 622, col: 8, offset: 13637,
+																					line: 622, col: 8, offset: 13640,
 																				},
 																			},
 																		},
@@ -1152,9 +1152,9 @@ var g = &grammar{
 															want:       "\"\\n\"",
 														},
 														&notExpr{
-															pos: position{line: 622, col: 7, offset: 13636},
+															pos: position{line: 622, col: 7, offset: 13639},
 															expr: &anyMatcher{
-																line: 622, col: 8, offset: 13637,
+																line: 622, col: 8, offset: 13640,
 															},
 														},
 													},
@@ -1239,9 +1239,9 @@ var g = &grammar{
 															want:       "\"\\n\"",
 														},
 														&notExpr{
-															pos: position{line: 622, col: 7, offset: 13636},
+															pos: position{line: 622, col: 7, offset: 13639},
 															expr: &anyMatcher{
-																line: 622, col: 8, offset: 13637,
+																line: 622, col: 8, offset: 13640,
 															},
 														},
 													},
@@ -1360,9 +1360,9 @@ var g = &grammar{
 																									want:       "\"\\n\"",
 																								},
 																								&notExpr{
-																									pos: position{line: 622, col: 7, offset: 13636},
+																									pos: position{line: 622, col: 7, offset: 13639},
 																									expr: &anyMatcher{
-																										line: 622, col: 8, offset: 13637,
+																										line: 622, col: 8, offset: 13640,
 																									},
 																								},
 																							},
@@ -1459,9 +1459,9 @@ var g = &grammar{
 															want:       "\"\\n\"",
 														},
 														&notExpr{
-															pos: position{line: 622, col: 7, offset: 13636},
+															pos: position{line: 622, col: 7, offset: 13639},
 															expr: &anyMatcher{
-																line: 622, col: 8, offset: 13637,
+																line: 622, col: 8, offset: 13640,
 															},
 														},
 													},
@@ -1751,9 +1751,9 @@ var g = &grammar{
 															want:       "\"\\n\"",
 														},
 														&notExpr{
-															pos: position{line: 622, col: 7, offset: 13636},
+															pos: position{line: 622, col: 7, offset: 13639},
 															expr: &anyMatcher{
-																line: 622, col: 8, offset: 13637,
+																line: 622, col: 8, offset: 13640,
 															},
 														},
 													},
@@ -1838,9 +1838,9 @@ var g = &grammar{
 															want:       "\"\\n\"",
 														},
 														&notExpr{
-															pos: position{line: 622, col: 7, offset: 13636},
+															pos: position{line: 622, col: 7, offset: 13639},
 															expr: &anyMatcher{
-																line: 622, col: 8, offset: 13637,
+																line: 622, col: 8, offset: 13640,
 															},
 														},
 													},
@@ -2202,9 +2202,9 @@ var g = &grammar{
 															want:       "\"\\n\"",
 														},
 														&notExpr{
-															pos: position{line: 622, col: 7, offset: 13636},
+															pos: position{line: 622, col: 7, offset: 13639},
 															expr: &anyMatcher{
-																line: 622, col: 8, offset: 13637,
+																line: 622, col: 8, offset: 13640,
 															},
 														},
 													},
@@ -2313,9 +2313,9 @@ var g = &grammar{
 																									want:       "\"\\n\"",
 																								},
 																								&notExpr{
-																									pos: position{line: 622, col: 7, offset: 13636},
+																									pos: position{line: 622, col: 7, offset: 13639},
 																									expr: &anyMatcher{
-																										line: 622, col: 8, offset: 13637,
+																										line: 622, col: 8, offset: 13640,
 																									},
 																								},
 																							},
@@ -2400,9 +2400,9 @@ var g = &grammar{
 																									want:       "\"\\n\"",
 																								},
 																								&notExpr{
-																									pos: position{line: 622, col: 7, offset: 13636},
+																									pos: position{line: 622, col: 7, offset: 13639},
 																									expr: &anyMatcher{
-																										line: 622, col: 8, offset: 13637,
+																										line: 622, col: 8, offset: 13640,
 																									},
 																								},
 																							},
@@ -2499,9 +2499,9 @@ var g = &grammar{
 															want:       "\"\\n\"",
 														},
 														&notExpr{
-															pos: position{line: 622, col: 7, offset: 13636},
+															pos: position{line: 622, col: 7, offset: 13639},
 															expr: &anyMatcher{
-																line: 622, col: 8, offset: 13637,
+																line: 622, col: 8, offset: 13640,
 															},
 														},
 													},
@@ -2614,9 +2614,9 @@ var g = &grammar{
 															want:       "\"\\n\"",
 														},
 														&notExpr{
-															pos: position{line: 622, col: 7, offset: 13636},
+															pos: position{line: 622, col: 7, offset: 13639},
 															expr: &anyMatcher{
-																line: 622, col: 8, offset: 13637,
+																line: 622, col: 8, offset: 13640,
 															},
 														},
 													},
@@ -2706,9 +2706,9 @@ var g = &grammar{
 															want:       "\"\\n\"",
 														},
 														&notExpr{
-															pos: position{line: 622, col: 7, offset: 13636},
+															pos: position{line: 622, col: 7, offset: 13639},
 															expr: &anyMatcher{
-																line: 622, col: 8, offset: 13637,
+																line: 622, col: 8, offset: 13640,
 															},
 														},
 													},
@@ -3110,9 +3110,9 @@ var g = &grammar{
 															want:       "\"\\n\"",
 														},
 														&notExpr{
-															pos: position{line: 622, col: 7, offset: 13636},
+															pos: position{line: 622, col: 7, offset: 13639},
 															expr: &anyMatcher{
-																line: 622, col: 8, offset: 13637,
+																line: 622, col: 8, offset: 13640,
 															},
 														},
 													},
@@ -3197,9 +3197,9 @@ var g = &grammar{
 															want:       "\"\\n\"",
 														},
 														&notExpr{
-															pos: position{line: 622, col: 7, offset: 13636},
+															pos: position{line: 622, col: 7, offset: 13639},
 															expr: &anyMatcher{
-																line: 622, col: 8, offset: 13637,
+																line: 622, col: 8, offset: 13640,
 															},
 														},
 													},
@@ -3318,9 +3318,9 @@ var g = &grammar{
 																				want:       "\"\\n\"",
 																			},
 																			&notExpr{
-																				pos: position{line: 622, col: 7, offset: 13636},
+																				pos: position{line: 622, col: 7, offset: 13639},
 																				expr: &anyMatcher{
-																					line: 622, col: 8, offset: 13637,
+																					line: 622, col: 8, offset: 13640,
 																				},
 																			},
 																		},
@@ -3423,9 +3423,9 @@ var g = &grammar{
 																				want:       "\"\\n\"",
 																			},
 																			&notExpr{
-																				pos: position{line: 622, col: 7, offset: 13636},
+																				pos: position{line: 622, col: 7, offset: 13639},
 																				expr: &anyMatcher{
-																					line: 622, col: 8, offset: 13637,
+																					line: 622, col: 8, offset: 13640,
 																				},
 																			},
 																		},
@@ -3536,9 +3536,9 @@ var g = &grammar{
 															want:       "\"\\n\"",
 														},
 														&notExpr{
-															pos: position{line: 622, col: 7, offset: 13636},
+															pos: position{line: 622, col: 7, offset: 13639},
 															expr: &anyMatcher{
-																line: 622, col: 8, offset: 13637,
+																line: 622, col: 8, offset: 13640,
 															},
 														},
 													},
@@ -3625,9 +3625,9 @@ var g = &grammar{
 															want:       "\"\\n\"",
 														},
 														&notExpr{
-															pos: position{line: 622, col: 7, offset: 13636},
+															pos: position{line: 622, col: 7, offset: 13639},
 															expr: &anyMatcher{
-																line: 622, col: 8, offset: 13637,
+																line: 622, col: 8, offset: 13640,
 															},
 														},
 													},
@@ -3712,9 +3712,9 @@ var g = &grammar{
 															want:       "\"\\n\"",
 														},
 														&notExpr{
-															pos: position{line: 622, col: 7, offset: 13636},
+															pos: position{line: 622, col: 7, offset: 13639},
 															expr: &anyMatcher{
-																line: 622, col: 8, offset: 13637,
+																line: 622, col: 8, offset: 13640,
 															},
 														},
 													},
@@ -3812,9 +3812,9 @@ var g = &grammar{
 																				want:       "\"\\n\"",
 																			},
 																			&notExpr{
-																				pos: position{line: 622, col: 7, offset: 13636},
+																				pos: position{line: 622, col: 7, offset: 13639},
 																				expr: &anyMatcher{
-																					line: 622, col: 8, offset: 13637,
+																					line: 622, col: 8, offset: 13640,
 																				},
 																			},
 																		},
@@ -3932,9 +3932,9 @@ var g = &grammar{
 															want:       "\"\\n\"",
 														},
 														&notExpr{
-															pos: position{line: 622, col: 7, offset: 13636},
+															pos: position{line: 622, col: 7, offset: 13639},
 															expr: &anyMatcher{
-																line: 622, col: 8, offset: 13637,
+																line: 622, col: 8, offset: 13640,
 															},
 														},
 													},
@@ -4019,9 +4019,9 @@ var g = &grammar{
 															want:       "\"\\n\"",
 														},
 														&notExpr{
-															pos: position{line: 622, col: 7, offset: 13636},
+															pos: position{line: 622, col: 7, offset: 13639},
 															expr: &anyMatcher{
-																line: 622, col: 8, offset: 13637,
+																line: 622, col: 8, offset: 13640,
 															},
 														},
 													},
@@ -4108,9 +4108,9 @@ var g = &grammar{
 															want:       "\"\\n\"",
 														},
 														&notExpr{
-															pos: position{line: 622, col: 7, offset: 13636},
+															pos: position{line: 622, col: 7, offset: 13639},
 															expr: &anyMatcher{
-																line: 622, col: 8, offset: 13637,
+																line: 622, col: 8, offset: 13640,
 															},
 														},
 													},
@@ -4195,9 +4195,9 @@ var g = &grammar{
 															want:       "\"\\n\"",
 														},
 														&notExpr{
-															pos: position{line: 622, col: 7, offset: 13636},
+															pos: position{line: 622, col: 7, offset: 13639},
 															expr: &anyMatcher{
-																line: 622, col: 8, offset: 13637,
+																line: 622, col: 8, offset: 13640,
 															},
 														},
 													},
@@ -4295,9 +4295,9 @@ var g = &grammar{
 																				want:       "\"\\n\"",
 																			},
 																			&notExpr{
-																				pos: position{line: 622, col: 7, offset: 13636},
+																				pos: position{line: 622, col: 7, offset: 13639},
 																				expr: &anyMatcher{
-																					line: 622, col: 8, offset: 13637,
+																					line: 622, col: 8, offset: 13640,
 																				},
 																			},
 																		},
@@ -4415,9 +4415,9 @@ var g = &grammar{
 															want:       "\"\\n\"",
 														},
 														&notExpr{
-															pos: position{line: 622, col: 7, offset: 13636},
+															pos: position{line: 622, col: 7, offset: 13639},
 															expr: &anyMatcher{
-																line: 622, col: 8, offset: 13637,
+																line: 622, col: 8, offset: 13640,
 															},
 														},
 													},
@@ -4502,9 +4502,9 @@ var g = &grammar{
 															want:       "\"\\n\"",
 														},
 														&notExpr{
-															pos: position{line: 622, col: 7, offset: 13636},
+															pos: position{line: 622, col: 7, offset: 13639},
 															expr: &anyMatcher{
-																line: 622, col: 8, offset: 13637,
+																line: 622, col: 8, offset: 13640,
 															},
 														},
 													},
@@ -4602,9 +4602,9 @@ var g = &grammar{
 																				want:       "\"\\n\"",
 																			},
 																			&notExpr{
-																				pos: position{line: 622, col: 7, offset: 13636},
+																				pos: position{line: 622, col: 7, offset: 13639},
 																				expr: &anyMatcher{
-																					line: 622, col: 8, offset: 13637,
+																					line: 622, col: 8, offset: 13640,
 																				},
 																			},
 																		},
@@ -4735,9 +4735,9 @@ var g = &grammar{
 																				want:       "\"\\n\"",
 																			},
 																			&notExpr{
-																				pos: position{line: 622, col: 7, offset: 13636},
+																				pos: position{line: 622, col: 7, offset: 13639},
 																				expr: &anyMatcher{
-																					line: 622, col: 8, offset: 13637,
+																					line: 622, col: 8, offset: 13640,
 																				},
 																			},
 																		},
@@ -4857,9 +4857,9 @@ var g = &grammar{
 																				want:       "\"\\n\"",
 																			},
 																			&notExpr{
-																				pos: position{line: 622, col: 7, offset: 13636},
+																				pos: position{line: 622, col: 7, offset: 13639},
 																				expr: &anyMatcher{
-																					line: 622, col: 8, offset: 13637,
+																					line: 622, col: 8, offset: 13640,
 																				},
 																			},
 																		},
@@ -4973,9 +4973,9 @@ var g = &grammar{
 																	want:       "\"\\n\"",
 																},
 																&notExpr{
-																	pos: position{line: 622, col: 7, offset: 13636},
+																	pos: position{line: 622, col: 7, offset: 13639},
 																	expr: &anyMatcher{
-																		line: 622, col: 8, offset: 13637,
+																		line: 622, col: 8, offset: 13640,
 																	},
 																},
 															},
@@ -5062,9 +5062,9 @@ var g = &grammar{
 																	want:       "\"\\n\"",
 																},
 																&notExpr{
-																	pos: position{line: 622, col: 7, offset: 13636},
+																	pos: position{line: 622, col: 7, offset: 13639},
 																	expr: &anyMatcher{
-																		line: 622, col: 8, offset: 13637,
+																		line: 622, col: 8, offset: 13640,
 																	},
 																},
 															},
@@ -5205,9 +5205,9 @@ var g = &grammar{
 																	want:       "\"\\n\"",
 																},
 																&notExpr{
-																	pos: position{line: 622, col: 7, offset: 13636},
+																	pos: position{line: 622, col: 7, offset: 13639},
 																	expr: &anyMatcher{
-																		line: 622, col: 8, offset: 13637,
+																		line: 622, col: 8, offset: 13640,
 																	},
 																},
 															},
@@ -5292,9 +5292,9 @@ var g = &grammar{
 																	want:       "\"\\n\"",
 																},
 																&notExpr{
-																	pos: position{line: 622, col: 7, offset: 13636},
+																	pos: position{line: 622, col: 7, offset: 13639},
 																	expr: &anyMatcher{
-																		line: 622, col: 8, offset: 13637,
+																		line: 622, col: 8, offset: 13640,
 																	},
 																},
 															},
@@ -5381,9 +5381,9 @@ var g = &grammar{
 																	want:       "\"\\n\"",
 																},
 																&notExpr{
-																	pos: position{line: 622, col: 7, offset: 13636},
+																	pos: position{line: 622, col: 7, offset: 13639},
 																	expr: &anyMatcher{
-																		line: 622, col: 8, offset: 13637,
+																		line: 622, col: 8, offset: 13640,
 																	},
 																},
 															},
@@ -5492,9 +5492,9 @@ var g = &grammar{
 																	want:       "\"\\n\"",
 																},
 																&notExpr{
-																	pos: position{line: 622, col: 7, offset: 13636},
+																	pos: position{line: 622, col: 7, offset: 13639},
 																	expr: &anyMatcher{
-																		line: 622, col: 8, offset: 13637,
+																		line: 622, col: 8, offset: 13640,
 																	},
 																},
 															},
@@ -5527,38 +5527,38 @@ var g = &grammar{
 											expr: &oneOrMoreExpr{
 												pos: position{line: 604, col: 9, offset: 13277},
 												expr: &actionExpr{
-													pos: position{line: 614, col: 5, offset: 13462},
+													pos: position{line: 614, col: 5, offset: 13464},
 													run: (*parser).callonnegativeExpression90,
 													expr: &seqExpr{
-														pos: position{line: 614, col: 5, offset: 13462},
+														pos: position{line: 614, col: 5, offset: 13464},
 														exprs: []interface{}{
 															&litMatcher{
-																pos:        position{line: 614, col: 5, offset: 13462},
+																pos:        position{line: 614, col: 5, offset: 13464},
 																val:        "[",
 																ignoreCase: false,
 																want:       "\"[\"",
 															},
 															&oneOrMoreExpr{
-																pos: position{line: 614, col: 9, offset: 13466},
+																pos: position{line: 614, col: 9, offset: 13468},
 																expr: &charClassMatcher{
-																	pos:        position{line: 614, col: 9, offset: 13466},
-																	val:        "[^],]",
-																	chars:      []rune{']', ','},
+																	pos:        position{line: 614, col: 9, offset: 13468},
+																	val:        "[^][,]",
+																	chars:      []rune{']', '[', ','},
 																	ignoreCase: false,
 																	inverted:   true,
 																},
 															},
 															&choiceExpr{
-																pos: position{line: 615, col: 9, offset: 13484},
+																pos: position{line: 615, col: 9, offset: 13487},
 																alternatives: []interface{}{
 																	&litMatcher{
-																		pos:        position{line: 615, col: 9, offset: 13484},
+																		pos:        position{line: 615, col: 9, offset: 13487},
 																		val:        "]",
 																		ignoreCase: false,
 																		want:       "\"]\"",
 																	},
 																	&andCodeExpr{
-																		pos: position{line: 615, col: 15, offset: 13490},
+																		pos: position{line: 615, col: 15, offset: 13493},
 																		run: (*parser).callonnegativeExpression97,
 																	},
 																},
@@ -5651,9 +5651,9 @@ var g = &grammar{
 															want:       "\"\\n\"",
 														},
 														&notExpr{
-															pos: position{line: 622, col: 7, offset: 13636},
+															pos: position{line: 622, col: 7, offset: 13639},
 															expr: &anyMatcher{
-																line: 622, col: 8, offset: 13637,
+																line: 622, col: 8, offset: 13640,
 															},
 														},
 													},
@@ -5747,9 +5747,9 @@ var g = &grammar{
 															want:       "\"\\n\"",
 														},
 														&notExpr{
-															pos: position{line: 622, col: 7, offset: 13636},
+															pos: position{line: 622, col: 7, offset: 13639},
 															expr: &anyMatcher{
-																line: 622, col: 8, offset: 13637,
+																line: 622, col: 8, offset: 13640,
 															},
 														},
 													},
@@ -5857,9 +5857,9 @@ var g = &grammar{
 															want:       "\"\\n\"",
 														},
 														&notExpr{
-															pos: position{line: 622, col: 7, offset: 13636},
+															pos: position{line: 622, col: 7, offset: 13639},
 															expr: &anyMatcher{
-																line: 622, col: 8, offset: 13637,
+																line: 622, col: 8, offset: 13640,
 															},
 														},
 													},
@@ -5950,9 +5950,9 @@ var g = &grammar{
 																			want:       "\"\\n\"",
 																		},
 																		&notExpr{
-																			pos: position{line: 622, col: 7, offset: 13636},
+																			pos: position{line: 622, col: 7, offset: 13639},
 																			expr: &anyMatcher{
-																				line: 622, col: 8, offset: 13637,
+																				line: 622, col: 8, offset: 13640,
 																			},
 																		},
 																	},
@@ -6045,9 +6045,9 @@ var g = &grammar{
 															want:       "\"\\n\"",
 														},
 														&notExpr{
-															pos: position{line: 622, col: 7, offset: 13636},
+															pos: position{line: 622, col: 7, offset: 13639},
 															expr: &anyMatcher{
-																line: 622, col: 8, offset: 13637,
+																line: 622, col: 8, offset: 13640,
 															},
 														},
 													},
@@ -6298,38 +6298,38 @@ var g = &grammar{
 							expr: &oneOrMoreExpr{
 								pos: position{line: 604, col: 9, offset: 13277},
 								expr: &actionExpr{
-									pos: position{line: 614, col: 5, offset: 13462},
+									pos: position{line: 614, col: 5, offset: 13464},
 									run: (*parser).callonrvalue49,
 									expr: &seqExpr{
-										pos: position{line: 614, col: 5, offset: 13462},
+										pos: position{line: 614, col: 5, offset: 13464},
 										exprs: []interface{}{
 											&litMatcher{
-												pos:        position{line: 614, col: 5, offset: 13462},
+												pos:        position{line: 614, col: 5, offset: 13464},
 												val:        "[",
 												ignoreCase: false,
 												want:       "\"[\"",
 											},
 											&oneOrMoreExpr{
-												pos: position{line: 614, col: 9, offset: 13466},
+												pos: position{line: 614, col: 9, offset: 13468},
 												expr: &charClassMatcher{
-													pos:        position{line: 614, col: 9, offset: 13466},
-													val:        "[^],]",
-													chars:      []rune{']', ','},
+													pos:        position{line: 614, col: 9, offset: 13468},
+													val:        "[^][,]",
+													chars:      []rune{']', '[', ','},
 													ignoreCase: false,
 													inverted:   true,
 												},
 											},
 											&choiceExpr{
-												pos: position{line: 615, col: 9, offset: 13484},
+												pos: position{line: 615, col: 9, offset: 13487},
 												alternatives: []interface{}{
 													&litMatcher{
-														pos:        position{line: 615, col: 9, offset: 13484},
+														pos:        position{line: 615, col: 9, offset: 13487},
 														val:        "]",
 														ignoreCase: false,
 														want:       "\"]\"",
 													},
 													&andCodeExpr{
-														pos: position{line: 615, col: 15, offset: 13490},
+														pos: position{line: 615, col: 15, offset: 13493},
 														run: (*parser).callonrvalue56,
 													},
 												},
@@ -6487,9 +6487,9 @@ var g = &grammar{
 															want:       "\"\\n\"",
 														},
 														&notExpr{
-															pos: position{line: 622, col: 7, offset: 13636},
+															pos: position{line: 622, col: 7, offset: 13639},
 															expr: &anyMatcher{
-																line: 622, col: 8, offset: 13637,
+																line: 622, col: 8, offset: 13640,
 															},
 														},
 													},
@@ -6616,9 +6616,9 @@ var g = &grammar{
 															want:       "\"\\n\"",
 														},
 														&notExpr{
-															pos: position{line: 622, col: 7, offset: 13636},
+															pos: position{line: 622, col: 7, offset: 13639},
 															expr: &anyMatcher{
-																line: 622, col: 8, offset: 13637,
+																line: 622, col: 8, offset: 13640,
 															},
 														},
 													},
@@ -6726,9 +6726,9 @@ var g = &grammar{
 															want:       "\"\\n\"",
 														},
 														&notExpr{
-															pos: position{line: 622, col: 7, offset: 13636},
+															pos: position{line: 622, col: 7, offset: 13639},
 															expr: &anyMatcher{
-																line: 622, col: 8, offset: 13637,
+																line: 622, col: 8, offset: 13640,
 															},
 														},
 													},
@@ -6836,9 +6836,9 @@ var g = &grammar{
 															want:       "\"\\n\"",
 														},
 														&notExpr{
-															pos: position{line: 622, col: 7, offset: 13636},
+															pos: position{line: 622, col: 7, offset: 13639},
 															expr: &anyMatcher{
-																line: 622, col: 8, offset: 13637,
+																line: 622, col: 8, offset: 13640,
 															},
 														},
 													},

@@ -606,12 +606,12 @@ selector =
     }
 
 //   rule selector_element
-//     "[" [^\],]+ "]"
+//     "[" [^\]\[,]+ "]"
 //     <LogStash::Config::AST::SelectorElement>
 //   end
 
 selectorElement =
-    "[" [^\],]+ (
+    "[" [^\][,]+ (
         "]" / &{
             return pushError("expect closing square bracket", c)
         }
