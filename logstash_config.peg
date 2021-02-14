@@ -102,19 +102,6 @@ pluginType =
 //     <LogStash::Config::AST::Plugins>
 //   end
 
-// plugins =
-//     (
-//         p:plugin ps:(
-//             _ p:plugin {
-//                 fmt.Println("plugin")
-//                 return ret(p)
-//             }
-//         )* {
-//             fmt.Println("plugins")
-//             return plugins(p, ps)
-//         }
-//     )?
-
 //   rule plugin
 //     name _ "{"
 //       _
