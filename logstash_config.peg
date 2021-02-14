@@ -21,8 +21,10 @@ init =
 //    _ plugin_section _ (_ plugin_section)* _ <LogStash::Config::AST::Config>
 //  end
 
+// Removed _ after initial pluginSection (ps), because it is not needed.
+
 config =
-    _ ps:pluginSection _ pss:(
+    _ ps:pluginSection pss:(
         _ ps:pluginSection {
             return ret(ps)
         }
