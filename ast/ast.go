@@ -165,6 +165,8 @@ func (p Plugin) String() string {
 // The id attribute is one of the common options, that is optionally available
 // on every Logstash plugin. In generall, it is highly recommended for a Logstash
 // plugin to have an id.
+// If the ID attribute is not present, an error is returned, who implements
+// the NotFounder interface.
 func (p Plugin) ID() (string, error) {
 	for _, attr := range p.Attributes {
 		if attr != nil && attr.Name() == "id" {
@@ -176,7 +178,7 @@ func (p Plugin) ID() (string, error) {
 			}
 		}
 	}
-	return "", fmt.Errorf("plugin %s does not contain an id attribute", p.name)
+	return "", NotFoundErrorf("plugin %s does not contain an id attribute", p.name)
 }
 
 // Attribute interface combines Logstash plugin attribute types.
