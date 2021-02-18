@@ -93,6 +93,7 @@ func (c *Cursor) Index() int {
 }
 
 // Delete deletes the current Plugin from its containing slice.
+// If the current Plugin is not part of a slice, Delete panics.
 func (c *Cursor) Delete() {
 	i := c.Index()
 	if i < 0 {
@@ -104,10 +105,35 @@ func (c *Cursor) Delete() {
 
 // Replace replaces the current Plugin with p.
 // The replacement is not walked by Apply.
+// If the current Plugin is not part of a slice, Replace panics.
 func (c *Cursor) Replace(p ast.BranchOrPlugin) {
 	i := c.Index()
 	if i < 0 {
 		panic("Replaced plugin not contained in slice")
 	}
 	c.parent[i] = p
+}
+
+// InsertBefore inserts p before the current Plugin in its containing slice.
+// If the current Node is not part of a slice, InsertBefore panics.
+// Apply will not walk p.
+func (c *Cursor) InsertBefore(p ast.BranchOrPlugin) {
+	i := c.Index()
+	if i < 0 {
+		panic("InsertBefore plugin not contained in slice")
+	}
+	c.parent = append(c.parent[:i], append([]ast.BranchOrPlugin{p}, c.parent[i:]...)...)
+	c.iter.step++
+}
+
+// InsertAfter inserts p after the current Plugin in its containing slice.
+// If the current Node is not part of a slice, InsertAfter panics.
+// Apply will not walk p.
+func (c *Cursor) InsertAfter(p ast.BranchOrPlugin) {
+	i := c.Index()
+	if i < 0 {
+		panic("InsertAfter plugin not contained in slice")
+	}
+	c.parent = append(c.parent[:i+1], append([]ast.BranchOrPlugin{p}, c.parent[i+1:]...)...)
+	c.iter.step++
 }

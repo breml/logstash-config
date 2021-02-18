@@ -315,7 +315,294 @@ func TestApplyPlugins_Replace(t *testing.T) {
 	for _, test := range cases {
 		t.Run(test.name, func(t *testing.T) {
 			applyFunc := func(c *astutil.Cursor) {
+				if c.Plugin().Name() == "replacement" {
+					t.Fatal("the inserted plugin is not supposed to be walked.")
+				}
 				c.Replace(ast.NewPlugin("replacement"))
+			}
+			got := astutil.ApplyPlugins(test.input, applyFunc)
+
+			if !reflect.DeepEqual(test.want, got) {
+				t.Fatalf("Expect %#v to be equal to %#v", test.want, got)
+			}
+		})
+	}
+}
+
+func TestApplyPlugins_InsertBefore(t *testing.T) {
+	cases := []struct {
+		name  string
+		input []ast.BranchOrPlugin
+
+		want []ast.BranchOrPlugin
+	}{
+		{
+			name: "plugin",
+			input: []ast.BranchOrPlugin{
+				ast.NewPlugin("plugin"),
+			},
+
+			want: []ast.BranchOrPlugin{
+				ast.NewPlugin("insert before"),
+				ast.NewPlugin("plugin"),
+			},
+		},
+		{
+			name: "plugin chain",
+			input: []ast.BranchOrPlugin{
+				ast.NewPlugin("skip"),
+				ast.NewPlugin("skip"),
+				ast.NewPlugin("plugin"),
+				ast.NewPlugin("skip"),
+				ast.NewPlugin("skip"),
+			},
+
+			want: []ast.BranchOrPlugin{
+				ast.NewPlugin("skip"),
+				ast.NewPlugin("skip"),
+				ast.NewPlugin("insert before"),
+				ast.NewPlugin("plugin"),
+				ast.NewPlugin("skip"),
+				ast.NewPlugin("skip"),
+			},
+		},
+		{
+			name: "if with plugin, else if with plugin else with plugin",
+			input: []ast.BranchOrPlugin{
+				ast.Branch{
+					IfBlock: ast.IfBlock{
+						Block: []ast.BranchOrPlugin{
+							ast.NewPlugin("plugin"),
+						},
+					},
+					ElseBlock: ast.ElseBlock{
+						Block: []ast.BranchOrPlugin{
+							ast.NewPlugin("plugin"),
+						},
+					},
+					ElseIfBlock: []ast.ElseIfBlock{
+						{
+							Block: []ast.BranchOrPlugin{
+								ast.NewPlugin("plugin"),
+							},
+						},
+					},
+				},
+			},
+
+			want: []ast.BranchOrPlugin{
+				ast.Branch{
+					IfBlock: ast.IfBlock{
+						Block: []ast.BranchOrPlugin{
+							ast.NewPlugin("insert before"),
+							ast.NewPlugin("plugin"),
+						},
+					},
+					ElseBlock: ast.ElseBlock{
+						Block: []ast.BranchOrPlugin{
+							ast.NewPlugin("insert before"),
+							ast.NewPlugin("plugin"),
+						},
+					},
+					ElseIfBlock: []ast.ElseIfBlock{
+						{
+							Block: []ast.BranchOrPlugin{
+								ast.NewPlugin("insert before"),
+								ast.NewPlugin("plugin"),
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "nested if with plugin",
+			input: []ast.BranchOrPlugin{
+				ast.Branch{
+					IfBlock: ast.IfBlock{
+						Block: []ast.BranchOrPlugin{
+							ast.Branch{
+								IfBlock: ast.IfBlock{
+									Block: []ast.BranchOrPlugin{
+										ast.NewPlugin("plugin"),
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+
+			want: []ast.BranchOrPlugin{
+				ast.Branch{
+					IfBlock: ast.IfBlock{
+						Block: []ast.BranchOrPlugin{
+							ast.Branch{
+								IfBlock: ast.IfBlock{
+									Block: []ast.BranchOrPlugin{
+										ast.NewPlugin("insert before"),
+										ast.NewPlugin("plugin"),
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+	}
+
+	for _, test := range cases {
+		t.Run(test.name, func(t *testing.T) {
+			applyFunc := func(c *astutil.Cursor) {
+				if c.Plugin().Name() == "insert before" {
+					t.Fatal("the inserted plugin is not supposed to be walked.")
+				}
+				if c.Plugin().Name() == "plugin" {
+					c.InsertBefore(ast.NewPlugin("insert before"))
+				}
+			}
+			got := astutil.ApplyPlugins(test.input, applyFunc)
+
+			if !reflect.DeepEqual(test.want, got) {
+				t.Fatalf("Expect %#v to be equal to %#v", test.want, got)
+			}
+		})
+	}
+}
+
+func TestApplyPlugins_InsertAfter(t *testing.T) {
+	cases := []struct {
+		name  string
+		input []ast.BranchOrPlugin
+
+		want []ast.BranchOrPlugin
+	}{
+		{
+			name: "plugin",
+			input: []ast.BranchOrPlugin{
+				ast.NewPlugin("plugin"),
+			},
+
+			want: []ast.BranchOrPlugin{
+				ast.NewPlugin("plugin"),
+				ast.NewPlugin("insert after"),
+			},
+		},
+		{
+			name: "plugin chain",
+			input: []ast.BranchOrPlugin{
+				ast.NewPlugin("skip"),
+				ast.NewPlugin("skip"),
+				ast.NewPlugin("plugin"),
+				ast.NewPlugin("skip"),
+				ast.NewPlugin("skip"),
+			},
+
+			want: []ast.BranchOrPlugin{
+				ast.NewPlugin("skip"),
+				ast.NewPlugin("skip"),
+				ast.NewPlugin("plugin"),
+				ast.NewPlugin("insert after"),
+				ast.NewPlugin("skip"),
+				ast.NewPlugin("skip"),
+			},
+		},
+		{
+			name: "if with plugin, else if with plugin else with plugin",
+			input: []ast.BranchOrPlugin{
+				ast.Branch{
+					IfBlock: ast.IfBlock{
+						Block: []ast.BranchOrPlugin{
+							ast.NewPlugin("plugin"),
+						},
+					},
+					ElseBlock: ast.ElseBlock{
+						Block: []ast.BranchOrPlugin{
+							ast.NewPlugin("plugin"),
+						},
+					},
+					ElseIfBlock: []ast.ElseIfBlock{
+						{
+							Block: []ast.BranchOrPlugin{
+								ast.NewPlugin("plugin"),
+							},
+						},
+					},
+				},
+			},
+
+			want: []ast.BranchOrPlugin{
+				ast.Branch{
+					IfBlock: ast.IfBlock{
+						Block: []ast.BranchOrPlugin{
+							ast.NewPlugin("plugin"),
+							ast.NewPlugin("insert after"),
+						},
+					},
+					ElseBlock: ast.ElseBlock{
+						Block: []ast.BranchOrPlugin{
+							ast.NewPlugin("plugin"),
+							ast.NewPlugin("insert after"),
+						},
+					},
+					ElseIfBlock: []ast.ElseIfBlock{
+						{
+							Block: []ast.BranchOrPlugin{
+								ast.NewPlugin("plugin"),
+								ast.NewPlugin("insert after"),
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "nested if with plugin",
+			input: []ast.BranchOrPlugin{
+				ast.Branch{
+					IfBlock: ast.IfBlock{
+						Block: []ast.BranchOrPlugin{
+							ast.Branch{
+								IfBlock: ast.IfBlock{
+									Block: []ast.BranchOrPlugin{
+										ast.NewPlugin("plugin"),
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+
+			want: []ast.BranchOrPlugin{
+				ast.Branch{
+					IfBlock: ast.IfBlock{
+						Block: []ast.BranchOrPlugin{
+							ast.Branch{
+								IfBlock: ast.IfBlock{
+									Block: []ast.BranchOrPlugin{
+										ast.NewPlugin("plugin"),
+										ast.NewPlugin("insert after"),
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+	}
+
+	for _, test := range cases {
+		t.Run(test.name, func(t *testing.T) {
+			applyFunc := func(c *astutil.Cursor) {
+				if c.Plugin().Name() == "insert after" {
+					t.Fatal("the inserted plugin is not supposed to be walked.")
+				}
+				if c.Plugin().Name() == "plugin" {
+					c.InsertAfter(ast.NewPlugin("insert after"))
+				}
 			}
 			got := astutil.ApplyPlugins(test.input, applyFunc)
 
