@@ -34,7 +34,7 @@ go get -t github.com/breml/logstash-config/...
 
 ## Author
 
-Copyright 2017 by Lucas Bremgartner ([breml](https://github.com/breml))
+Copyright 2017-2021 by Lucas Bremgartner ([breml](https://github.com/breml))
 
 ## License
 
