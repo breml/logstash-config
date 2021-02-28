@@ -346,7 +346,7 @@ output {
 				nil,
 			),
 			expected: `filter {
-  if ! ("true" == "true") {
+  if !("true" == "true") {
     plugin {}
   }
 }
@@ -373,7 +373,7 @@ output {
 				nil,
 			),
 			expected: `filter {
-  if ! [field][subfield] {
+  if ![field][subfield] {
     plugin {}
   }
 }

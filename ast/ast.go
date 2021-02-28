@@ -829,7 +829,7 @@ func NewNegativeConditionExpression(boolOperator BooleanOperator, condition Cond
 
 // String returns a string representation of a negative condition expression.
 func (nc NegativeConditionExpression) String() string {
-	return fmt.Sprintf("%v! (%s)", nc.BoolExpression, nc.condition.String())
+	return fmt.Sprintf("%v!(%s)", nc.BoolExpression, nc.condition.String())
 }
 
 // A NegativeSelectorExpression node represents a field selector expression, which is negated.
@@ -850,7 +850,7 @@ func NewNegativeSelectorExpression(boolOperator BooleanOperator, selector Select
 
 // String returns a string representation of a negative selector expression.
 func (ns NegativeSelectorExpression) String() string {
-	return fmt.Sprintf("%v! %s", ns.BoolExpression, ns.selector)
+	return fmt.Sprintf("%v!%s", ns.BoolExpression, ns.selector)
 }
 
 // An InExpression node represents an in expression.
