@@ -43,7 +43,11 @@ func TestAst(t *testing.T) {
 			),
 			expected: `input {
   stdin {
-    tags => [ "tag1", 'tag2', tag3 ]
+    tags => [
+      "tag1",
+      'tag2',
+      tag3
+    ]
     add_field => {
       fieldname => "fieldvalue"
       number => 3.1415
@@ -342,7 +346,7 @@ output {
 				nil,
 			),
 			expected: `filter {
-  if ! ("true" == "true") {
+  if !("true" == "true") {
     plugin {}
   }
 }
@@ -369,7 +373,7 @@ output {
 				nil,
 			),
 			expected: `filter {
-  if ! [field][subfield] {
+  if ![field][subfield] {
     plugin {}
   }
 }
@@ -556,13 +560,15 @@ output {
 			),
 			expected: `filter {
   mutate {}
+
   alter {
     foo => bar
-    nil => [  ]
+    nil => []
     nilHash => {
       nilEntry => 
     }
   }
+
   if "true" == "true" {
   } else if "false" ==  {
   } else {

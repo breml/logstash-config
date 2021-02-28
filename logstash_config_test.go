@@ -2,17 +2,21 @@ package config_test
 
 import (
 	"fmt"
+	"io/ioutil"
 	"log"
 	"strings"
 	"testing"
 
 	. "github.com/breml/logstash-config"
+	"github.com/breml/logstash-config/ast"
 )
 
 func ExampleParseReader() {
 	logstashConfig := `filter {
     mutate {
-      add_tag => [ "tag" ]
+      add_tag => [
+        "tag"
+      ]
     }
   }`
 	got, err := ParseReader("example.conf", strings.NewReader(logstashConfig))
@@ -22,7 +26,9 @@ func ExampleParseReader() {
 
 	// Output: filter {
 	//   mutate {
-	//     add_tag => [ "tag" ]
+	//     add_tag => [
+	//       "tag"
+	//     ]
 	//   }
 	//}
 	fmt.Println(got)
@@ -61,11 +67,14 @@ output {}
 			name: "Multiple plugins",
 			input: `input {
   stdin {}
+
   file {}
 }
 filter {
   mutate {}
+
   mutate {}
+
   mutate {}
 }
 output {
@@ -74,33 +83,8 @@ output {
 `,
 		},
 		{
-			name: "Plugin with all attribte types",
-			input: `input {
-  stdin {
-    doublequotedstring => "doublequotedstring with escaped \" "
-    singlequotedstring => 'singlequotedstring with escaped \' '
-    "doublequotedkey" => value
-    'singlequotedkey' => value
-    bareword => bareword
-    intnumber => 3
-    floatnumber => 3.1415
-    arrayvalue => [ bareword, "doublequotedstring", 'singlequotedstring', 3, 3.1415 ]
-    hashvalue => {
-      doublequotedstring => "doublequotedstring"
-      singlequotedstring => 'singlequotedstring'
-      bareword => bareword
-      intnumber => 3
-      arrayvalue => [ bareword, "doublequotedstring", 'singlequotedstring', 3, 3.1415 ]
-      subhashvalue => {
-        subhashvaluestring => value
-      }
-    }
-    codec => rubydebug {
-      string => "a string"
-    }
-  }
-}
-`,
+			name:  "Plugin with all attribute types",
+			input: ``,
 		},
 		{
 			name: "Simple if (without else) branch",
@@ -193,7 +177,7 @@ output {
 		{
 			name: "Negative condition",
 			input: `filter {
-  if ! ("true" == "true") {
+  if !("true" == "true") {
     plugin {}
   }
 }
@@ -202,7 +186,7 @@ output {
 		{
 			name: "Negative Selector for value in subfield",
 			input: `filter {
-  if ! [field][subfield] {
+  if ![field][subfield] {
     plugin {}
   }
 }
@@ -257,7 +241,101 @@ output {
 			name: "Empty array",
 			input: `filter {
   plugin {
-    value => [  ]
+    value => []
+  }
+}
+`,
+		},
+		{
+			name: "Multiple filter sections",
+			input: `filter {}
+
+filter {}
+
+filter {}
+`,
+		},
+
+		// Comments
+		{
+			name: "plugin section comment",
+			input: `# Comment
+filter {}
+`,
+		},
+		{
+			name: "file header and plugin section comment",
+			input: `# Comment
+
+# Comment 2
+
+# Comment 3
+filter {}
+`,
+		},
+		{
+			name: "plugin section comment with whitespace after",
+			input: `# Comment
+
+filter {}
+`,
+		},
+		{
+			name: "file footer comment",
+			input: `filter {}
+output {}
+
+# Comment after
+`,
+		},
+		{
+			name: "foobar",
+			input: `input {
+  stdin {
+    # Comment
+    codec => rubydebug {
+      # Comment
+      string => "a string"
+
+      # Comment
+    }
+
+    # Comment
+  }
+}
+`,
+		},
+		{
+			name: "Empty array with comment",
+			input: `input {
+  stdin {
+    arrayvalue => [
+      # Comment
+    ]
+  }
+}
+`,
+		},
+		{
+			name: "Empty hash with comment",
+			input: `input {
+  stdin {
+    hashvalue => {
+      # Comment
+    }
+  }
+}
+`,
+		},
+		{
+			name: "comment only if, else-if and else",
+			input: `filter {
+  if 1 == 1 {
+    # Comment
+  } else if 1 == 1 {
+    # Comment
+  } else {
+    # Comment
   }
 }
 `,
@@ -266,12 +344,39 @@ output {
 
 	for _, test := range cases {
 		t.Run(test.name, func(t *testing.T) {
-			got, err := ParseReader("test", strings.NewReader(test.input))
+			got1, err := ParseReader("test", strings.NewReader(test.input))
 			if err != nil {
-				t.Fatalf("Expected to parse without error: %s, input:\n|%s|", err, test.input)
+				t.Fatalf("Expected to parse without error: %s, input:\n%s", err, test.input)
 			}
-			if test.input != fmt.Sprintf("%v", got) {
-				t.Errorf("Expected parsed input to print the same as input, input:\n|%s|\n\nparsed:\n|%v|", test.input, got)
+			got := fmt.Sprintf("%v", got1)
+			if test.input != got {
+				t.Errorf("Expected parsed input to print the same as input:\n%s", printDiff(test.input, got))
+			}
+		})
+	}
+}
+
+func TestParserIdenticFile(t *testing.T) {
+	cases := []string{
+		"plugin_with_all_attribute_types",
+		"plugin_with_all_attribute_types_with_comments",
+		"if_else-if_and_else_branch_with_comments",
+	}
+
+	for _, test := range cases {
+		t.Run(test, func(t *testing.T) {
+			inputFilename := "testdata/identic/" + test + ".conf"
+			got1, err := ParseFile(inputFilename)
+			if err != nil {
+				t.Fatalf("Expected %q to parse without error: %v", test, err)
+			}
+			expected, err := ioutil.ReadFile(inputFilename)
+			if err != nil {
+				t.Fatalf("Unable to read file %q: %v", inputFilename, err)
+			}
+			got := fmt.Sprintf("%v", got1)
+			if string(expected) != got {
+				t.Errorf("Expected %q parsed input to print the same as input:\n%s", inputFilename, printDiff(string(expected), got))
 			}
 		})
 	}
@@ -315,11 +420,197 @@ func TestParser(t *testing.T) {
 			input: `input { 
   # Comment
   stdin {
+
     # Comment
+
   }
 }`,
 			expected: `input {
-  stdin {}
+  # Comment
+  stdin {
+    # Comment
+  }
+}
+`,
+		},
+		{
+			name: "Multiple filter sections without empty lines",
+			input: `filter {}
+filter {}
+filter {}
+`,
+			expected: `filter {}
+
+filter {}
+
+filter {}
+`,
+		},
+
+		// Comment
+		{
+			name: "plugin section comment with whitespace before",
+			input: `
+
+# Comment
+filter {}
+`,
+			expected: `# Comment
+filter {}
+`,
+		},
+		{
+			name: "plugin section comment with whitespace before and after",
+			input: `
+
+# Comment
+
+filter {}
+`,
+			expected: `# Comment
+
+filter {}
+`,
+		},
+		{
+			name: "file header, footer and plugin section comments with whitespace before and after",
+			input: `# Pre Filter comment
+
+# Filter comment
+filter {}
+
+# Input comment
+input {}
+
+# File footer comment
+`,
+			expected: `# Input comment
+input {}
+# Pre Filter comment
+
+# Filter comment
+filter {}
+
+# File footer comment
+`,
+		},
+		{
+			name: "file footer comment without spaceBefore",
+			input: `filter {}
+# Comment after
+`,
+			expected: `filter {}
+
+# Comment after
+`,
+		},
+		{
+			name: "pluginSection footer comment with and without spaceBefore",
+			input: `filter {
+  plugin {}
+
+  # pluginSection footer comment
+}
+
+filter {
+  plugin {}
+  # pluginSection footer comment
+}
+`,
+			expected: `filter {
+  plugin {}
+
+  # pluginSection footer comment
+}
+
+filter {
+  plugin {}
+
+  # pluginSection footer comment
+}
+`,
+		},
+		{
+			name: "pluginSection footer comment empty block with and without spaceBefore",
+			input: `filter {
+
+  # pluginSection footer comment
+}
+
+filter {
+  # pluginSection footer comment
+}
+`,
+			expected: `filter {
+  # pluginSection footer comment
+}
+
+filter {
+  # pluginSection footer comment
+}
+`,
+		},
+		{
+			name: "plugins without comments",
+			input: `filter {
+  plugin {}
+  otherplugin {}
+
+  thirdplugin {}
+}
+`,
+			expected: `filter {
+  plugin {}
+
+  otherplugin {}
+
+  thirdplugin {}
+}
+`,
+		},
+		{
+			name: "plugins with comments",
+			input: `filter {
+  # plugin comment
+  plugin {}
+  # otherplugin comment
+  otherplugin {}
+
+  # third plugin
+  thirdplugin {}
+}
+`,
+			expected: `filter {
+  # plugin comment
+  plugin {}
+
+  # otherplugin comment
+  otherplugin {}
+
+  # third plugin
+  thirdplugin {}
+}
+`,
+		},
+		{
+			name: "plugin with multiple comments",
+			input: `filter {
+  # additional comment
+
+  # plugin comment
+# multiple lines
+  plugin {}
+  # footer comment
+}
+`,
+			expected: `filter {
+  # additional comment
+
+  # plugin comment
+  # multiple lines
+  plugin {}
+
+  # footer comment
 }
 `,
 		},
@@ -327,12 +618,38 @@ func TestParser(t *testing.T) {
 
 	for _, test := range cases {
 		t.Run(test.name, func(t *testing.T) {
-			got, err := ParseReader("test", strings.NewReader(test.input))
+			got1, err := ParseReader("test", strings.NewReader(test.input))
 			if err != nil {
 				t.Fatalf("Expected to parse without error: %s, input:\n|%s|", err, test.input)
 			}
-			if test.expected != fmt.Sprintf("%v", got) {
-				t.Errorf("Expected output does not match parsed output, expected:\n|%s|\n\nparsed:\n|%v|", test.expected, got)
+			got := fmt.Sprintf("%v", got1)
+			if test.expected != got {
+				t.Errorf("Expected output does not match parsed output:\n%s", printDiff(test.expected, got))
+			}
+		})
+	}
+}
+
+func TestParserFile(t *testing.T) {
+	cases := []string{
+		"comments_everywhere",
+	}
+
+	for _, test := range cases {
+		t.Run(test, func(t *testing.T) {
+			inputFilename := "testdata/parser/" + test + ".conf"
+			expectedFilename := "testdata/parser/" + test + ".expected.conf"
+			got1, err := ParseFile(inputFilename)
+			if err != nil {
+				t.Fatalf("Expected %q to parse without error: %v", test, err)
+			}
+			expected, err := ioutil.ReadFile(expectedFilename)
+			if err != nil {
+				t.Fatalf("Unable to read file %q: %v", expectedFilename, err)
+			}
+			got := fmt.Sprintf("%v", got1)
+			if string(expected) != got {
+				t.Errorf("Expected %q parsed input to print the same as input:\n%s", inputFilename, printDiff(string(expected), got))
 			}
 		})
 	}
@@ -482,7 +799,7 @@ func TestParseErrors(t *testing.T) {
 		{
 			name: "missing closing parenthesis",
 			input: `filter {
-  if ! ( 1 == 1 {
+  if !( 1 == 1 {
     plugin {}
   }
 }`,
@@ -567,6 +884,42 @@ func TestParseErrors(t *testing.T) {
 				if !strings.Contains(errMsg, test.expectedError) {
 					t.Errorf("Expected parsing to fail with error containing: %s, got error: %s, input: %s", test.expectedError, errMsg, test.input)
 				}
+			}
+		})
+	}
+}
+
+func TestParseExceptionalComments(t *testing.T) {
+	const basePath = "testdata/exceptional_comments/"
+	cases := []string{
+		"comments_everywhere",
+	}
+
+	for _, test := range cases {
+		t.Run(test, func(t *testing.T) {
+			inputFilename := "testdata/exceptional_comments/" + test + ".conf"
+			got, err := ParseFile(
+				inputFilename,
+				ExceptionalCommentsWarning(true),
+			)
+			if err != nil {
+				t.Fatalf("Expected %q to parse without error: %v", test, err)
+			}
+			config, ok := got.(ast.Config)
+			if !ok {
+				t.Fatalf("Expected to parse to Config")
+			}
+
+			body, err := ioutil.ReadFile(inputFilename)
+			if err != nil {
+				t.Fatalf("Unable to read file %q: %v", inputFilename, err)
+			}
+			exceptionalCommentCount := strings.Count(string(body), "exceptional_comment")
+			if exceptionalCommentCount != len(config.Warnings) {
+				for _, line := range config.Warnings {
+					t.Log("line", line)
+				}
+				t.Fatalf("Expected %d warnings, got %d", exceptionalCommentCount, len(config.Warnings))
 			}
 		})
 	}
