@@ -48,7 +48,7 @@ func retConfig(c *current, el interface{}) (interface{}, error) {
 func commentBlock(comment1 interface{}, spaceBefore bool, spaceAfter bool) ast.CommentBlock {
 	comments1 := toIfaceSlice(comment1)
 	var comments []ast.Comment
-	for i, icb1 := range comments1 {
+	for _, icb1 := range comments1 {
 		switch t := icb1.(type) {
 		case []ast.Comment:
 			// If spaceBefore is enabled and it is the first comment and there are
@@ -58,11 +58,6 @@ func commentBlock(comment1 interface{}, spaceBefore bool, spaceAfter bool) ast.C
 			}
 			comments = append(comments, t...)
 		case ast.Whitespace:
-			// If there is a gap between the comments, preserve the gap.
-			if len(comments) > 0 && i < len(comments1)-1 {
-				comments[len(comments)-1].SpaceAfter = true
-				continue
-			}
 			// If spaceAfter is preserved.
 			if len(comments) > 0 && spaceAfter {
 				comments[len(comments)-1].SpaceAfter = true
@@ -143,8 +138,12 @@ func whitespace() (ast.Whitespace, error) {
 	return ast.Whitespace{}, nil
 }
 
-func comment(c1 []byte) ([]ast.Comment, error) {
-	lines := strings.Split(strings.Trim(strings.ReplaceAll(string(c1), "\r", ""), "\n"), "\n")
+func comment(c *current) ([]ast.Comment, error) {
+	if ignoreComment, ok := c.globalStore[ignoreComment].(bool); ok && ignoreComment {
+		return nil, nil
+	}
+
+	lines := strings.Split(strings.Trim(strings.ReplaceAll(string(c.text), "\r", ""), "\n"), "\n")
 
 	var commentLines []ast.Comment
 	var space bool

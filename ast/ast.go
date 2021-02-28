@@ -607,7 +607,6 @@ func (b Branch) String() string {
 		s.WriteString(block.String())
 	}
 	s.WriteString(b.ElseBlock.String())
-	s.WriteString("\n")
 	return s.String()
 }
 
@@ -638,6 +637,9 @@ func (ib IfBlock) String() string {
 		if block == nil {
 			continue
 		}
+		if ss.Len() > 0 {
+			ss.WriteString("\n")
+		}
 		ss.WriteString(fmt.Sprintf("%v", block))
 		if ss.Len() > 0 {
 			ss.WriteString("\n")
@@ -650,6 +652,7 @@ func (ib IfBlock) String() string {
 	s.WriteString(prefix(ss.String(), true))
 
 	s.WriteString("}")
+
 	return s.String()
 }
 
@@ -684,6 +687,9 @@ func (eib ElseIfBlock) String() string {
 	for _, block := range eib.Block {
 		if block == nil {
 			continue
+		}
+		if ss.Len() > 0 {
+			ss.WriteString("\n")
 		}
 		ss.WriteString(fmt.Sprint(block))
 		if ss.Len() > 0 {
@@ -732,6 +738,9 @@ func (eb ElseBlock) String() string {
 	for _, block := range eb.Block {
 		if block == nil {
 			continue
+		}
+		if ss.Len() > 0 {
+			ss.WriteString("\n")
 		}
 		ss.WriteString(fmt.Sprint(block))
 		if ss.Len() > 0 {

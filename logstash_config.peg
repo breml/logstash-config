@@ -41,7 +41,7 @@ config =
 
 comment =
     (whitespace? "#" [^\r\n]* "\r"? ("\n" / EOF))+ {
-      return comment(c.text)
+      return comment(c)
     }
 
 //  rule _

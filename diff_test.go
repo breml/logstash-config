@@ -22,30 +22,42 @@ func printDiff(want, got string) string {
 		switch diff.Type {
 		case diffmatchpatch.DiffInsert:
 			buff.WriteString("\x1b[32m")
-			buff.WriteString("+ ")
-			buff.WriteString(highlightWhitespaces(text, "\x1b[42m"))
+			lines := strings.Split(strings.TrimRight(text, "\n"), "\n")
+			for _, line := range lines {
+				buff.WriteString("+ ")
+				buff.WriteString(highlightWhitespaces(line, "\x1b[42m") + "\n")
+			}
 			buff.WriteString("\x1b[0m")
 			if !strings.HasSuffix(text, "\n") {
 				buff.WriteString("\n\\ No newline at end of file\n")
 			}
 		case diffmatchpatch.DiffDelete:
 			buff.WriteString("\x1b[31m")
-			buff.WriteString("- ")
-			buff.WriteString(highlightWhitespaces(text, "\x1b[41m"))
+			lines := strings.Split(strings.TrimRight(text, "\n"), "\n")
+			for _, line := range lines {
+				buff.WriteString("- ")
+				buff.WriteString(highlightWhitespaces(line, "\x1b[41m") + "\n")
+			}
 			buff.WriteString("\x1b[0m")
 			if !strings.HasSuffix(text, "\n") {
 				buff.WriteString("\n\\ No newline at end of file\n")
 			}
+			if !strings.HasSuffix(text, "\n") {
+				buff.WriteString("\n\\ No newline at end of file\n")
+			}
 		case diffmatchpatch.DiffEqual:
-			buff.WriteString("  ")
-			buff.WriteString(text)
+			lines := strings.Split(strings.TrimRight(text, "\n"), "\n")
+			for _, line := range lines {
+				buff.WriteString("  ")
+				buff.WriteString(line + "\n")
+			}
 		}
 	}
 	return buff.String()
 }
 
-var tailingWhitespace = regexp.MustCompile(`([ \t]+)\n$`)
+var tailingWhitespace = regexp.MustCompile(`([ \t]+)$`)
 
 func highlightWhitespaces(in string, color string) string {
-	return tailingWhitespace.ReplaceAllString(in, color+"$1\x1b[49m\n")
+	return tailingWhitespace.ReplaceAllString(in, color+"$1\x1b[49m")
 }

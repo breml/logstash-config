@@ -113,18 +113,25 @@ output {
 			input: `filter {
   if 1 == 1 {
     date {}
+
     date {}
   } else if 1 == 1 {
     date {}
+
     date {}
+
     date {}
   } else if 1 == 1 {
     date {}
+
     date {}
+
     date {}
   } else {
     date {}
+
     date {}
+
     date {}
   }
 }
@@ -649,6 +656,7 @@ func TestParserFile(t *testing.T) {
 			}
 			got := fmt.Sprintf("%v", got1)
 			if string(expected) != got {
+				fmt.Println(got)
 				t.Errorf("Expected %q parsed input to print the same as input:\n%s", inputFilename, printDiff(string(expected), got))
 			}
 		})
@@ -890,7 +898,6 @@ func TestParseErrors(t *testing.T) {
 }
 
 func TestParseExceptionalComments(t *testing.T) {
-	const basePath = "testdata/exceptional_comments/"
 	cases := []string{
 		"comments_everywhere",
 	}
@@ -920,6 +927,34 @@ func TestParseExceptionalComments(t *testing.T) {
 					t.Log("line", line)
 				}
 				t.Fatalf("Expected %d warnings, got %d", exceptionalCommentCount, len(config.Warnings))
+			}
+		})
+	}
+}
+
+func TestParseIgnoreComments(t *testing.T) {
+	cases := []string{
+		"comments_everywhere",
+	}
+
+	for _, test := range cases {
+		t.Run(test, func(t *testing.T) {
+			inputFilename := "testdata/ignore_comments/" + test + ".conf"
+			expectedFilename := "testdata/ignore_comments/" + test + ".expected.conf"
+			got1, err := ParseFile(
+				inputFilename,
+				IgnoreComments(true),
+			)
+			if err != nil {
+				t.Fatalf("Expected %q to parse without error: %v", test, err)
+			}
+			expected, err := ioutil.ReadFile(expectedFilename)
+			if err != nil {
+				t.Fatalf("Unable to read file %q: %v", expectedFilename, err)
+			}
+			got := fmt.Sprintf("%v", got1)
+			if string(expected) != got {
+				t.Errorf("Expected %q parsed input to print the same as input:\n%s", inputFilename, printDiff(string(expected), got))
 			}
 		})
 	}
