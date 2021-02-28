@@ -13,7 +13,9 @@ import (
 func ExampleParseReader() {
 	logstashConfig := `filter {
     mutate {
-      add_tag => [ "tag" ]
+      add_tag => [
+        "tag"
+      ]
     }
   }`
 	got, err := ParseReader("example.conf", strings.NewReader(logstashConfig))
@@ -23,7 +25,9 @@ func ExampleParseReader() {
 
 	// Output: filter {
 	//   mutate {
-	//     add_tag => [ "tag" ]
+	//     add_tag => [
+	//       "tag"
+	//     ]
 	//   }
 	//}
 	fmt.Println(got)
@@ -62,11 +66,14 @@ output {}
 			name: "Multiple plugins",
 			input: `input {
   stdin {}
+
   file {}
 }
 filter {
   mutate {}
+
   mutate {}
+
   mutate {}
 }
 output {
@@ -75,7 +82,7 @@ output {
 `,
 		},
 		{
-			name: "Plugin with all attribte types",
+			name: "Plugin with all attribute types",
 			input: `input {
   stdin {
     doublequotedstring => "doublequotedstring with escaped \" "
@@ -85,13 +92,25 @@ output {
     bareword => bareword
     intnumber => 3
     floatnumber => 3.1415
-    arrayvalue => [ bareword, "doublequotedstring", 'singlequotedstring', 3, 3.1415 ]
+    arrayvalue => [
+      bareword,
+      "doublequotedstring",
+      'singlequotedstring',
+      3,
+      3.1415
+    ]
     hashvalue => {
       doublequotedstring => "doublequotedstring"
       singlequotedstring => 'singlequotedstring'
       bareword => bareword
       intnumber => 3
-      arrayvalue => [ bareword, "doublequotedstring", 'singlequotedstring', 3, 3.1415 ]
+      arrayvalue => [
+        bareword,
+        "doublequotedstring",
+        'singlequotedstring',
+        3,
+        3.1415
+      ]
       subhashvalue => {
         subhashvaluestring => value
       }
@@ -258,7 +277,233 @@ output {
 			name: "Empty array",
 			input: `filter {
   plugin {
-    value => [  ]
+    value => []
+  }
+}
+`,
+		},
+		{
+			name: "Multiple filter sections",
+			input: `filter {}
+
+filter {}
+
+filter {}
+`,
+		},
+
+		// Comments
+		{
+			name: "plugin section comment",
+			input: `# Comment
+filter {}
+`,
+		},
+		{
+			name: "file header and plugin section comment",
+			input: `# Comment
+
+# Comment 2
+
+# Comment 3
+filter {}
+`,
+		},
+		{
+			name: "plugin section comment with whitespace after",
+			input: `# Comment
+
+filter {}
+`,
+		},
+		{
+			name: "file footer comment",
+			input: `filter {}
+output {}
+
+# Comment after
+`,
+		},
+		{
+			name: "Plugin with all attribute types with comments",
+			input: `input {
+  stdin {
+    # Comment
+    doublequotedstring => "doublequotedstring with escaped \" "
+
+    # Comment
+    singlequotedstring => 'singlequotedstring with escaped \' '
+
+    # Comment
+    "doublequotedkey" => value
+
+    # Comment
+    'singlequotedkey' => value
+
+    # Comment
+    bareword => bareword
+
+    # Comment
+    intnumber => 3
+
+    # Comment
+    floatnumber => 3.1415
+
+    # Comment
+    arrayvalue => [
+      # Comment
+      bareword,
+
+      # Comment
+      "doublequotedstring",
+
+      # Comment
+      'singlequotedstring',
+
+      # Comment
+      3,
+
+      # Comment
+      3.1415
+
+      # Comment
+    ]
+
+    # Comment
+    hashvalue => {
+      # Comment
+      doublequotedstring => "doublequotedstring"
+
+      # Comment
+      singlequotedstring => 'singlequotedstring'
+
+      # Comment
+      bareword => bareword
+
+      # Comment
+      intnumber => 3
+
+      # Comment
+      arrayvalue => [
+        # Comment
+        bareword,
+
+        # Comment
+        "doublequotedstring",
+
+        # Comment
+        'singlequotedstring',
+
+        # Comment
+        3,
+
+        # Comment
+        3.1415
+
+        # Comment
+      ]
+
+      # Comment
+      subhashvalue => {
+        # Comment
+        subhashvaluestring => value
+
+        # Comment
+      }
+
+      # Comment
+    }
+
+    # Comment
+    codec => rubydebug {
+      # Comment
+      string => "a string"
+
+      # Comment
+    }
+
+    # Comment
+  }
+}
+`,
+		},
+		{
+			name: "foobar",
+			input: `input {
+  stdin {
+    # Comment
+    codec => rubydebug {
+      # Comment
+      string => "a string"
+
+      # Comment
+    }
+
+    # Comment
+  }
+}
+`,
+		},
+		{
+			name: "Empty array with comment",
+			input: `input {
+  stdin {
+    arrayvalue => [
+      # Comment
+    ]
+  }
+}
+`,
+		},
+		{
+			name: "Empty hash with comment",
+			input: `input {
+  stdin {
+    hashvalue => {
+      # Comment
+    }
+  }
+}
+`,
+		},
+		{
+			name: "if, else-if and else branch with comments",
+			input: `filter {
+  # Comment
+  if 1 == 1 {
+    # Comment
+    date {}
+
+    # Comment
+  }
+  # Comment
+  else if 1 == 1 {
+    # Comment
+    date {}
+
+    # Comment
+  }
+  # Comment
+  else {
+    # Comment
+    date {}
+
+    # Comment
+  }
+
+  # Comment
+}
+`,
+		},
+		{
+			name: "comment only if, else-if and else",
+			input: `filter {
+  if 1 == 1 {
+    # Comment
+  } else if 1 == 1 {
+    # Comment
+  } else {
+    # Comment
   }
 }
 `,
@@ -316,11 +561,197 @@ func TestParser(t *testing.T) {
 			input: `input { 
   # Comment
   stdin {
+
     # Comment
+
   }
 }`,
 			expected: `input {
-  stdin {}
+  # Comment
+  stdin {
+    # Comment
+  }
+}
+`,
+		},
+		{
+			name: "Multiple filter sections without empty lines",
+			input: `filter {}
+filter {}
+filter {}
+`,
+			expected: `filter {}
+
+filter {}
+
+filter {}
+`,
+		},
+
+		// Comment
+		{
+			name: "plugin section comment with whitespace before",
+			input: `
+
+# Comment
+filter {}
+`,
+			expected: `# Comment
+filter {}
+`,
+		},
+		{
+			name: "plugin section comment with whitespace before and after",
+			input: `
+
+# Comment
+
+filter {}
+`,
+			expected: `# Comment
+
+filter {}
+`,
+		},
+		{
+			name: "file header, footer and plugin section comments with whitespace before and after",
+			input: `# Pre Filter comment
+
+# Filter comment
+filter {}
+
+# Input comment
+input {}
+
+# File footer comment
+`,
+			expected: `# Input comment
+input {}
+# Pre Filter comment
+
+# Filter comment
+filter {}
+
+# File footer comment
+`,
+		},
+		{
+			name: "file footer comment without spaceBefore",
+			input: `filter {}
+# Comment after
+`,
+			expected: `filter {}
+
+# Comment after
+`,
+		},
+		{
+			name: "pluginSection footer comment with and without spaceBefore",
+			input: `filter {
+  plugin {}
+
+  # pluginSection footer comment
+}
+
+filter {
+  plugin {}
+  # pluginSection footer comment
+}
+`,
+			expected: `filter {
+  plugin {}
+
+  # pluginSection footer comment
+}
+
+filter {
+  plugin {}
+
+  # pluginSection footer comment
+}
+`,
+		},
+		{
+			name: "pluginSection footer comment empty block with and without spaceBefore",
+			input: `filter {
+
+  # pluginSection footer comment
+}
+
+filter {
+  # pluginSection footer comment
+}
+`,
+			expected: `filter {
+  # pluginSection footer comment
+}
+
+filter {
+  # pluginSection footer comment
+}
+`,
+		},
+		{
+			name: "plugins without comments",
+			input: `filter {
+  plugin {}
+  otherplugin {}
+
+  thirdplugin {}
+}
+`,
+			expected: `filter {
+  plugin {}
+
+  otherplugin {}
+
+  thirdplugin {}
+}
+`,
+		},
+		{
+			name: "plugins with comments",
+			input: `filter {
+  # plugin comment
+  plugin {}
+  # otherplugin comment
+  otherplugin {}
+
+  # third plugin
+  thirdplugin {}
+}
+`,
+			expected: `filter {
+  # plugin comment
+  plugin {}
+
+  # otherplugin comment
+  otherplugin {}
+
+  # third plugin
+  thirdplugin {}
+}
+`,
+		},
+		{
+			name: "plugin with multiple comments",
+			input: `filter {
+  # additional comment
+
+  # plugin comment
+# multiple lines
+  plugin {}
+  # footer comment
+}
+`,
+			expected: `filter {
+  # additional comment
+
+  # plugin comment
+  # multiple lines
+  plugin {}
+
+  # footer comment
 }
 `,
 		},
@@ -328,12 +759,13 @@ func TestParser(t *testing.T) {
 
 	for _, test := range cases {
 		t.Run(test.name, func(t *testing.T) {
-			got, err := ParseReader("test", strings.NewReader(test.input))
+			got1, err := ParseReader("test", strings.NewReader(test.input))
 			if err != nil {
 				t.Fatalf("Expected to parse without error: %s, input:\n|%s|", err, test.input)
 			}
-			if test.expected != fmt.Sprintf("%v", got) {
-				t.Errorf("Expected output does not match parsed output, expected:\n|%s|\n\nparsed:\n|%v|", test.expected, got)
+			got := fmt.Sprintf("%v", got1)
+			if test.expected != got {
+				t.Errorf("Expected output does not match parsed output, expected:\n|%s|\n\nparsed:\n|%s|", test.expected, got1)
 			}
 		})
 	}

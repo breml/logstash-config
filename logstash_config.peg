@@ -27,12 +27,12 @@ init =
 // Removed _ after initial pluginSection (ps), because it is not needed.
 
 config =
-    _ ps:pluginSection pss:(
-        _ ps:pluginSection {
-            return ret(ps)
+    psComment:_ ps:pluginSection pss:(
+        psComment:_ ps:pluginSection {
+            return configSection(ps, psComment)
         }
-    )* _ EOF {
-        return config(ps, pss)
+    )* footerComment:_ EOF {
+        return config(ps, pss, psComment, footerComment)
     }
 
 //  rule comment
@@ -40,7 +40,9 @@ config =
 //  end
 
 comment =
-    (whitespace? "#" [^\r\n]* "\r"? ("\n" / EOF))+
+    (whitespace? "#" [^\r\n]* "\r"? ("\n" / EOF))+ {
+      return comment(c.text)
+    }
 
 //  rule _
 //    (comment / whitespace)* <LogStash::Config::AST::Whitespace>
@@ -64,7 +66,9 @@ __ =
 //  end
 
 whitespace =
-    [ \t\r\n]+
+    [ \t\r\n]+ {
+      return whitespace()
+    }
 
 //  rule plugin_section
 //    plugin_type _ "{"
@@ -74,18 +78,19 @@ whitespace =
 //  end
 
 // Moved _ after "{" to plugin / branch section to simplify comment handling
+// Moved _ footerComment outside of ( ... )* seciont to simplify comment handling
 
 pluginSection =
     pt:pluginType __ "{" bops:(
-        bop:branchOrPlugin _ {
+        bop:branchOrPlugin {
             return ret(bop)
         }
-    )* (
+    )* footerComment:_ (
         "}" / &{
             return pushError("expect closing curly bracket", c)
         }
     ) {
-        return pluginSection(pt, bops)
+        return pluginSection(pt, bops, footerComment)
     }
 
 //   rule branch_or_plugin
@@ -124,21 +129,23 @@ pluginType =
 //     <LogStash::Config::AST::Plugin>
 //   end
 
+// Moved _ after "{" inside block attributes before attribute to simplify comment handling
+
 plugin =
-    _ name:name __ "{" _ attributes:(
-        attribute:attribute attrs:(
-            whitespace _ attribute:attribute {
-                return ret(attribute)
+    comment:_ name:name __ "{" attributes:(
+        comment:_ attribute:attribute attrs:(
+            whitespace comment:_ attribute:attribute {
+                return attributeComment(attribute, comment, true)
             }
         )* {
-            return attributes(attribute, attrs)
+            return attributes(attribute, attrs, comment)
         }
-    )? _ (
+    )? footerComment:_ (
         "}" / &{
             return fatalError("expect closing curly bracket", c)
         }
     ) {
-        return plugin(name, attributes)
+        return plugin(name, attributes, comment, footerComment)
     }
 
 //   rule name
@@ -267,21 +274,24 @@ number =
 //   end
 
 // TODO: value should be changed to to array_value due to https://github.com/elastic/logstash/issues/6580
+
+// Moved _ after "[" inside values infront of first value:value to simplify comment handling
+
 array =
-    "[" _ value:(
-        value:value values:(
-            __ "," _ value:value {
-                return ret(value)
+    "[" values:(
+        comment:_ value:value values:(
+            __ "," comment:_ value:value {
+                return attributeComment(value, comment, true)
             }
         )* {
-            return attributes(value, values)
+            return attributes(value, values, comment)
         }
-    )? _ (
+    )? footerComment:_ (
         "]" / &{
             return fatalError("expect closing square bracket", c)
         }
     ) {
-        return array(value)
+        return array(values, footerComment)
     }
 
 //   rule hash
@@ -293,13 +303,15 @@ array =
 //     <LogStash::Config::AST::Hash>
 //   end
 
+// Moved _ after "{" to hashentry section to simplify comment handling
+
 hash =
-    "{" _ entries:hashentries? _ (
+    "{" entries:hashentries? footerComment:_ (
         "}" / &{
             return fatalError("expect closing curly bracket", c)
         }
     ) {
-        return hash(entries)
+        return hash(entries, footerComment)
     }
 
 //   rule hashentries
@@ -322,8 +334,8 @@ hashentries =
 //   end
 
 hashentry =
-    name:(number / bareword / stringValue) __ "=>" __ value:value {
-        return hashentry(name, value)
+    comment:_ name:(number / bareword / stringValue) __ "=>" __ value:value {
+        return hashentry(name, value, comment)
     }
 
 // Conditions
@@ -336,16 +348,16 @@ hashentry =
 // Added _ before ifBlock to simplify comment handling
 
 branch =
-    _ ifBlock:ifCond elseIfBlocks:(
-        _ eib:elseIf {
-                return ret(eib)
+    ifComment:_ ifBlock:ifCond elseIfBlocks:(
+        eibComment:_ eib:elseIf {
+                return elseIfComment(eib, eibComment)
             }
         )* elseBlock:(
-            _ eb:elseCond {
-                return ret(eb)
+            ebComment:_ eb:elseCond {
+                return elseComment(eb, ebComment)
             }
         )? {
-        return branch(ifBlock, elseIfBlocks, elseBlock)
+        return branch(ifBlock, elseIfBlocks, elseBlock, ifComment)
     }
 
 //   rule if
@@ -353,17 +365,20 @@ branch =
 //     <LogStash::Config::AST::If>
 //   end
 
+// Moved _ after "{" into bops to simplify comment handling
+// Moved _ after bop outside of bops to simplify comment handling
+
 ifCond =
-    "if" __ cond:condition __ "{" _ bops:(
-            bop:branchOrPlugin _ {
-                return ret(bop)
+    "if" __ cond:condition __ "{" bops:(
+            comment:_ bop:branchOrPlugin {
+                return branchOrPluginComment(bop, comment)
             }
-        )* (
+        )* footerComment:_ (
             "}" / &{
                 return fatalError("expect closing curly bracket", c)
             }
         ) {
-        return ifBlock(cond, bops)
+        return ifBlock(cond, bops, footerComment)
     }
 
 //   rule else_if
@@ -371,17 +386,20 @@ ifCond =
 //     <LogStash::Config::AST::Elsif>
 //   end
 
+// Moved _ after "{" into bops to simplify comment handling
+// Moved _ after bop outside of bops to simplify comment handling
+
 elseIf =
-    "else" __ "if" __ cond:condition __ "{" _ bops:(
-        bop:branchOrPlugin _ {
-            return ret(bop)
+    "else" __ "if" __ cond:condition __ "{" bops:(
+        comment:_ bop:branchOrPlugin {
+            return branchOrPluginComment(bop, comment)
         }
-    )* (
+    )* footerComment:_ (
         "}" / &{
             return fatalError("expect closing curly bracket", c)
         }
     ) {
-        return elseIfBlock(cond, bops)
+        return elseIfBlock(cond, bops, footerComment)
     }
 
 //   rule else
@@ -389,17 +407,20 @@ elseIf =
 //     <LogStash::Config::AST::Else>
 //   end
 
+// Moved _ after "{" into bops to simplify comment handling
+// Moved _ after bop outside of bops to simplify comment handling
+
 elseCond =
-    "else" __ "{" _ bops:(
-        bop:branchOrPlugin _ {
-            return ret(bop)
+    "else" __ "{" bops:(
+        comment:_ bop:branchOrPlugin {
+            return branchOrPluginComment(bop, comment)
         }
-    )* (
+    )* footerComment:_ (
         "}" / &{
             return fatalError("expect closing curly bracket", c)
         }
     ) {
-        return elseBlock(bops)
+        return elseBlock(bops, footerComment)
     }
 
 //   rule condition

@@ -6,6 +6,7 @@ import (
 	"bytes"
 	"fmt"
 	"strconv"
+	"strings"
 
 	"github.com/breml/logstash-config/ast"
 )
@@ -44,7 +45,48 @@ func retConfig(c *current, el interface{}) (interface{}, error) {
 	return conf, nil
 }
 
-func config(ps1, pss1 interface{}) (ast.Config, error) {
+func commentBlock(comment1 interface{}, spaceBefore bool, spaceAfter bool) ast.CommentBlock {
+	comments1 := toIfaceSlice(comment1)
+	var comments []ast.Comment
+	for i, icb1 := range comments1 {
+		switch t := icb1.(type) {
+		case []ast.Comment:
+			// If spaceBefore is enabled and it is the first comment and there are
+			// actualy comment in t, enable space before for the first comment.
+			if spaceBefore && len(comments) == 0 && len(t) > 0 {
+				t[0].SpaceBefore = true
+			}
+			comments = append(comments, t...)
+		case ast.Whitespace:
+			// If there is a gap between the comments, preserve the gap.
+			if len(comments) > 0 && i < len(comments1)-1 {
+				comments[len(comments)-1].SpaceAfter = true
+				continue
+			}
+			// If spaceAfter is preserved.
+			if len(comments) > 0 && spaceAfter {
+				comments[len(comments)-1].SpaceAfter = true
+				continue
+			}
+		}
+	}
+	return comments
+}
+
+func configSection(ps1, psComment1 interface{}) (ast.PluginSection, error) {
+	ps, ok := ps1.(ast.PluginSection)
+	if !ok {
+		return ast.PluginSection{}, fmt.Errorf("Value is not a PluginSection: %#v", ps1)
+	}
+
+	psComments := commentBlock(psComment1, false, false)
+
+	ps.CommentBlock = psComments
+
+	return ps, nil
+}
+
+func config(ps1, pss1, psComment1, footerComment1 interface{}) (ast.Config, error) {
 	var (
 		input  []ast.PluginSection
 		filter []ast.PluginSection
@@ -54,8 +96,16 @@ func config(ps1, pss1 interface{}) (ast.Config, error) {
 	ips := toIfaceSlice(ps1)
 	ips = append(ips, toIfaceSlice(pss1)...)
 
+	psComment := commentBlock(psComment1, false, true)
+	footerComments := commentBlock(footerComment1, true, false)
+
+	first := true
 	for _, ips1 := range ips {
 		if ps, ok := ips1.(ast.PluginSection); ok {
+			if first {
+				ps.CommentBlock = psComment
+				first = false
+			}
 			switch ps.PluginType {
 			case ast.Input:
 				input = append(input, ps)
@@ -72,9 +122,10 @@ func config(ps1, pss1 interface{}) (ast.Config, error) {
 	}
 
 	return ast.Config{
-		Input:  input,
-		Filter: filter,
-		Output: output,
+		Input:         input,
+		Filter:        filter,
+		Output:        output,
+		FooterComment: footerComments,
 	}, nil
 }
 
@@ -88,7 +139,36 @@ func warnComment(c *current) error {
 	return nil
 }
 
-func pluginSection(pt1, bops1 interface{}) (ast.PluginSection, error) {
+func whitespace() (ast.Whitespace, error) {
+	return ast.Whitespace{}, nil
+}
+
+func comment(c1 []byte) ([]ast.Comment, error) {
+	lines := strings.Split(strings.Trim(strings.ReplaceAll(string(c1), "\r", ""), "\n"), "\n")
+
+	var commentLines []ast.Comment
+	var space bool
+	for i, line := range lines {
+		idx := strings.Index(line, "#")
+		if idx == -1 {
+			if i > 0 {
+				space = true
+			}
+			continue
+		}
+		var c string
+		if len(line) > idx+1 {
+			c = string(line[idx+1:])
+		}
+		c = strings.Trim(c, " ")
+		commentLines = append(commentLines, ast.NewComment(c, space))
+		space = false
+	}
+
+	return commentLines, nil
+}
+
+func pluginSection(pt1, bops1, footerComment1 interface{}) (ast.PluginSection, error) {
 	pt := ast.PluginType(pt1.(int))
 	ibops := toIfaceSlice(bops1)
 	var bops []ast.BranchOrPlugin
@@ -101,17 +181,26 @@ func pluginSection(pt1, bops1 interface{}) (ast.PluginSection, error) {
 	return ast.PluginSection{
 		PluginType:      pt,
 		BranchOrPlugins: bops,
+		FooterComment:   commentBlock(footerComment1, false, false),
 	}, nil
 }
 
-func plugin(name, attributes interface{}) (ast.Plugin, error) {
-	if attributes != nil {
-		return ast.NewPlugin(name.(string), attributes.([]ast.Attribute)...), nil
+func plugin(name, attributes1, comment1, footerComment1 interface{}) (ast.Plugin, error) {
+	var attributes []ast.Attribute
+	if attributes1 != nil {
+		attributes = attributes1.([]ast.Attribute)
 	}
-	return ast.NewPlugin(name.(string), nil), nil
+
+	p := ast.NewPlugin(name.(string), attributes...)
+
+	p.Comment = commentBlock(comment1, false, false)
+	p.FooterComment = commentBlock(footerComment1, false, false)
+
+	return p, nil
 }
 
-func attributes(attribute, attributes1 interface{}) ([]ast.Attribute, error) {
+func attributes(attribute1, attributes1, comment1 interface{}) ([]ast.Attribute, error) {
+	attribute, _ := attributeComment(attribute1, comment1, false)
 	iattributes := toIfaceSlice(attribute)
 	iattributes = append(iattributes, toIfaceSlice(attributes1)...)
 
@@ -121,11 +210,35 @@ func attributes(attribute, attributes1 interface{}) ([]ast.Attribute, error) {
 		if attr, ok := attr.(ast.Attribute); ok {
 			attributes = append(attributes, attr)
 		} else {
-			return nil, fmt.Errorf("Argument is not an attribute")
+			return nil, fmt.Errorf("Argument is not an attribute: %#v", attr)
 		}
 	}
 
 	return attributes, nil
+}
+
+func attributeComment(attribute1, comment1 interface{}, spaceBefore bool) (ast.Attribute, error) {
+	var attribute ast.Attribute
+	switch attr := attribute1.(type) {
+	case ast.StringAttribute:
+		attr.Comment = commentBlock(comment1, spaceBefore, false)
+		attribute = attr
+	case ast.NumberAttribute:
+		attr.Comment = commentBlock(comment1, spaceBefore, false)
+		attribute = attr
+	case ast.ArrayAttribute:
+		attr.Comment = commentBlock(comment1, spaceBefore, false)
+		attribute = attr
+	case ast.HashAttribute:
+		attr.Comment = commentBlock(comment1, spaceBefore, false)
+		attribute = attr
+	case ast.PluginAttribute:
+		attr.Comment = commentBlock(comment1, spaceBefore, false)
+		attribute = attr
+	default:
+		return nil, fmt.Errorf("Unsupported attribute type %#v", attribute1)
+	}
+	return attribute, nil
 }
 
 func attribute(name, value interface{}) (ast.Attribute, error) {
@@ -146,9 +259,13 @@ func attribute(name, value interface{}) (ast.Attribute, error) {
 	case ast.NumberAttribute:
 		return ast.NewNumberAttribute(key.ValueString(), value.Value()), nil
 	case ast.ArrayAttribute:
-		return ast.NewArrayAttribute(key.ValueString(), value.Value()...), nil
+		aa := ast.NewArrayAttribute(key.ValueString(), value.Value()...)
+		aa.FooterComment = value.FooterComment
+		return aa, nil
 	case ast.HashAttribute:
-		return ast.NewHashAttribute(key.ValueString(), value.Value()...), nil
+		ha := ast.NewHashAttribute(key.ValueString(), value.Value()...)
+		ha.FooterComment = value.FooterComment
+		return ha, nil
 	case ast.Plugin:
 		return ast.NewPluginAttribute(key.ValueString(), value), nil
 	default:
@@ -170,25 +287,39 @@ func number(value string) (ast.NumberAttribute, error) {
 	return ast.NewNumberAttribute("", f), nil
 }
 
-func array(attributes interface{}) (ast.ArrayAttribute, error) {
-	if attributes != nil {
-		return ast.NewArrayAttribute("", attributes.([]ast.Attribute)...), nil
+func array(attributes1, footerComment1 interface{}) (ast.ArrayAttribute, error) {
+	var attributes []ast.Attribute
+	if attributes1 != nil {
+		attributes = attributes1.([]ast.Attribute)
 	}
-	// TODO: Is this an error?
-	return ast.NewArrayAttribute("", nil), nil
+
+	a := ast.NewArrayAttribute("", attributes...)
+
+	a.FooterComment = commentBlock(footerComment1, false, false)
+
+	return a, nil
 }
 
-func hash(attributes interface{}) (ast.HashAttribute, error) {
-	if attributes != nil {
-		return ast.NewHashAttribute("", attributes.([]ast.HashEntry)...), nil
+func hash(attributes1, footerComment1 interface{}) (ast.HashAttribute, error) {
+	var hashentries []ast.HashEntry
+	if attributes1 != nil {
+		hashentries = attributes1.([]ast.HashEntry)
 	}
-	// TODO: Is this an error?
-	return ast.HashAttribute{}, nil
+
+	a := ast.NewHashAttribute("", hashentries...)
+
+	a.FooterComment = commentBlock(footerComment1, false, false)
+
+	return a, nil
 }
 
 func hashentries(attribute, attributes1 interface{}) ([]ast.HashEntry, error) {
-	// TODO: is this function generalizable with attributes?
-	iattributes := toIfaceSlice(attribute)
+	entry := attribute.(ast.HashEntry)
+	if len(entry.Comment) > 0 {
+		entry.Comment[0].SpaceBefore = false
+	}
+
+	iattributes := toIfaceSlice(entry)
 	iattributes = append(iattributes, toIfaceSlice(attributes1)...)
 
 	var attributes []ast.HashEntry
@@ -204,7 +335,7 @@ func hashentries(attribute, attributes1 interface{}) ([]ast.HashEntry, error) {
 	return attributes, nil
 }
 
-func hashentry(name, value interface{}) (ast.HashEntry, error) {
+func hashentry(name, value, comment interface{}) (ast.HashEntry, error) {
 	var key ast.StringAttribute
 
 	switch name := name.(type) {
@@ -212,10 +343,25 @@ func hashentry(name, value interface{}) (ast.HashEntry, error) {
 		key = name
 	}
 
-	return ast.NewHashEntry(key.ValueString(), value.(ast.Attribute)), nil
+	he := ast.NewHashEntry(key.ValueString(), value.(ast.Attribute))
+	he.Comment = commentBlock(comment, true, false)
+
+	return he, nil
 }
 
-func branch(ifBlock, elseIfBlocks1, elseBlock1 interface{}) (ast.Branch, error) {
+func elseIfComment(eib1, eibComment1 interface{}) (ast.ElseIfBlock, error) {
+	eib := eib1.(ast.ElseIfBlock)
+	eib.Comment = commentBlock(eibComment1, false, false)
+	return eib, nil
+}
+
+func elseComment(eb1, ebComment1 interface{}) (ast.ElseBlock, error) {
+	eb := eb1.(ast.ElseBlock)
+	eb.Comment = commentBlock(ebComment1, false, false)
+	return eb, nil
+}
+
+func branch(ifBlock1, elseIfBlocks1, elseBlock1, ifComment interface{}) (ast.Branch, error) {
 	ielseIfBlocks := toIfaceSlice(elseIfBlocks1)
 
 	var elseIfBlocks []ast.ElseIfBlock
@@ -232,19 +378,44 @@ func branch(ifBlock, elseIfBlocks1, elseBlock1 interface{}) (ast.Branch, error) 
 		elseBlock = elseBlock1.(ast.ElseBlock)
 	}
 
-	return ast.NewBranch(ifBlock.(ast.IfBlock), elseBlock, elseIfBlocks...), nil
+	ifBlock := ifBlock1.(ast.IfBlock)
+	ifBlock.Comment = commentBlock(ifComment, false, false)
+
+	return ast.NewBranch(ifBlock, elseBlock, elseIfBlocks...), nil
 }
 
-func ifBlock(cond, bops interface{}) (ast.IfBlock, error) {
-	return ast.NewIfBlock(cond.(ast.Condition), branchOrPlugins(bops)...), nil
+func branchOrPluginComment(bop1, comment1 interface{}) (ast.BranchOrPlugin, error) {
+	var eop ast.BranchOrPlugin
+	switch t := bop1.(type) {
+	case ast.Plugin:
+		t.Comment = commentBlock(comment1, false, false)
+		eop = t
+	case ast.Branch:
+		t.IfBlock.Comment = commentBlock(comment1, false, false)
+		eop = t
+	default:
+		return nil, fmt.Errorf("invalid value for if block")
+	}
+
+	return eop, nil
 }
 
-func elseIfBlock(cond, bops interface{}) (ast.ElseIfBlock, error) {
-	return ast.NewElseIfBlock(cond.(ast.Condition), branchOrPlugins(bops)...), nil
+func ifBlock(cond, bops, comment1 interface{}) (ast.IfBlock, error) {
+	ib := ast.NewIfBlock(cond.(ast.Condition), branchOrPlugins(bops)...)
+	ib.FooterComment = commentBlock(comment1, false, false)
+	return ib, nil
 }
 
-func elseBlock(bops interface{}) (ast.ElseBlock, error) {
-	return ast.NewElseBlock(branchOrPlugins(bops)...), nil
+func elseIfBlock(cond, bops, comment1 interface{}) (ast.ElseIfBlock, error) {
+	eib := ast.NewElseIfBlock(cond.(ast.Condition), branchOrPlugins(bops)...)
+	eib.FooterComment = commentBlock(comment1, false, false)
+	return eib, nil
+}
+
+func elseBlock(bops, comment1 interface{}) (ast.ElseBlock, error) {
+	eb := ast.NewElseBlock(branchOrPlugins(bops)...)
+	eb.FooterComment = commentBlock(comment1, false, false)
+	return eb, nil
 }
 
 func branchOrPlugins(bops1 interface{}) []ast.BranchOrPlugin {

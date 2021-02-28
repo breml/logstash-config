@@ -7,10 +7,11 @@ import (
 
 // A Config node represents the root node of a Logstash configuration.
 type Config struct {
-	Input    []PluginSection
-	Filter   []PluginSection
-	Output   []PluginSection
-	Warnings []string
+	Input         []PluginSection
+	Filter        []PluginSection
+	Output        []PluginSection
+	FooterComment CommentBlock
+	Warnings      []string
 }
 
 // NewConfig creates a new Logstash config.
@@ -29,7 +30,51 @@ func (c Config) String() string {
 	s.WriteString(pluginSectionString("input", c.Input))
 	s.WriteString(pluginSectionString("filter", c.Filter))
 	s.WriteString(pluginSectionString("output", c.Output))
+	for _, c := range c.FooterComment {
+		s.WriteString(c.String())
+	}
 
+	return s.String()
+}
+
+type Whitespace struct{}
+
+type CommentBlock []Comment
+
+func NewCommentBlock(comments ...Comment) CommentBlock {
+	return comments
+}
+
+func (cb CommentBlock) String() string {
+	var s bytes.Buffer
+	for _, c := range cb {
+		s.WriteString(c.String())
+	}
+	return s.String()
+}
+
+type Comment struct {
+	comment     string
+	SpaceBefore bool
+	SpaceAfter  bool
+}
+
+func NewComment(comment string, space bool) Comment {
+	return Comment{
+		comment:     comment,
+		SpaceBefore: space,
+	}
+}
+
+func (c Comment) String() string {
+	var s bytes.Buffer
+	if c.SpaceBefore {
+		s.WriteString("\n")
+	}
+	s.WriteString(fmt.Sprintf("# %s\n", c.comment))
+	if c.SpaceAfter {
+		s.WriteString("\n")
+	}
 	return s.String()
 }
 
@@ -39,13 +84,18 @@ func pluginSectionString(pluginType string, ps []PluginSection) string {
 	}
 
 	var s bytes.Buffer
-	s.WriteString(fmt.Sprint(pluginType + " {"))
-	var ss bytes.Buffer
-	for _, p := range ps {
-		ss.WriteString(fmt.Sprintf("%v", p))
+	for i, p := range ps {
+		if len(ps) > 0 {
+			s.WriteString(ps[0].CommentBlock.String())
+		}
+		s.WriteString(fmt.Sprint(pluginType + " {"))
+		s.WriteString(prefix(p.String(), false))
+		s.WriteString(prefix(p.FooterComment.String(), false))
+		s.WriteString(fmt.Sprintln("}"))
+		if i < len(ps)-1 {
+			s.WriteString("\n")
+		}
 	}
-	s.WriteString(prefix(ss.String(), false))
-	s.WriteString(fmt.Sprintln("}"))
 	return s.String()
 }
 
@@ -85,6 +135,8 @@ func (pt PluginType) String() string {
 type PluginSection struct {
 	PluginType      PluginType
 	BranchOrPlugins []BranchOrPlugin
+	CommentBlock    CommentBlock
+	FooterComment   CommentBlock
 }
 
 // NewPluginSection creates a new plugin section.
@@ -109,7 +161,13 @@ func (ps PluginSection) String() string {
 		if bop == nil {
 			continue
 		}
+		if s.Len() > 0 {
+			s.WriteString("\n")
+		}
 		s.WriteString(fmt.Sprintf("%v", bop))
+		if s.Len() > 0 {
+			s.WriteString("\n")
+		}
 	}
 	return s.String()
 }
@@ -126,8 +184,10 @@ func (Branch) branchOrPlugin() {}
 
 // A Plugin node represents a Logstash plugin.
 type Plugin struct {
-	name       string
-	Attributes []Attribute
+	name          string
+	Attributes    []Attribute
+	Comment       CommentBlock
+	FooterComment CommentBlock
 }
 
 // NewPlugin creates a new plugin.
@@ -146,6 +206,9 @@ func (p Plugin) Name() string {
 // String returns a string representation of a plugin.
 func (p Plugin) String() string {
 	var s bytes.Buffer
+
+	s.WriteString(p.Comment.String())
+
 	s.WriteString(fmt.Sprint(p.Name(), " {"))
 
 	var ss bytes.Buffer
@@ -153,11 +216,17 @@ func (p Plugin) String() string {
 		if attr == nil {
 			continue
 		}
-		ss.WriteString(fmt.Sprintln(attr.String()))
+		ss.WriteString(attr.CommentBlock())
+		ss.WriteString(attr.String())
+		ss.WriteString("\n")
 	}
+	if ss.Len() > 0 {
+		ss.WriteString("\n")
+	}
+	ss.WriteString(p.FooterComment.String())
 	s.WriteString(prefix(ss.String(), false))
 
-	s.WriteString(fmt.Sprintln("}"))
+	s.WriteString("}")
 	return s.String()
 }
 
@@ -166,6 +235,7 @@ type Attribute interface {
 	Name() string
 	String() string
 	ValueString() string
+	CommentBlock() string
 	attributeNode()
 }
 
@@ -179,8 +249,9 @@ func (HashAttribute) attributeNode()   {}
 
 // A PluginAttribute node represents a plugin attribute of type plugin.
 type PluginAttribute struct {
-	name  string
-	value Plugin
+	name    string
+	value   Plugin
+	Comment CommentBlock
 }
 
 // NewPluginAttribute creates a new plugin attribute.
@@ -204,6 +275,11 @@ func (pa PluginAttribute) String() string {
 // ValueString returns the value of the node as a string representation.
 func (pa PluginAttribute) ValueString() string {
 	return pa.value.String()
+}
+
+// CommentBlock returns the comment of the node.
+func (pa PluginAttribute) CommentBlock() string {
+	return pa.Comment.String()
 }
 
 const (
@@ -238,9 +314,10 @@ func (sat StringAttributeType) String() string {
 
 // StringAttribute is a plugin attribute of type string.
 type StringAttribute struct {
-	name  string
-	value string
-	sat   StringAttributeType
+	name    string
+	value   string
+	sat     StringAttributeType
+	Comment CommentBlock
 }
 
 // NewStringAttribute creates a new plugin attribute of type string.
@@ -267,6 +344,11 @@ func (sa StringAttribute) ValueString() string {
 	return fmt.Sprintf("%s%s%s", sa.StringAttributeType(), sa.Value(), sa.StringAttributeType())
 }
 
+// CommentBlock returns the comment of the node.
+func (sa StringAttribute) CommentBlock() string {
+	return sa.Comment.String()
+}
+
 // Value returns the value of the node.
 func (sa StringAttribute) Value() string {
 	return sa.value
@@ -279,8 +361,9 @@ func (sa StringAttribute) StringAttributeType() StringAttributeType {
 
 // A NumberAttribute node represents a plugin attribute of type number.
 type NumberAttribute struct {
-	name  string
-	value float64
+	name    string
+	value   float64
+	Comment CommentBlock
 }
 
 // NewNumberAttribute creates a new number attribute.
@@ -306,6 +389,11 @@ func (na NumberAttribute) ValueString() string {
 	return fmt.Sprintf("%v", na.Value())
 }
 
+// CommentBlock returns the comment of the node.
+func (na NumberAttribute) CommentBlock() string {
+	return na.Comment.String()
+}
+
 // Value returns the value of the node.
 func (na NumberAttribute) Value() float64 {
 	return na.value
@@ -313,8 +401,10 @@ func (na NumberAttribute) Value() float64 {
 
 // A ArrayAttribute node represents a plugin attribute of type array.
 type ArrayAttribute struct {
-	name  string
-	value []Attribute
+	name          string
+	value         []Attribute
+	Comment       CommentBlock
+	FooterComment CommentBlock
 }
 
 // NewArrayAttribute creates a new array attribute.
@@ -338,8 +428,9 @@ func (aa ArrayAttribute) String() string {
 // ValueString returns the value of the node as a string representation.
 func (aa ArrayAttribute) ValueString() string {
 	var s bytes.Buffer
-	s.WriteString("[ ")
+	s.WriteString("[")
 
+	var ss bytes.Buffer
 	first := true
 	for _, a := range aa.Value() {
 		if a == nil {
@@ -348,12 +439,24 @@ func (aa ArrayAttribute) ValueString() string {
 		if first {
 			first = false
 		} else {
-			s.WriteString(", ")
+			ss.WriteString(",\n")
 		}
-		s.WriteString(a.ValueString())
+		ss.WriteString(a.CommentBlock())
+		ss.WriteString(a.ValueString())
 	}
-	s.WriteString(" ]")
+	if ss.Len() > 0 {
+		ss.WriteString("\n\n")
+	}
+	ss.WriteString(aa.FooterComment.String())
+	s.WriteString(prefix(ss.String(), false))
+	s.WriteString("]")
+
 	return s.String()
+}
+
+// CommentBlock returns the comment of the node.
+func (aa ArrayAttribute) CommentBlock() string {
+	return aa.Comment.String()
 }
 
 // Value returns the value of the node.
@@ -363,8 +466,10 @@ func (aa ArrayAttribute) Value() []Attribute {
 
 // A HashAttribute node represents a plugin attribute of type hash.
 type HashAttribute struct {
-	name  string
-	value []HashEntry
+	name          string
+	value         []HashEntry
+	Comment       CommentBlock
+	FooterComment CommentBlock
 }
 
 // NewHashAttribute creates a new hash attribute.
@@ -392,12 +497,22 @@ func (ha HashAttribute) ValueString() string {
 
 	var ss bytes.Buffer
 	for _, v := range ha.Value() {
-		ss.WriteString(fmt.Sprintln(v.String()))
+		ss.WriteString(v.String())
+		ss.WriteString("\n")
 	}
+	if ss.Len() > 0 {
+		ss.WriteString("\n")
+	}
+	ss.WriteString(ha.FooterComment.String())
 	s.WriteString(prefix(ss.String(), false))
 
 	s.WriteString("}")
 	return s.String()
+}
+
+// CommentBlock returns the comment of the node.
+func (ha HashAttribute) CommentBlock() string {
+	return ha.Comment.String()
 }
 
 // Value returns the value of the node.
@@ -407,8 +522,9 @@ func (ha HashAttribute) Value() []HashEntry {
 
 // A HashEntry node defines a hash entry within a hash attribute.
 type HashEntry struct {
-	name  string
-	value Attribute
+	name    string
+	value   Attribute
+	Comment CommentBlock
 }
 
 // NewHashEntry creates a new hash entry for a hash attribute.
@@ -426,7 +542,7 @@ func (he HashEntry) Name() string {
 
 // String returns a string representation of a hash entry.
 func (he HashEntry) String() string {
-	return fmt.Sprintf("%s => %s", he.Name(), he.ValueString())
+	return fmt.Sprintf("%s%s => %s", he.Comment, he.Name(), he.ValueString())
 }
 
 // ValueString returns the value of the node as a string representation.
@@ -465,18 +581,21 @@ func NewBranch(ifBlock IfBlock, elseBlock ElseBlock, elseIfBlock ...ElseIfBlock)
 // String returns a string representation of a branch.
 func (b Branch) String() string {
 	var s bytes.Buffer
-	s.WriteString(fmt.Sprint(b.IfBlock))
+	s.WriteString(b.IfBlock.String())
 	for _, block := range b.ElseIfBlock {
-		s.WriteString(fmt.Sprint(block))
+		s.WriteString(block.String())
 	}
-	s.WriteString(fmt.Sprintln(b.ElseBlock))
+	s.WriteString(b.ElseBlock.String())
+	s.WriteString("\n")
 	return s.String()
 }
 
 // A IfBlock node represents an if-block of a Branch.
 type IfBlock struct {
-	Condition Condition
-	Block     []BranchOrPlugin
+	Condition     Condition
+	Block         []BranchOrPlugin
+	Comment       CommentBlock
+	FooterComment CommentBlock
 }
 
 // NewIfBlock creates a new if-block.
@@ -490,6 +609,7 @@ func NewIfBlock(condition Condition, block ...BranchOrPlugin) IfBlock {
 // String returns a string representation of an if-block.
 func (ib IfBlock) String() string {
 	var s bytes.Buffer
+	s.WriteString(ib.Comment.String())
 	s.WriteString(fmt.Sprintf("if %v {", ib.Condition))
 
 	var ss bytes.Buffer
@@ -497,8 +617,15 @@ func (ib IfBlock) String() string {
 		if block == nil {
 			continue
 		}
-		ss.WriteString(fmt.Sprint(block))
+		ss.WriteString(fmt.Sprintf("%v", block))
+		if ss.Len() > 0 {
+			ss.WriteString("\n")
+		}
 	}
+	if ss.Len() > 0 {
+		ss.WriteString("\n")
+	}
+	ss.WriteString(ib.FooterComment.String())
 	s.WriteString(prefix(ss.String(), true))
 
 	s.WriteString("}")
@@ -507,8 +634,10 @@ func (ib IfBlock) String() string {
 
 // A ElseIfBlock node represents an else-if-block of a Branch.
 type ElseIfBlock struct {
-	Condition Condition
-	Block     []BranchOrPlugin
+	Condition     Condition
+	Block         []BranchOrPlugin
+	Comment       CommentBlock
+	FooterComment CommentBlock
 }
 
 // NewElseIfBlock creates a new else-if-block of a Branch.
@@ -522,7 +651,13 @@ func NewElseIfBlock(condition Condition, block ...BranchOrPlugin) ElseIfBlock {
 // String returns a string representation of an else if block.
 func (eib ElseIfBlock) String() string {
 	var s bytes.Buffer
-	s.WriteString(fmt.Sprintf(" else if %v {", eib.Condition))
+	if len(eib.Comment) > 0 {
+		s.WriteString("\n")
+		s.WriteString(eib.Comment.String())
+	} else {
+		s.WriteString(" ")
+	}
+	s.WriteString(fmt.Sprintf("else if %v {", eib.Condition))
 
 	var ss bytes.Buffer
 	for _, block := range eib.Block {
@@ -530,7 +665,14 @@ func (eib ElseIfBlock) String() string {
 			continue
 		}
 		ss.WriteString(fmt.Sprint(block))
+		if ss.Len() > 0 {
+			ss.WriteString("\n")
+		}
 	}
+	if ss.Len() > 0 {
+		ss.WriteString("\n")
+	}
+	ss.WriteString(eib.FooterComment.String())
 	s.WriteString(prefix(ss.String(), true))
 
 	s.WriteString("}")
@@ -539,7 +681,9 @@ func (eib ElseIfBlock) String() string {
 
 // A ElseBlock node represents a else-block of a Branch.
 type ElseBlock struct {
-	Block []BranchOrPlugin
+	Block         []BranchOrPlugin
+	Comment       CommentBlock
+	FooterComment CommentBlock
 }
 
 // NewElseBlock creates a new else-block
@@ -551,19 +695,32 @@ func NewElseBlock(block ...BranchOrPlugin) ElseBlock {
 
 // String returns a string representation of an else block.
 func (eb ElseBlock) String() string {
-	if eb.Block == nil || len(eb.Block) == 0 {
+	if len(eb.Block) == 0 && len(eb.Comment) == 0 && len(eb.FooterComment) == 0 {
 		return ""
 	}
 
 	var s bytes.Buffer
-	s.WriteString(" else {")
+	if len(eb.Comment) > 0 {
+		s.WriteString("\n")
+		s.WriteString(eb.Comment.String())
+	} else {
+		s.WriteString(" ")
+	}
+	s.WriteString("else {")
 	var ss bytes.Buffer
 	for _, block := range eb.Block {
 		if block == nil {
 			continue
 		}
 		ss.WriteString(fmt.Sprint(block))
+		if ss.Len() > 0 {
+			ss.WriteString("\n")
+		}
 	}
+	if ss.Len() > 0 {
+		ss.WriteString("\n")
+	}
+	ss.WriteString(eb.FooterComment.String())
 	s.WriteString(prefix(ss.String(), true))
 	s.WriteString("}")
 	return s.String()
@@ -1052,4 +1209,11 @@ func NewSelectorElement(name string) SelectorElement {
 // String returns a string representation of a selector element.
 func (se SelectorElement) String() string {
 	return fmt.Sprintf("[%s]", se.name)
+}
+
+// FIXME: Do I need this interface?
+
+// A Commentable node is an ast node, which accepts comments.
+type Commentable interface {
+	SetComment(cb CommentBlock)
 }
