@@ -3,6 +3,7 @@ package config
 import (
 	"bytes"
 	"fmt"
+	"strings"
 )
 
 type errPos struct {
@@ -18,13 +19,18 @@ var farthestFailure []errPos
 func GetFarthestFailure() (string, bool) {
 	if len(farthestFailure) > 0 {
 		var bb bytes.Buffer
-		bb.WriteString(fmt.Sprintf("Parsing error at pos %s and [%d] (after: '%s'):\n", farthestFailure[0].c.pos, farthestFailure[0].pos, string(farthestFailure[0].c.text)))
+		bb.WriteString(fmt.Sprintf("Parsing error at pos %s and [%d] (after: '%s'):\n", farthestFailure[0].c.pos, farthestFailure[0].pos, showNewline(string(farthestFailure[0].c.text))))
 		for _, e := range farthestFailure {
 			bb.WriteString(fmt.Sprintf("-> %s\n", e.msg))
 		}
 		return bb.String(), true
 	}
 	return "", false
+}
+
+func showNewline(str string) string {
+	str = strings.ReplaceAll(str, "\n", "\\n")
+	return str
 }
 
 func pos(c *current) int {
@@ -65,7 +71,7 @@ func (c *current) fatalError(errorMsg string) (bool, error) {
 		},
 	}
 	var bb bytes.Buffer
-	bb.WriteString(fmt.Sprintf("Parsing error at pos %s and [%d] (after: '%s'):\n", c.pos, pos(c), string(c.text)))
+	bb.WriteString(fmt.Sprintf("Parsing error at pos %s and [%d] (after: '%s'):\n", c.pos, pos(c), showNewline(string(c.text))))
 	bb.WriteString(fmt.Sprintf("-> %s\n", errorMsg))
 	panic(bb.String())
 }
