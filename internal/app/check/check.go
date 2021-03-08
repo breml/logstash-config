@@ -23,7 +23,7 @@ func (f Check) Run(args []string) error {
 	for _, filename := range args {
 		stat, err := os.Stat(filename)
 		if err != nil {
-			result = multierror.Append(result, err)
+			result = multierror.Append(result, errors.Errorf("%s: %v", filename, err))
 		}
 		if stat.IsDir() {
 			continue
@@ -33,10 +33,10 @@ func (f Check) Run(args []string) error {
 		if err != nil {
 			if errMsg, hasErr := config.GetFarthestFailure(); hasErr {
 				if !strings.Contains(err.Error(), errMsg) {
-					err = errors.Errorf("%v\n%s", err, errMsg)
+					err = errors.Errorf("%s: %v\n%s", filename, err, errMsg)
 				}
 			}
-			result = multierror.Append(result, err)
+			result = multierror.Append(result, errors.Errorf("%s: %v", filename, err))
 			continue
 		}
 	}
