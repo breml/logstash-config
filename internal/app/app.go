@@ -64,6 +64,7 @@ func makeRootCmd(version string) *cobra.Command {
 	rootCmd.InitDefaultVersionFlag()
 
 	rootCmd.AddCommand(makeCheckCmd())
+	rootCmd.AddCommand(makeLintCmd())
 
 	return rootCmd
 }

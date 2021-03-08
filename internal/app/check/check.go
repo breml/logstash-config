@@ -1,8 +1,6 @@
 package check
 
 import (
-	"bytes"
-	"fmt"
 	"os"
 	"strings"
 
@@ -10,6 +8,7 @@ import (
 	"github.com/pkg/errors"
 
 	config "github.com/breml/logstash-config"
+	"github.com/breml/logstash-config/internal/format"
 )
 
 type Check struct{}
@@ -43,37 +42,9 @@ func (f Check) Run(args []string) error {
 	}
 
 	if result != nil {
-		result.ErrorFormat = multiErrFormat
+		result.ErrorFormat = format.MultiErr
 		return result
 	}
 
 	return nil
-}
-
-func multiErrFormat(es []error) string {
-	if len(es) == 1 {
-		return fmt.Sprintf("1 error occurred:\n%s\n", prefix(es[0].Error()))
-	}
-
-	points := make([]string, len(es))
-	for i, err := range es {
-		points[i] = prefix(err.Error())
-	}
-
-	return fmt.Sprintf(
-		"%d errors occurred:\n%s\n",
-		len(es), strings.Join(points, "\n"))
-}
-
-func prefix(in string) string {
-	var s bytes.Buffer
-	lines := strings.Split(strings.TrimRight(in, "\n"), "\n")
-	for i, l := range lines {
-		if i == 0 {
-			s.WriteString(fmt.Sprintln("\t* " + l))
-			continue
-		}
-		s.WriteString(fmt.Sprintln("\t  " + l))
-	}
-	return s.String()
 }
