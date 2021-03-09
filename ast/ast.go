@@ -7,6 +7,59 @@ import (
 	"strings"
 )
 
+type Node interface {
+	Pos() Pos
+}
+
+var (
+	_ Node = Config{}
+	_ Node = PluginSection{}
+	_ Node = Plugin{}
+	_ Node = Attribute(nil)
+	_ Node = Branch{}
+)
+
+type Pos struct {
+	Filename string
+	Line     int
+	Column   int
+	Offset   int
+}
+
+var InvalidPos = Pos{Offset: -1}
+
+func (c Config) Pos() Pos           { return Pos{} }
+func (ps PluginSection) Pos() Pos   { return ps.Start }
+func (p Plugin) Pos() Pos           { return p.Start }
+func (pa PluginAttribute) Pos() Pos { return pa.Start }
+func (sa StringAttribute) Pos() Pos { return sa.Start }
+func (na NumberAttribute) Pos() Pos { return na.Start }
+func (aa ArrayAttribute) Pos() Pos  { return aa.Start }
+func (ha HashAttribute) Pos() Pos   { return ha.Start }
+func (he HashEntry) Pos() Pos       { return he.Start }
+func (b Branch) Pos() Pos           { return b.IfBlock.Start }
+func (ib IfBlock) Pos() Pos         { return ib.Start }
+func (eib ElseIfBlock) Pos() Pos    { return eib.Start }
+func (eb ElseBlock) Pos() Pos       { return eb.Start }
+func (c Condition) Pos() Pos {
+	if len(c.expression) == 0 {
+		return InvalidPos
+	}
+	return c.expression[0].Pos()
+}
+func (be BoolExpression) Pos() Pos              { return be.Start }
+func (ce ConditionExpression) Pos() Pos         { return ce.Start }
+func (nc NegativeConditionExpression) Pos() Pos { return nc.Start }
+func (ns NegativeSelectorExpression) Pos() Pos  { return ns.Start }
+func (ie InExpression) Pos() Pos                { return ie.Start }
+func (nie NotInExpression) Pos() Pos            { return nie.Start }
+func (re RvalueExpression) Pos() Pos            { return re.Start }
+func (ce CompareExpression) Pos() Pos           { return ce.Start }
+func (re RegexpExpression) Pos() Pos            { return re.Start }
+func (r Regexp) Pos() Pos                       { return r.Start }
+func (s Selector) Pos() Pos                     { return s.Start }
+func (se SelectorElement) Pos() Pos             { return se.Start }
+
 // A Config node represents the root node of a Logstash configuration.
 type Config struct {
 	Input         []PluginSection
@@ -135,6 +188,7 @@ func (pt PluginType) String() string {
 
 // A PluginSection node defines the configuration section with branches or plugins.
 type PluginSection struct {
+	Start           Pos
 	PluginType      PluginType
 	BranchOrPlugins []BranchOrPlugin
 	CommentBlock    CommentBlock
@@ -186,6 +240,7 @@ func (Branch) branchOrPlugin() {}
 
 // A Plugin node represents a Logstash plugin.
 type Plugin struct {
+	Start         Pos
 	name          string
 	Attributes    []Attribute
 	Comment       CommentBlock
@@ -258,6 +313,7 @@ type Attribute interface {
 	String() string
 	ValueString() string
 	CommentBlock() string
+	Pos() Pos
 	attributeNode()
 }
 
@@ -271,6 +327,7 @@ func (HashAttribute) attributeNode()   {}
 
 // A PluginAttribute node represents a plugin attribute of type plugin.
 type PluginAttribute struct {
+	Start   Pos
 	name    string
 	value   Plugin
 	Comment CommentBlock
@@ -336,6 +393,7 @@ func (sat StringAttributeType) String() string {
 
 // StringAttribute is a plugin attribute of type string.
 type StringAttribute struct {
+	Start   Pos
 	name    string
 	value   string
 	sat     StringAttributeType
@@ -383,6 +441,7 @@ func (sa StringAttribute) StringAttributeType() StringAttributeType {
 
 // A NumberAttribute node represents a plugin attribute of type number.
 type NumberAttribute struct {
+	Start   Pos
 	name    string
 	value   float64
 	Comment CommentBlock
@@ -430,6 +489,7 @@ func (na NumberAttribute) Value() float64 {
 
 // A ArrayAttribute node represents a plugin attribute of type array.
 type ArrayAttribute struct {
+	Start         Pos
 	name          string
 	value         []Attribute
 	Comment       CommentBlock
@@ -495,6 +555,7 @@ func (aa ArrayAttribute) Value() []Attribute {
 
 // A HashAttribute node represents a plugin attribute of type hash.
 type HashAttribute struct {
+	Start         Pos
 	name          string
 	value         []HashEntry
 	Comment       CommentBlock
@@ -560,6 +621,7 @@ func (StringAttribute) hashEntryKeyAttribute() {}
 
 // A HashEntry node defines a hash entry within a hash attribute.
 type HashEntry struct {
+	Start   Pos
 	name    HashEntryKey
 	value   Attribute
 	Comment CommentBlock
@@ -629,6 +691,7 @@ func (b Branch) String() string {
 
 // A IfBlock node represents an if-block of a Branch.
 type IfBlock struct {
+	Start         Pos
 	Condition     Condition
 	Block         []BranchOrPlugin
 	Comment       CommentBlock
@@ -669,12 +732,12 @@ func (ib IfBlock) String() string {
 	s.WriteString(prefix(ss.String(), true))
 
 	s.WriteString("}")
-
 	return s.String()
 }
 
 // A ElseIfBlock node represents an else-if-block of a Branch.
 type ElseIfBlock struct {
+	Start         Pos
 	Condition     Condition
 	Block         []BranchOrPlugin
 	Comment       CommentBlock
@@ -725,6 +788,7 @@ func (eib ElseIfBlock) String() string {
 
 // A ElseBlock node represents a else-block of a Branch.
 type ElseBlock struct {
+	Start         Pos
 	Block         []BranchOrPlugin
 	Comment       CommentBlock
 	FooterComment CommentBlock
@@ -801,6 +865,7 @@ func (c Condition) String() string {
 // An Expression is chainable with a preceding Expression by
 // the the boolean operator.
 type Expression interface {
+	Pos() Pos
 	BoolOperator() BooleanOperator
 	SetBoolOperator(BooleanOperator)
 	expressionNode()
@@ -819,6 +884,7 @@ func (RvalueExpression) expressionNode()            {}
 
 // A BoolExpression node represents a boolean operator.
 type BoolExpression struct {
+	Start        Pos
 	boolOperator BooleanOperator
 }
 
@@ -839,6 +905,7 @@ func (be BoolExpression) String() string {
 
 // A ConditionExpression node represents an Expression, which is enclosed in parentheses.
 type ConditionExpression struct {
+	Start Pos
 	*BoolExpression
 	condition Condition
 }
@@ -860,6 +927,7 @@ func (ce ConditionExpression) String() string {
 
 // A NegativeConditionExpression node represents an Expression within parentheses, which is negated.
 type NegativeConditionExpression struct {
+	Start Pos
 	*BoolExpression
 	condition Condition
 }
@@ -881,6 +949,7 @@ func (nc NegativeConditionExpression) String() string {
 
 // A NegativeSelectorExpression node represents a field selector expression, which is negated.
 type NegativeSelectorExpression struct {
+	Start Pos
 	*BoolExpression
 	selector Selector
 }
@@ -902,6 +971,7 @@ func (ns NegativeSelectorExpression) String() string {
 
 // An InExpression node represents an in expression.
 type InExpression struct {
+	Start Pos
 	*BoolExpression
 	lvalue Rvalue
 	rvalue Rvalue
@@ -925,6 +995,7 @@ func (ie InExpression) String() string {
 
 // A NotInExpression node defines a not in expression.
 type NotInExpression struct {
+	Start Pos
 	*BoolExpression
 	rvalue Rvalue
 	lvalue Rvalue
@@ -956,6 +1027,7 @@ func (nie NotInExpression) String() string {
 
 // A Rvalue node represents an right (or in some cases also an left) side value of an expression.
 type Rvalue interface {
+	Pos() Pos
 	String() string
 	ValueString() string
 	rvalueNode()
@@ -971,6 +1043,7 @@ func (Regexp) rvalueNode()          {}
 
 // A RvalueExpression node defines an expression consisting only of a Rvalue.
 type RvalueExpression struct {
+	Start Pos
 	*BoolExpression
 	rvalue Rvalue
 }
@@ -997,6 +1070,7 @@ func (re RvalueExpression) String() string {
 // A CompareExpression node represents a expression, which compares lvalue and rvalue
 // based on the comparison operator.
 type CompareExpression struct {
+	Start Pos
 	*BoolExpression
 	lvalue          Rvalue
 	compareOperator CompareOperator
@@ -1075,6 +1149,7 @@ func (co CompareOperator) String() string {
 
 // A RegexpExpression node defines a regular expression node.
 type RegexpExpression struct {
+	Start Pos
 	*BoolExpression
 	lvalue         Rvalue
 	regexpOperator RegexpOperator
@@ -1108,6 +1183,7 @@ func (re RegexpExpression) String() string {
 
 // A StringOrRegexp node is a string attribute node or a regexp node.
 type StringOrRegexp interface {
+	Pos() Pos
 	String() string
 	ValueString() string
 	stringOrRegexp()
@@ -1146,6 +1222,7 @@ func (ro RegexpOperator) String() string {
 
 // A Regexp node represents a regular expression.
 type Regexp struct {
+	Start  Pos
 	regexp string
 }
 
@@ -1208,6 +1285,7 @@ func (be BooleanOperator) String() string {
 
 // A Selector node represents a field selector.
 type Selector struct {
+	Start    Pos
 	elements []SelectorElement
 }
 
@@ -1243,7 +1321,8 @@ func (s Selector) ValueString() string {
 
 // A SelectorElement node defines a selector element.
 type SelectorElement struct {
-	name string
+	Start Pos
+	name  string
 }
 
 // NewSelectorElement creates a new selector element.
