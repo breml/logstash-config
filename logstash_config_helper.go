@@ -19,7 +19,7 @@ func (w exceptionalCommentsWarnings) Clone() interface{} {
 	return clone
 }
 
-func initState(c *current) error {
+func (c *current) initState() error {
 	if _, ok := c.state[exceptionalCommentWarning]; !ok {
 		warnings := make(exceptionalCommentsWarnings, 0)
 		c.state[exceptionalCommentWarning] = warnings
@@ -27,16 +27,16 @@ func initState(c *current) error {
 	return nil
 }
 
-func initParser() (bool, error) {
+func (c *current) initParser() (bool, error) {
 	farthestFailure = []errPos{}
 	return true, nil
 }
 
-func ret(el interface{}) (interface{}, error) {
+func (c *current) ret(el interface{}) (interface{}, error) {
 	return el, nil
 }
 
-func retConfig(c *current, el interface{}) (interface{}, error) {
+func (c *current) retConfig(el interface{}) (interface{}, error) {
 	conf, _ := el.(ast.Config)
 
 	warnings, _ := c.state[exceptionalCommentWarning].(exceptionalCommentsWarnings)
@@ -45,7 +45,7 @@ func retConfig(c *current, el interface{}) (interface{}, error) {
 	return conf, nil
 }
 
-func commentBlock(comment1 interface{}, spaceBefore bool, spaceAfter bool) ast.CommentBlock {
+func (c *current) commentBlock(comment1 interface{}, spaceBefore bool, spaceAfter bool) ast.CommentBlock {
 	comments1 := toIfaceSlice(comment1)
 	var comments []ast.Comment
 	for _, icb1 := range comments1 {
@@ -68,20 +68,20 @@ func commentBlock(comment1 interface{}, spaceBefore bool, spaceAfter bool) ast.C
 	return comments
 }
 
-func configSection(ps1, psComment1 interface{}) (ast.PluginSection, error) {
+func (c *current) configSection(ps1, psComment1 interface{}) (ast.PluginSection, error) {
 	ps, ok := ps1.(ast.PluginSection)
 	if !ok {
 		return ast.PluginSection{}, fmt.Errorf("Value is not a PluginSection: %#v", ps1)
 	}
 
-	psComments := commentBlock(psComment1, false, false)
+	psComments := c.commentBlock(psComment1, false, false)
 
 	ps.CommentBlock = psComments
 
 	return ps, nil
 }
 
-func config(ps1, pss1, psComment1, footerComment1 interface{}) (ast.Config, error) {
+func (c *current) config(ps1, pss1, psComment1, footerComment1 interface{}) (ast.Config, error) {
 	var (
 		input  []ast.PluginSection
 		filter []ast.PluginSection
@@ -91,8 +91,8 @@ func config(ps1, pss1, psComment1, footerComment1 interface{}) (ast.Config, erro
 	ips := toIfaceSlice(ps1)
 	ips = append(ips, toIfaceSlice(pss1)...)
 
-	psComment := commentBlock(psComment1, false, true)
-	footerComments := commentBlock(footerComment1, true, false)
+	psComment := c.commentBlock(psComment1, false, true)
+	footerComments := c.commentBlock(footerComment1, true, false)
 
 	first := true
 	for _, ips1 := range ips {
@@ -124,7 +124,7 @@ func config(ps1, pss1, psComment1, footerComment1 interface{}) (ast.Config, erro
 	}, nil
 }
 
-func warnComment(c *current) error {
+func (c *current) warnComment() error {
 	ok, _ := c.globalStore[exceptionalCommentWarning].(bool)
 	if ok && bytes.Contains(c.text, []byte("#")) {
 		warnings, _ := c.state[exceptionalCommentWarning].(exceptionalCommentsWarnings)
@@ -134,11 +134,11 @@ func warnComment(c *current) error {
 	return nil
 }
 
-func whitespace() (ast.Whitespace, error) {
+func (c *current) whitespace() (ast.Whitespace, error) {
 	return ast.Whitespace{}, nil
 }
 
-func comment(c *current) ([]ast.Comment, error) {
+func (c *current) comment() ([]ast.Comment, error) {
 	if ignoreComment, ok := c.globalStore[ignoreComment].(bool); ok && ignoreComment {
 		return nil, nil
 	}
@@ -167,7 +167,7 @@ func comment(c *current) ([]ast.Comment, error) {
 	return commentLines, nil
 }
 
-func pluginSection(pt1, bops1, footerComment1 interface{}) (ast.PluginSection, error) {
+func (c *current) pluginSection(pt1, bops1, footerComment1 interface{}) (ast.PluginSection, error) {
 	pt := ast.PluginType(pt1.(int))
 	ibops := toIfaceSlice(bops1)
 	var bops []ast.BranchOrPlugin
@@ -180,11 +180,11 @@ func pluginSection(pt1, bops1, footerComment1 interface{}) (ast.PluginSection, e
 	return ast.PluginSection{
 		PluginType:      pt,
 		BranchOrPlugins: bops,
-		FooterComment:   commentBlock(footerComment1, false, false),
+		FooterComment:   c.commentBlock(footerComment1, false, false),
 	}, nil
 }
 
-func plugin(name, attributes1, comment1, footerComment1 interface{}) (ast.Plugin, error) {
+func (c *current) plugin(name, attributes1, comment1, footerComment1 interface{}) (ast.Plugin, error) {
 	var attributes []ast.Attribute
 	if attributes1 != nil {
 		attributes = attributes1.([]ast.Attribute)
@@ -192,14 +192,14 @@ func plugin(name, attributes1, comment1, footerComment1 interface{}) (ast.Plugin
 
 	p := ast.NewPlugin(name.(string), attributes...)
 
-	p.Comment = commentBlock(comment1, false, false)
-	p.FooterComment = commentBlock(footerComment1, false, false)
+	p.Comment = c.commentBlock(comment1, false, false)
+	p.FooterComment = c.commentBlock(footerComment1, false, false)
 
 	return p, nil
 }
 
-func attributes(attribute1, attributes1, comment1 interface{}) ([]ast.Attribute, error) {
-	attribute, _ := attributeComment(attribute1, comment1, false)
+func (c *current) attributes(attribute1, attributes1, comment1 interface{}) ([]ast.Attribute, error) {
+	attribute, _ := c.attributeComment(attribute1, comment1, false)
 	iattributes := toIfaceSlice(attribute)
 	iattributes = append(iattributes, toIfaceSlice(attributes1)...)
 
@@ -216,23 +216,23 @@ func attributes(attribute1, attributes1, comment1 interface{}) ([]ast.Attribute,
 	return attributes, nil
 }
 
-func attributeComment(attribute1, comment1 interface{}, spaceBefore bool) (ast.Attribute, error) {
+func (c *current) attributeComment(attribute1, comment1 interface{}, spaceBefore bool) (ast.Attribute, error) {
 	var attribute ast.Attribute
 	switch attr := attribute1.(type) {
 	case ast.StringAttribute:
-		attr.Comment = commentBlock(comment1, spaceBefore, false)
+		attr.Comment = c.commentBlock(comment1, spaceBefore, false)
 		attribute = attr
 	case ast.NumberAttribute:
-		attr.Comment = commentBlock(comment1, spaceBefore, false)
+		attr.Comment = c.commentBlock(comment1, spaceBefore, false)
 		attribute = attr
 	case ast.ArrayAttribute:
-		attr.Comment = commentBlock(comment1, spaceBefore, false)
+		attr.Comment = c.commentBlock(comment1, spaceBefore, false)
 		attribute = attr
 	case ast.HashAttribute:
-		attr.Comment = commentBlock(comment1, spaceBefore, false)
+		attr.Comment = c.commentBlock(comment1, spaceBefore, false)
 		attribute = attr
 	case ast.PluginAttribute:
-		attr.Comment = commentBlock(comment1, spaceBefore, false)
+		attr.Comment = c.commentBlock(comment1, spaceBefore, false)
 		attribute = attr
 	default:
 		return nil, fmt.Errorf("Unsupported attribute type %#v", attribute1)
@@ -240,7 +240,7 @@ func attributeComment(attribute1, comment1 interface{}, spaceBefore bool) (ast.A
 	return attribute, nil
 }
 
-func attribute(name, value interface{}) (ast.Attribute, error) {
+func (c *current) attribute(name, value interface{}) (ast.Attribute, error) {
 	var key ast.StringAttribute
 
 	switch name := name.(type) {
@@ -272,13 +272,13 @@ func attribute(name, value interface{}) (ast.Attribute, error) {
 	}
 }
 
-func regexp(c *current) (ast.Regexp, error) {
-	val, _ := enclosedValue(c)
+func (c *current) regexp() (ast.Regexp, error) {
+	val, _ := c.enclosedValue()
 	return ast.NewRegexp(val), nil
 }
 
-func number(value string) (ast.NumberAttribute, error) {
-	f, err := strconv.ParseFloat(value, 64)
+func (c *current) number() (ast.NumberAttribute, error) {
+	f, err := strconv.ParseFloat(string(c.text), 64)
 	if err != nil {
 		// TODO: is this possible to happen? are all values, which are valid floats in Logstash/Ruby also valid floats in Go?
 		return ast.NumberAttribute{}, err
@@ -286,7 +286,7 @@ func number(value string) (ast.NumberAttribute, error) {
 	return ast.NewNumberAttribute("", f), nil
 }
 
-func array(attributes1, footerComment1 interface{}) (ast.ArrayAttribute, error) {
+func (c *current) array(attributes1, footerComment1 interface{}) (ast.ArrayAttribute, error) {
 	var attributes []ast.Attribute
 	if attributes1 != nil {
 		attributes = attributes1.([]ast.Attribute)
@@ -294,12 +294,12 @@ func array(attributes1, footerComment1 interface{}) (ast.ArrayAttribute, error) 
 
 	a := ast.NewArrayAttribute("", attributes...)
 
-	a.FooterComment = commentBlock(footerComment1, false, false)
+	a.FooterComment = c.commentBlock(footerComment1, false, false)
 
 	return a, nil
 }
 
-func hash(attributes1, footerComment1 interface{}) (ast.HashAttribute, error) {
+func (c *current) hash(attributes1, footerComment1 interface{}) (ast.HashAttribute, error) {
 	var hashentries []ast.HashEntry
 	if attributes1 != nil {
 		hashentries = attributes1.([]ast.HashEntry)
@@ -307,12 +307,12 @@ func hash(attributes1, footerComment1 interface{}) (ast.HashAttribute, error) {
 
 	a := ast.NewHashAttribute("", hashentries...)
 
-	a.FooterComment = commentBlock(footerComment1, false, false)
+	a.FooterComment = c.commentBlock(footerComment1, false, false)
 
 	return a, nil
 }
 
-func hashentries(attribute, attributes1 interface{}) ([]ast.HashEntry, error) {
+func (c *current) hashentries(attribute, attributes1 interface{}) ([]ast.HashEntry, error) {
 	entry := attribute.(ast.HashEntry)
 	if len(entry.Comment) > 0 {
 		entry.Comment[0].SpaceBefore = false
@@ -334,28 +334,28 @@ func hashentries(attribute, attributes1 interface{}) ([]ast.HashEntry, error) {
 	return attributes, nil
 }
 
-func hashentry(name, value, comment interface{}) (ast.HashEntry, error) {
+func (c *current) hashentry(name, value, comment interface{}) (ast.HashEntry, error) {
 	key := name.(ast.HashEntryKey)
 
 	he := ast.NewHashEntry(key, value.(ast.Attribute))
-	he.Comment = commentBlock(comment, true, false)
+	he.Comment = c.commentBlock(comment, true, false)
 
 	return he, nil
 }
 
-func elseIfComment(eib1, eibComment1 interface{}) (ast.ElseIfBlock, error) {
+func (c *current) elseIfComment(eib1, eibComment1 interface{}) (ast.ElseIfBlock, error) {
 	eib := eib1.(ast.ElseIfBlock)
-	eib.Comment = commentBlock(eibComment1, false, false)
+	eib.Comment = c.commentBlock(eibComment1, false, false)
 	return eib, nil
 }
 
-func elseComment(eb1, ebComment1 interface{}) (ast.ElseBlock, error) {
+func (c *current) elseComment(eb1, ebComment1 interface{}) (ast.ElseBlock, error) {
 	eb := eb1.(ast.ElseBlock)
-	eb.Comment = commentBlock(ebComment1, false, false)
+	eb.Comment = c.commentBlock(ebComment1, false, false)
 	return eb, nil
 }
 
-func branch(ifBlock1, elseIfBlocks1, elseBlock1, ifComment interface{}) (ast.Branch, error) {
+func (c *current) branch(ifBlock1, elseIfBlocks1, elseBlock1, ifComment interface{}) (ast.Branch, error) {
 	ielseIfBlocks := toIfaceSlice(elseIfBlocks1)
 
 	var elseIfBlocks []ast.ElseIfBlock
@@ -373,19 +373,19 @@ func branch(ifBlock1, elseIfBlocks1, elseBlock1, ifComment interface{}) (ast.Bra
 	}
 
 	ifBlock := ifBlock1.(ast.IfBlock)
-	ifBlock.Comment = commentBlock(ifComment, false, false)
+	ifBlock.Comment = c.commentBlock(ifComment, false, false)
 
 	return ast.NewBranch(ifBlock, elseBlock, elseIfBlocks...), nil
 }
 
-func branchOrPluginComment(bop1, comment1 interface{}) (ast.BranchOrPlugin, error) {
+func (c *current) branchOrPluginComment(bop1, comment1 interface{}) (ast.BranchOrPlugin, error) {
 	var eop ast.BranchOrPlugin
 	switch t := bop1.(type) {
 	case ast.Plugin:
-		t.Comment = commentBlock(comment1, false, false)
+		t.Comment = c.commentBlock(comment1, false, false)
 		eop = t
 	case ast.Branch:
-		t.IfBlock.Comment = commentBlock(comment1, false, false)
+		t.IfBlock.Comment = c.commentBlock(comment1, false, false)
 		eop = t
 	default:
 		return nil, fmt.Errorf("invalid value for if block")
@@ -394,25 +394,25 @@ func branchOrPluginComment(bop1, comment1 interface{}) (ast.BranchOrPlugin, erro
 	return eop, nil
 }
 
-func ifBlock(cond, bops, comment1 interface{}) (ast.IfBlock, error) {
-	ib := ast.NewIfBlock(cond.(ast.Condition), branchOrPlugins(bops)...)
-	ib.FooterComment = commentBlock(comment1, false, false)
+func (c *current) ifBlock(cond, bops, comment1 interface{}) (ast.IfBlock, error) {
+	ib := ast.NewIfBlock(cond.(ast.Condition), c.branchOrPlugins(bops)...)
+	ib.FooterComment = c.commentBlock(comment1, false, false)
 	return ib, nil
 }
 
-func elseIfBlock(cond, bops, comment1 interface{}) (ast.ElseIfBlock, error) {
-	eib := ast.NewElseIfBlock(cond.(ast.Condition), branchOrPlugins(bops)...)
-	eib.FooterComment = commentBlock(comment1, false, false)
+func (c *current) elseIfBlock(cond, bops, comment1 interface{}) (ast.ElseIfBlock, error) {
+	eib := ast.NewElseIfBlock(cond.(ast.Condition), c.branchOrPlugins(bops)...)
+	eib.FooterComment = c.commentBlock(comment1, false, false)
 	return eib, nil
 }
 
-func elseBlock(bops, comment1 interface{}) (ast.ElseBlock, error) {
-	eb := ast.NewElseBlock(branchOrPlugins(bops)...)
-	eb.FooterComment = commentBlock(comment1, false, false)
+func (c *current) elseBlock(bops, comment1 interface{}) (ast.ElseBlock, error) {
+	eb := ast.NewElseBlock(c.branchOrPlugins(bops)...)
+	eb.FooterComment = c.commentBlock(comment1, false, false)
 	return eb, nil
 }
 
-func branchOrPlugins(bops1 interface{}) []ast.BranchOrPlugin {
+func (c *current) branchOrPlugins(bops1 interface{}) []ast.BranchOrPlugin {
 	bops := toIfaceSlice(bops1)
 
 	var branchOrPlugins []ast.BranchOrPlugin
@@ -427,7 +427,7 @@ func branchOrPlugins(bops1 interface{}) []ast.BranchOrPlugin {
 	return branchOrPlugins
 }
 
-func condition(expr, exprs interface{}) (ast.Condition, error) {
+func (c *current) condition(expr, exprs interface{}) (ast.Condition, error) {
 	iexprs := toIfaceSlice(expr)
 	iexprs = append(iexprs, toIfaceSlice(exprs)...)
 
@@ -443,46 +443,46 @@ func condition(expr, exprs interface{}) (ast.Condition, error) {
 	return ast.NewCondition(expressions...), nil
 }
 
-func expression(bo, expr1 interface{}) (ast.Expression, error) {
+func (c *current) expression(bo, expr1 interface{}) (ast.Expression, error) {
 	expr := expr1.(ast.Expression)
 	expr.SetBoolOperator(bo.(ast.BooleanOperator))
 	return expr, nil
 }
 
-func conditionExpression(cond interface{}) (ast.ConditionExpression, error) {
+func (c *current) conditionExpression(cond interface{}) (ast.ConditionExpression, error) {
 	return ast.NewConditionExpression(ast.NoOperator, cond.(ast.Condition)), nil
 }
 
-func negativeExpression(cond interface{}) (ast.NegativeConditionExpression, error) {
+func (c *current) negativeExpression(cond interface{}) (ast.NegativeConditionExpression, error) {
 	return ast.NewNegativeConditionExpression(ast.NoOperator, cond.(ast.Condition)), nil
 }
 
-func negativeSelector(sel interface{}) (ast.NegativeSelectorExpression, error) {
+func (c *current) negativeSelector(sel interface{}) (ast.NegativeSelectorExpression, error) {
 	return ast.NewNegativeSelectorExpression(ast.NoOperator, sel.(ast.Selector)), nil
 }
 
-func inExpression(lv, rv interface{}) (ast.InExpression, error) {
+func (c *current) inExpression(lv, rv interface{}) (ast.InExpression, error) {
 	return ast.NewInExpression(ast.NoOperator, lv.(ast.Rvalue), rv.(ast.Rvalue)), nil
 }
 
-func notInExpression(lv, rv interface{}) (ast.NotInExpression, error) {
+func (c *current) notInExpression(lv, rv interface{}) (ast.NotInExpression, error) {
 	return ast.NewNotInExpression(ast.NoOperator, lv.(ast.Rvalue), rv.(ast.Rvalue)), nil
 }
 
-func compareExpression(lv, co, rv interface{}) (ast.CompareExpression, error) {
+func (c *current) compareExpression(lv, co, rv interface{}) (ast.CompareExpression, error) {
 	return ast.NewCompareExpression(ast.NoOperator, lv.(ast.Rvalue), co.(ast.CompareOperator), rv.(ast.Rvalue)), nil
 }
 
-func regexpExpression(lv, ro, rv interface{}) (ast.RegexpExpression, error) {
+func (c *current) regexpExpression(lv, ro, rv interface{}) (ast.RegexpExpression, error) {
 	return ast.NewRegexpExpression(ast.NoOperator, lv.(ast.Rvalue), ro.(ast.RegexpOperator), rv.(ast.StringOrRegexp)), nil
 }
 
-func rvalue(rv interface{}) (ast.RvalueExpression, error) {
+func (c *current) rvalue(rv interface{}) (ast.RvalueExpression, error) {
 	return ast.NewRvalueExpression(ast.NoOperator, rv.(ast.Rvalue)), nil
 }
 
-func compareOperator(value string) (ast.CompareOperator, error) {
-	switch value {
+func (c *current) compareOperator() (ast.CompareOperator, error) {
+	switch string(c.text) {
 	case "==":
 		return ast.Equal, nil
 	case "!=":
@@ -499,8 +499,8 @@ func compareOperator(value string) (ast.CompareOperator, error) {
 	return ast.Undefined, nil
 }
 
-func regexpOperator(value string) (ast.RegexpOperator, error) {
-	switch value {
+func (c *current) regexpOperator() (ast.RegexpOperator, error) {
+	switch string(c.text) {
 	case "=~":
 		return ast.RegexpMatch, nil
 	case "!~":
@@ -509,8 +509,8 @@ func regexpOperator(value string) (ast.RegexpOperator, error) {
 	return ast.Undefined, nil
 }
 
-func booleanOperator(value string) (ast.BooleanOperator, error) {
-	switch value {
+func (c *current) booleanOperator() (ast.BooleanOperator, error) {
+	switch string(c.text) {
 	case "and":
 		return ast.And, nil
 	case "or":
@@ -523,7 +523,7 @@ func booleanOperator(value string) (ast.BooleanOperator, error) {
 	return ast.Undefined, nil
 }
 
-func selector(ses1 interface{}) (ast.Selector, error) {
+func (c *current) selector(ses1 interface{}) (ast.Selector, error) {
 	ises := toIfaceSlice(ses1)
 
 	var ses []ast.SelectorElement
@@ -533,12 +533,26 @@ func selector(ses1 interface{}) (ast.Selector, error) {
 	return ast.NewSelector(ses), nil
 }
 
-func selectorElement(value string) (ast.SelectorElement, error) {
+func (c *current) selectorElement() (ast.SelectorElement, error) {
+	value := string(c.text)
 	return ast.NewSelectorElement(value[1 : len(value)-1]), nil
 }
 
-func enclosedValue(c *current) (string, error) {
+func (c *current) enclosedValue() (string, error) {
 	return string(c.text[1 : len(c.text)-1]), nil
+}
+
+func (c *current) string() (string, error) {
+	return string(c.text), nil
+}
+
+func (c *current) astPos() ast.Pos {
+	p := ast.Pos{
+		Line:   c.pos.line,
+		Column: c.pos.col,
+		Offset: c.pos.offset,
+	}
+	return p
 }
 
 func toIfaceSlice(v interface{}) []interface{} {
