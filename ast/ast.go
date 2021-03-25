@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
+	"strings"
 )
 
 // A Config node represents the root node of a Logstash configuration.
@@ -407,7 +408,14 @@ func (na NumberAttribute) String() string {
 
 // ValueString returns the value of the node as a string representation.
 func (na NumberAttribute) ValueString() string {
-	return fmt.Sprintf("%v", na.Value())
+	value := fmt.Sprintf("%g", na.Value())
+	if strings.Contains(value, "e") {
+		if float64(int64(na.Value())+0) == na.Value() {
+			return fmt.Sprintf("%d", int64(na.Value()))
+		}
+		return strings.TrimRight(fmt.Sprintf("%.10f", na.Value()), "0")
+	}
+	return value
 }
 
 // CommentBlock returns the comment of the node.

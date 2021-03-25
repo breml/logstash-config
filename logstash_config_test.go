@@ -347,6 +347,29 @@ output {}
 }
 `,
 		},
+		// https://github.com/magnusbaeck/logstash-filter-verifier/issues/104
+		{
+			name: "large numbers with and without precission",
+			input: `filter {
+  mutate {
+    add_field => {
+      "largeint" => 2000000
+      "largeint_negative" => -2000000
+      "int32max" => 2147483647
+      "int32max_negative" => -2147483647
+      "float_with_5_precision" => 0.00001
+      "float_with_5_precision_negative" => -0.00001
+      "float_with_10_precision" => 0.0000000001
+      "float_with_10_precision_negative" => -0.0000000001
+      "largefloat_with_10_precision" => 2000000.0000000005
+      "largefloat_with_10_precision_negative" => -2000000.0000000005
+      "int32max_with_10_precision" => 2147483647.0000009537
+      "int32max_with_10_precision_negative" => -2147483647.0000009537
+    }
+  }
+}
+`,
+		},
 	}
 
 	for _, test := range cases {
