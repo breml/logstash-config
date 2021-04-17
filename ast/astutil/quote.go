@@ -10,44 +10,54 @@ import (
 
 var barewordRe = regexp.MustCompile("(?s:^[A-Za-z_][A-Za-z0-9_]+$)")
 
-// Quote returns a a string with quotes for Logstash. Supported quote types
+// Quote returns a string with quotes for Logstash. Supported quote types
 // are ast.DoubleQuoted, ast.SingleQuoted and ast.Bareword.
-// If escape is false and the result is not a valid quoted value, an error
-// is returned. If escape is true, the value will be escaped such, that the
-// returned value is a valid quoted Logstash string.
+// If the result is not a valid quoted value, an error is returned.
+func Quote(value string, quoteType ast.StringAttributeType) (string, error) {
+	switch quoteType {
+	case ast.DoubleQuoted, ast.SingleQuoted:
+		var hasQuote bool
+		quote := quoteType.String()[0]
+		for i := 0; i < len(value); i++ {
+			if value[i] == quote && i > 1 && value[i-1] != '\\' {
+				hasQuote = true
+				break
+			}
+		}
+
+		if hasQuote {
+			return "", errors.New("value %q contains unescaped quotes and can not be quoted without escaping")
+		}
+		return quoteType.String() + value + quoteType.String(), nil
+
+	case ast.Bareword:
+		if !barewordRe.MatchString(value) {
+			return "", errors.New("value %q contains non bareword characters and can not be quoted as bareword without escaping")
+		}
+		return value, nil
+
+	default:
+		panic("quote type not supported")
+	}
+}
+
+// QuoteWithEscape returns a string with quotes for Logstash. Supported quote
+// types are ast.DoubleQuoted, ast.SingleQuoted and ast.Bareword.
+// The value will be escaped if necessary such, that the returned value is a
+// valid quoted Logstash string.
 // For ast.DoubleQuoted, all double quotes (`"`) are escaped to `\"`.
 // For ast.SingleQuoted, all single quotes (`'`) are escaped to `\'`.
 // For ast.Bareword, all characters not matching "[A-Za-z_][A-Za-z0-9_]+" are
 // replaced with `_`.
-func Quote(value string, quoteType ast.StringAttributeType, escape bool) (string, error) {
-	var hasDoubleQuote bool
-	var hasSingleQuote bool
-
-	for i, chr := range value {
-		if chr == '"' && i > 1 && value[i-1] != '\\' {
-			hasDoubleQuote = true
-		}
-		if chr == '\'' && i > 1 && value[i-1] != '\\' {
-			hasSingleQuote = true
-		}
-	}
-
+func QuoteWithEscape(value string, quoteType ast.StringAttributeType) string {
 	switch quoteType {
-	case ast.DoubleQuoted:
-		if hasDoubleQuote && !escape {
-			return "", errors.New("value %q contains unescaped double quotes and can not be quoted with double quotes without escaping")
-		}
-		return `"` + escapeQuotes(value, '"') + `"`, nil
-	case ast.SingleQuoted:
-		if hasSingleQuote && !escape {
-			return "", errors.New("value %q contains unescaped single quotes and can not be quoted with double quotes without escaping")
-		}
-		return `'` + escapeQuotes(value, '\'') + `'`, nil
+	case ast.DoubleQuoted, ast.SingleQuoted:
+		quote := quoteType.String()[0]
+		return quoteType.String() + escapeQuotes(value, quote) + quoteType.String()
+
 	case ast.Bareword:
-		if !barewordRe.MatchString(value) && !escape {
-			return "", errors.New("value %q contains non bareword characters and can not be quoted as bareword without escaping")
-		}
-		return escapeBareword(value), nil
+		return escapeBareword(value)
+
 	default:
 		panic("quote type not supported")
 	}
