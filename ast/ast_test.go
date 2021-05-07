@@ -27,8 +27,10 @@ func TestAst(t *testing.T) {
 						),
 						NewHashAttribute(
 							"add_field",
-							NewHashEntry("fieldname", NewStringAttribute("", "fieldvalue", DoubleQuoted)),
-							NewHashEntry("number", NewNumberAttribute("", 3.1415)),
+							NewHashEntry(NewStringAttribute("", "bareword", Bareword), NewStringAttribute("", "bareword", Bareword)),
+							NewHashEntry(NewStringAttribute("", "single quoted", SingleQuoted), NewStringAttribute("", "single quoted", SingleQuoted)),
+							NewHashEntry(NewStringAttribute("", "double quoted", DoubleQuoted), NewStringAttribute("", "double quoted", DoubleQuoted)),
+							NewHashEntry(NewNumberAttribute("", 1), NewNumberAttribute("", 3.1415)),
 						),
 						NewNumberAttribute("pi", 3.1415),
 						NewPluginAttribute("codec", NewPlugin("rubydebug", NewStringAttribute("string", "a value", DoubleQuoted))),
@@ -49,8 +51,10 @@ func TestAst(t *testing.T) {
       tag3
     ]
     add_field => {
-      fieldname => "fieldvalue"
-      number => 3.1415
+      bareword => bareword
+      'single quoted' => 'single quoted'
+      "double quoted" => "double quoted"
+      1 => 3.1415
     }
     pi => 3.1415
     codec => rubydebug {
@@ -531,7 +535,7 @@ output {
 						nil,
 						NewStringAttribute("foo", "bar", Bareword),
 						NewArrayAttribute("nil", nil),
-						NewHashAttribute("nilHash", NewHashEntry("nilEntry", nil)),
+						NewHashAttribute("nilHash", NewHashEntry(NewStringAttribute("", "nilEntry", Bareword), nil)),
 						nil,
 					),
 					NewBranch(
