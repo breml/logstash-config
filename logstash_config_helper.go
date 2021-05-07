@@ -335,14 +335,9 @@ func hashentries(attribute, attributes1 interface{}) ([]ast.HashEntry, error) {
 }
 
 func hashentry(name, value, comment interface{}) (ast.HashEntry, error) {
-	var key ast.StringAttribute
+	key := name.(ast.HashEntryKey)
 
-	switch name := name.(type) {
-	case ast.StringAttribute:
-		key = name
-	}
-
-	he := ast.NewHashEntry(key.ValueString(), value.(ast.Attribute))
+	he := ast.NewHashEntry(key, value.(ast.Attribute))
 	he.Comment = commentBlock(comment, true, false)
 
 	return he, nil

@@ -549,15 +549,24 @@ func (ha HashAttribute) Value() []HashEntry {
 	return ha.value
 }
 
+type HashEntryKey interface {
+	ValueString() string
+	attributeNode()
+	hashEntryKeyAttribute()
+}
+
+func (NumberAttribute) hashEntryKeyAttribute() {}
+func (StringAttribute) hashEntryKeyAttribute() {}
+
 // A HashEntry node defines a hash entry within a hash attribute.
 type HashEntry struct {
-	name    string
+	name    HashEntryKey
 	value   Attribute
 	Comment CommentBlock
 }
 
 // NewHashEntry creates a new hash entry for a hash attribute.
-func NewHashEntry(name string, value Attribute) HashEntry {
+func NewHashEntry(name HashEntryKey, value Attribute) HashEntry {
 	return HashEntry{
 		name:  name,
 		value: value,
@@ -566,7 +575,7 @@ func NewHashEntry(name string, value Attribute) HashEntry {
 
 // Name returns the name of the attribute.
 func (he HashEntry) Name() string {
-	return he.name
+	return he.name.ValueString()
 }
 
 // String returns a string representation of a hash entry.
