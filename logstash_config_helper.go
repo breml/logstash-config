@@ -178,20 +178,22 @@ func (c *current) pluginSection(pt1, bops1, footerComment1 interface{}) (ast.Plu
 	}
 
 	return ast.PluginSection{
+		Start:           c.astPos(),
 		PluginType:      pt,
 		BranchOrPlugins: bops,
 		FooterComment:   c.commentBlock(footerComment1, false, false),
 	}, nil
 }
 
-func (c *current) plugin(name, attributes1, comment1, footerComment1 interface{}) (ast.Plugin, error) {
+func (c *current) plugin(name1, attributes1, comment1, footerComment1 interface{}) (ast.Plugin, error) {
 	var attributes []ast.Attribute
 	if attributes1 != nil {
 		attributes = attributes1.([]ast.Attribute)
 	}
 
-	p := ast.NewPlugin(name.(string), attributes...)
-
+	name := name1.(ast.StringAttribute)
+	p := ast.NewPlugin(name.ValueString(), attributes...)
+	p.Start = name.Pos()
 	p.Comment = c.commentBlock(comment1, false, false)
 	p.FooterComment = c.commentBlock(footerComment1, false, false)
 
@@ -254,27 +256,49 @@ func (c *current) attribute(name, value interface{}) (ast.Attribute, error) {
 
 	switch value := value.(type) {
 	case ast.StringAttribute:
-		return ast.NewStringAttribute(key.ValueString(), value.Value(), value.StringAttributeType()), nil
+		sa := ast.NewStringAttribute(key.ValueString(), value.Value(), value.StringAttributeType())
+		sa.Start = c.astPos()
+		return sa, nil
 	case ast.NumberAttribute:
-		return ast.NewNumberAttribute(key.ValueString(), value.Value()), nil
+		na := ast.NewNumberAttribute(key.ValueString(), value.Value())
+		na.Start = c.astPos()
+		return na, nil
 	case ast.ArrayAttribute:
 		aa := ast.NewArrayAttribute(key.ValueString(), value.Value()...)
+		aa.Start = c.astPos()
 		aa.FooterComment = value.FooterComment
 		return aa, nil
 	case ast.HashAttribute:
 		ha := ast.NewHashAttribute(key.ValueString(), value.Value()...)
+		ha.Start = c.astPos()
 		ha.FooterComment = value.FooterComment
 		return ha, nil
 	case ast.Plugin:
-		return ast.NewPluginAttribute(key.ValueString(), value), nil
+		pa := ast.NewPluginAttribute(key.ValueString(), value)
+		pa.Start = c.astPos()
+		return pa, nil
 	default:
 		return nil, fmt.Errorf("Type of value %#v with name %s is not supported", value, key.ValueString())
 	}
 }
 
+func (c *current) string(sat ast.StringAttributeType) (ast.StringAttribute, error) {
+	var s ast.StringAttribute
+	if sat == ast.Bareword {
+		s = ast.NewStringAttribute("", string(c.text), sat)
+	} else {
+		str, _ := c.enclosedValue()
+		s = ast.NewStringAttribute("", str, sat)
+	}
+	s.Start = c.astPos()
+	return s, nil
+}
+
 func (c *current) regexp() (ast.Regexp, error) {
 	val, _ := c.enclosedValue()
-	return ast.NewRegexp(val), nil
+	r := ast.NewRegexp(val)
+	r.Start = c.astPos()
+	return r, nil
 }
 
 func (c *current) number() (ast.NumberAttribute, error) {
@@ -338,6 +362,7 @@ func (c *current) hashentry(name, value, comment interface{}) (ast.HashEntry, er
 	key := name.(ast.HashEntryKey)
 
 	he := ast.NewHashEntry(key, value.(ast.Attribute))
+	he.Start = c.astPos()
 	he.Comment = c.commentBlock(comment, true, false)
 
 	return he, nil
@@ -396,18 +421,21 @@ func (c *current) branchOrPluginComment(bop1, comment1 interface{}) (ast.BranchO
 
 func (c *current) ifBlock(cond, bops, comment1 interface{}) (ast.IfBlock, error) {
 	ib := ast.NewIfBlock(cond.(ast.Condition), c.branchOrPlugins(bops)...)
+	ib.Start = c.astPos()
 	ib.FooterComment = c.commentBlock(comment1, false, false)
 	return ib, nil
 }
 
 func (c *current) elseIfBlock(cond, bops, comment1 interface{}) (ast.ElseIfBlock, error) {
 	eib := ast.NewElseIfBlock(cond.(ast.Condition), c.branchOrPlugins(bops)...)
+	eib.Start = c.astPos()
 	eib.FooterComment = c.commentBlock(comment1, false, false)
 	return eib, nil
 }
 
 func (c *current) elseBlock(bops, comment1 interface{}) (ast.ElseBlock, error) {
 	eb := ast.NewElseBlock(c.branchOrPlugins(bops)...)
+	eb.Start = c.astPos()
 	eb.FooterComment = c.commentBlock(comment1, false, false)
 	return eb, nil
 }
@@ -450,77 +478,138 @@ func (c *current) expression(bo, expr1 interface{}) (ast.Expression, error) {
 }
 
 func (c *current) conditionExpression(cond interface{}) (ast.ConditionExpression, error) {
-	return ast.NewConditionExpression(ast.NoOperator, cond.(ast.Condition)), nil
+	ce := ast.NewConditionExpression(ast.BooleanOperator{Op: ast.NoOperator}, cond.(ast.Condition))
+	ce.Start = c.astPos()
+	return ce, nil
 }
 
 func (c *current) negativeExpression(cond interface{}) (ast.NegativeConditionExpression, error) {
-	return ast.NewNegativeConditionExpression(ast.NoOperator, cond.(ast.Condition)), nil
+	ne := ast.NewNegativeConditionExpression(ast.BooleanOperator{Op: ast.NoOperator}, cond.(ast.Condition))
+	ne.Start = c.astPos()
+	return ne, nil
 }
 
 func (c *current) negativeSelector(sel interface{}) (ast.NegativeSelectorExpression, error) {
-	return ast.NewNegativeSelectorExpression(ast.NoOperator, sel.(ast.Selector)), nil
+	ns := ast.NewNegativeSelectorExpression(ast.BooleanOperator{Op: ast.NoOperator}, sel.(ast.Selector))
+	ns.Start = c.astPos()
+	return ns, nil
 }
 
 func (c *current) inExpression(lv, rv interface{}) (ast.InExpression, error) {
-	return ast.NewInExpression(ast.NoOperator, lv.(ast.Rvalue), rv.(ast.Rvalue)), nil
+	ie := ast.NewInExpression(ast.BooleanOperator{Op: ast.NoOperator}, lv.(ast.Rvalue), rv.(ast.Rvalue))
+	ie.Start = c.astPos()
+	return ie, nil
 }
 
 func (c *current) notInExpression(lv, rv interface{}) (ast.NotInExpression, error) {
-	return ast.NewNotInExpression(ast.NoOperator, lv.(ast.Rvalue), rv.(ast.Rvalue)), nil
+	nie := ast.NewNotInExpression(ast.BooleanOperator{Op: ast.NoOperator}, lv.(ast.Rvalue), rv.(ast.Rvalue))
+	nie.Start = c.astPos()
+	return nie, nil
 }
 
 func (c *current) compareExpression(lv, co, rv interface{}) (ast.CompareExpression, error) {
-	return ast.NewCompareExpression(ast.NoOperator, lv.(ast.Rvalue), co.(ast.CompareOperator), rv.(ast.Rvalue)), nil
+	ce := ast.NewCompareExpression(ast.BooleanOperator{Op: ast.NoOperator}, lv.(ast.Rvalue), co.(ast.CompareOperator), rv.(ast.Rvalue))
+	ce.Start = c.astPos()
+	return ce, nil
 }
 
 func (c *current) regexpExpression(lv, ro, rv interface{}) (ast.RegexpExpression, error) {
-	return ast.NewRegexpExpression(ast.NoOperator, lv.(ast.Rvalue), ro.(ast.RegexpOperator), rv.(ast.StringOrRegexp)), nil
+	re := ast.NewRegexpExpression(ast.BooleanOperator{Op: ast.NoOperator}, lv.(ast.Rvalue), ro.(ast.RegexpOperator), rv.(ast.StringOrRegexp))
+	re.Start = c.astPos()
+	return re, nil
 }
 
 func (c *current) rvalue(rv interface{}) (ast.RvalueExpression, error) {
-	return ast.NewRvalueExpression(ast.NoOperator, rv.(ast.Rvalue)), nil
+	re := ast.NewRvalueExpression(ast.BooleanOperator{Op: ast.NoOperator}, rv.(ast.Rvalue))
+	re.Start = c.astPos()
+	return re, nil
 }
 
 func (c *current) compareOperator() (ast.CompareOperator, error) {
 	switch string(c.text) {
 	case "==":
-		return ast.Equal, nil
+		return ast.CompareOperator{
+			Op:    ast.Equal,
+			Start: c.astPos(),
+		}, nil
 	case "!=":
-		return ast.NotEqual, nil
+		return ast.CompareOperator{
+			Op:    ast.NotEqual,
+			Start: c.astPos(),
+		}, nil
 	case "<=":
-		return ast.LessOrEqual, nil
+		return ast.CompareOperator{
+			Op:    ast.LessOrEqual,
+			Start: c.astPos(),
+		}, nil
 	case ">=":
-		return ast.GreaterOrEqual, nil
+		return ast.CompareOperator{
+			Op:    ast.GreaterOrEqual,
+			Start: c.astPos(),
+		}, nil
 	case "<":
-		return ast.LessThan, nil
+		return ast.CompareOperator{
+			Op:    ast.LessThan,
+			Start: c.astPos(),
+		}, nil
 	case ">":
-		return ast.GreaterThan, nil
+		return ast.CompareOperator{
+			Op:    ast.GreaterThan,
+			Start: c.astPos(),
+		}, nil
 	}
-	return ast.Undefined, nil
+	return ast.CompareOperator{
+		Op:    ast.Undefined,
+		Start: c.astPos(),
+	}, nil
 }
 
 func (c *current) regexpOperator() (ast.RegexpOperator, error) {
 	switch string(c.text) {
 	case "=~":
-		return ast.RegexpMatch, nil
+		return ast.RegexpOperator{
+			Op:    ast.RegexpMatch,
+			Start: c.astPos(),
+		}, nil
 	case "!~":
-		return ast.RegexpNotMatch, nil
+		return ast.RegexpOperator{
+			Op:    ast.RegexpNotMatch,
+			Start: c.astPos(),
+		}, nil
 	}
-	return ast.Undefined, nil
+	return ast.RegexpOperator{
+		Op:    ast.Undefined,
+		Start: c.astPos(),
+	}, nil
 }
 
 func (c *current) booleanOperator() (ast.BooleanOperator, error) {
 	switch string(c.text) {
 	case "and":
-		return ast.And, nil
+		return ast.BooleanOperator{
+			Op:    ast.And,
+			Start: c.astPos(),
+		}, nil
 	case "or":
-		return ast.Or, nil
+		return ast.BooleanOperator{
+			Op:    ast.Or,
+			Start: c.astPos(),
+		}, nil
 	case "xor":
-		return ast.Xor, nil
+		return ast.BooleanOperator{
+			Op:    ast.Xor,
+			Start: c.astPos(),
+		}, nil
 	case "nand":
-		return ast.Nand, nil
+		return ast.BooleanOperator{
+			Op:    ast.Nand,
+			Start: c.astPos(),
+		}, nil
 	}
-	return ast.Undefined, nil
+	return ast.BooleanOperator{
+		Op:    ast.Undefined,
+		Start: c.astPos(),
+	}, nil
 }
 
 func (c *current) selector(ses1 interface{}) (ast.Selector, error) {
@@ -530,19 +619,23 @@ func (c *current) selector(ses1 interface{}) (ast.Selector, error) {
 	for _, se := range ises {
 		ses = append(ses, se.(ast.SelectorElement))
 	}
-	return ast.NewSelector(ses), nil
+	s := ast.NewSelector(ses)
+	s.Start = c.astPos()
+	return s, nil
 }
 
 func (c *current) selectorElement() (ast.SelectorElement, error) {
 	value := string(c.text)
-	return ast.NewSelectorElement(value[1 : len(value)-1]), nil
+	se := ast.NewSelectorElement(value[1 : len(value)-1])
+	se.Start = c.astPos()
+	return se, nil
 }
 
 func (c *current) enclosedValue() (string, error) {
 	return string(c.text[1 : len(c.text)-1]), nil
 }
 
-func (c *current) string() (string, error) {
+func (c *current) str() (string, error) {
 	return string(c.text), nil
 }
 

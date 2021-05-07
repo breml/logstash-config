@@ -56,7 +56,7 @@ _ =
 
 __ =
     ( (comment / whitespace)* {
-        return c.string()
+        return c.str()
     } ) #{
         return c.warnComment()
     }
@@ -157,7 +157,7 @@ plugin =
 
 name =
     ( ([A-Za-z0-9_-]+) {
-        return c.string()
+        return c.string(ast.Bareword)
     } / value:stringValue {
         return c.ret(value)
     } )
@@ -197,7 +197,7 @@ arrayValue =
 
 bareword =
     [A-Za-z_] [A-Za-z0-9_]+ {
-        return ast.NewStringAttribute("", string(c.text), ast.Bareword), nil
+        return c.string(ast.Bareword)
     }
 
 //   rule double_quoted_string
@@ -232,9 +232,9 @@ singleQuotedString =
 
 stringValue =
     str:( str:doubleQuotedString {
-        return ast.NewStringAttribute("", str.(string), ast.DoubleQuoted), nil
+        return c.string(ast.DoubleQuoted)
     } / str:singleQuotedString {
-        return ast.NewStringAttribute("", str.(string), ast.SingleQuoted), nil
+        return c.string(ast.SingleQuoted)
     } ) {
         return c.ret(str)
     }
