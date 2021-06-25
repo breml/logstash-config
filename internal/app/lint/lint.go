@@ -14,10 +14,14 @@ import (
 	"github.com/breml/logstash-config/internal/format"
 )
 
-type Lint struct{}
+type Lint struct {
+	autoFixID bool
+}
 
-func New() Lint {
-	return Lint{}
+func New(autoFixID bool) Lint {
+	return Lint{
+		autoFixID: autoFixID,
+	}
 }
 
 func (l Lint) Run(args []string) error {
@@ -44,7 +48,9 @@ func (l Lint) Run(args []string) error {
 		}
 		conf := c.(ast.Config)
 
-		v := validator{}
+		v := validator{
+			autoFixID: l.autoFixID,
+		}
 
 		for i := range conf.Input {
 			astutil.ApplyPlugins(conf.Input[i].BranchOrPlugins, v.walk)
@@ -64,6 +70,23 @@ func (l Lint) Run(args []string) error {
 			}
 			result = multierror.Append(result, errors.New(errMsg.String()))
 		}
+
+		if l.autoFixID && v.changed {
+			func() {
+				f, err := os.Create(filename)
+				if err != nil {
+					result = multierror.Append(result, errors.Wrap(err, "failed to open file for writting with automatically fixed ID"))
+					return
+				}
+				defer f.Close()
+
+				_, err = f.WriteString(conf.String())
+				if err != nil {
+					result = multierror.Append(result, errors.Wrap(err, "failed to write file with automatically fixed ID"))
+					return
+				}
+			}()
+		}
 	}
 
 	if result != nil {
@@ -75,12 +98,26 @@ func (l Lint) Run(args []string) error {
 }
 
 type validator struct {
-	noIDs []string
+	count     int
+	noIDs     []string
+	autoFixID bool
+	changed   bool
 }
 
 func (v *validator) walk(c *astutil.Cursor) {
+	v.count++
+
 	_, err := c.Plugin().ID()
 	if err != nil {
-		v.noIDs = append(v.noIDs, fmt.Sprintf("%s: %s", c.Plugin().Pos().String(), c.Plugin().Name()))
+		if v.autoFixID {
+			v.changed = true
+
+			plugin := c.Plugin()
+			plugin.Attributes = append(plugin.Attributes, ast.NewStringAttribute("id", fmt.Sprintf("%s-%d", c.Plugin().Name(), v.count), ast.DoubleQuoted))
+
+			c.Replace(plugin)
+		} else {
+			v.noIDs = append(v.noIDs, fmt.Sprintf("%s: %s", c.Plugin().Pos().String(), c.Plugin().Name()))
+		}
 	}
 }
