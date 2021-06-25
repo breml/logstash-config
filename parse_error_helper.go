@@ -1,7 +1,9 @@
 package config
 
-import "fmt"
-import "bytes"
+import (
+	"bytes"
+	"fmt"
+)
 
 type errPos struct {
 	msg string
@@ -9,9 +11,7 @@ type errPos struct {
 	pos int
 }
 
-var (
-	farthestFailure []errPos
-)
+var farthestFailure []errPos
 
 // GetFarthestFailure returns the farthest position where the parser had a parse error.
 // The farthest position is normally close to the real source for the error.
@@ -36,7 +36,7 @@ func pos(c *current) int {
 // These potential error states are a valuable source for the error message, if
 // the parsing fails.
 // The assumption is, that the longest successful parse tree is the most acurate.
-func pushError(errorMsg string, c *current) (bool, error) {
+func (c *current) pushError(errorMsg string) (bool, error) {
 	pos := pos(c)
 	if len(farthestFailure) == 0 || pos > farthestFailure[0].pos {
 		farthestFailure = []errPos{{msg: errorMsg, c: *c, pos: pos}}
@@ -56,7 +56,7 @@ func pushError(errorMsg string, c *current) (bool, error) {
 // fatalError is used to abort the parsing immediately due to an unrecoverable parse error.
 // In most cases this is a missing closing character of a pair, which was opened before.
 // Example: a missing closing square bracket or a missing closing double quote.
-func fatalError(errorMsg string, c *current) (bool, error) {
+func (c *current) fatalError(errorMsg string) (bool, error) {
 	farthestFailure = []errPos{
 		{
 			msg: errorMsg,

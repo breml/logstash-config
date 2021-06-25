@@ -6,18 +6,18 @@
 // Parsing entry point
 init =
     #{
-        return initState(c)
+        return c.initState()
     }
     &{
-        return initParser()
+        return c.initParser()
     } conf:(
         conf:config EOF {
-            return ret(conf)
+            return c.ret(conf)
         } / _ EOF {
             return ast.NewConfig(nil, nil, nil), nil
         }
     ) {
-        return retConfig(c, conf)
+        return c.retConfig(conf)
     }
 
 //  rule config
@@ -29,10 +29,10 @@ init =
 config =
     psComment:_ ps:pluginSection pss:(
         psComment:_ ps:pluginSection {
-            return configSection(ps, psComment)
+            return c.configSection(ps, psComment)
         }
     )* footerComment:_ EOF {
-        return config(ps, pss, psComment, footerComment)
+        return c.config(ps, pss, psComment, footerComment)
     }
 
 //  rule comment
@@ -41,7 +41,7 @@ config =
 
 comment =
     (whitespace? "#" [^\r\n]* "\r"? ("\n" / EOF))+ {
-      return comment(c)
+      return c.comment()
     }
 
 //  rule _
@@ -56,9 +56,9 @@ _ =
 
 __ =
     ( (comment / whitespace)* {
-        return c.text, nil
+        return c.str()
     } ) #{
-        return warnComment(c)
+        return c.warnComment()
     }
 
 //  rule whitespace
@@ -67,7 +67,7 @@ __ =
 
 whitespace =
     [ \t\r\n]+ {
-      return whitespace()
+      return c.whitespace()
     }
 
 //  rule plugin_section
@@ -83,14 +83,14 @@ whitespace =
 pluginSection =
     pt:pluginType __ "{" bops:(
         bop:branchOrPlugin {
-            return ret(bop)
+            return c.ret(bop)
         }
     )* footerComment:_ (
         "}" / &{
-            return pushError("expect closing curly bracket", c)
+            return c.pushError("expect closing curly bracket")
         }
     ) {
-        return pluginSection(pt, bops, footerComment)
+        return c.pluginSection(pt, bops, footerComment)
     }
 
 //   rule branch_or_plugin
@@ -112,7 +112,7 @@ pluginType =
     } / "output" {
         return ast.Output, nil
     } / &{
-        return pushError("expect plugin type (input, filter, output)", c)
+        return c.pushError("expect plugin type (input, filter, output)")
     }
 
 //   rule plugins
@@ -135,17 +135,17 @@ plugin =
     comment:_ name:name __ "{" attributes:(
         comment:_ attribute:attribute attrs:(
             whitespace comment:_ attribute:attribute {
-                return attributeComment(attribute, comment, true)
+                return c.attributeComment(attribute, comment, true)
             }
         )* {
-            return attributes(attribute, attrs, comment)
+            return c.attributes(attribute, attrs, comment)
         }
     )? footerComment:_ (
         "}" / &{
-            return fatalError("expect closing curly bracket", c)
+            return c.fatalError("expect closing curly bracket")
         }
     ) {
-        return plugin(name, attributes, comment, footerComment)
+        return c.plugin(name, attributes, comment, footerComment)
     }
 
 //   rule name
@@ -157,9 +157,9 @@ plugin =
 
 name =
     ( ([A-Za-z0-9_-]+) {
-        return string(c.text), nil
+        return c.string(ast.Bareword)
     } / value:stringValue {
-        return ret(value)
+        return c.ret(value)
     } )
 
 //   rule attribute
@@ -169,7 +169,7 @@ name =
 
 attribute =
     name:name __ "=>" __ value:value {
-        return attribute(name, value)
+        return c.attribute(name, value)
     }
 
 //   rule value
@@ -178,7 +178,7 @@ attribute =
 
 value =
     plugin / bareword / stringValue / number / array / hash / &{
-        return pushError("invalid value", c)
+        return c.pushError("invalid value")
     }
 
 //   rule array_value
@@ -187,7 +187,7 @@ value =
 
 arrayValue =
     bareword / stringValue / number / array / hash / &{
-        return fatalError("invalid array value", c)
+        return c.fatalError("invalid array value")
     }
 
 //   rule bareword
@@ -197,7 +197,7 @@ arrayValue =
 
 bareword =
     [A-Za-z_] [A-Za-z0-9_]+ {
-        return ast.NewStringAttribute("", string(c.text), ast.Bareword), nil
+        return c.string(ast.Bareword)
     }
 
 //   rule double_quoted_string
@@ -207,10 +207,10 @@ bareword =
 doubleQuotedString =
     ( `"` ( `\"` / !`"` . )* (
         `"` / &{
-            return fatalError("expect closing double quotes (\")", c)
+            return c.fatalError("expect closing double quotes (\")")
         }
     ) ) {
-        return enclosedValue(c)
+        return c.enclosedValue()
     }
 
 //   rule single_quoted_string
@@ -220,10 +220,10 @@ doubleQuotedString =
 singleQuotedString =
     ( `'` ( `\'` / !`'` . )* (
         `'` / &{
-            return fatalError("expect closing single quote (')", c)
+            return c.fatalError("expect closing single quote (')")
         }
     ) ) {
-        return enclosedValue(c)
+        return c.enclosedValue()
     }
 
 //   rule string
@@ -232,11 +232,11 @@ singleQuotedString =
 
 stringValue =
     str:( str:doubleQuotedString {
-        return ast.NewStringAttribute("", str.(string), ast.DoubleQuoted), nil
+        return c.string(ast.DoubleQuoted)
     } / str:singleQuotedString {
-        return ast.NewStringAttribute("", str.(string), ast.SingleQuoted), nil
+        return c.string(ast.SingleQuoted)
     } ) {
-        return ret(str)
+        return c.ret(str)
     }
 
 //   rule regexp
@@ -246,10 +246,10 @@ stringValue =
 regexp =
     ( `/` ( `\/` / !`/` . )* (
         `/` / &{
-            return fatalError("expect closing slash (/) for regexp", c)
+            return c.fatalError("expect closing slash (/) for regexp")
         }
     ) ) {
-        return regexp(c)
+        return c.regexp()
     }
 
 //   rule number
@@ -259,7 +259,7 @@ regexp =
 
 number =
     "-"? [0-9]+ ("." [0-9]*)? {
-        return number(string(c.text))
+        return c.number()
     }
 
 //   rule array
@@ -281,17 +281,17 @@ array =
     "[" values:(
         comment:_ value:value values:(
             __ "," comment:_ value:value {
-                return attributeComment(value, comment, true)
+                return c.attributeComment(value, comment, true)
             }
         )* {
-            return attributes(value, values, comment)
+            return c.attributes(value, values, comment)
         }
     )? footerComment:_ (
         "]" / &{
-            return fatalError("expect closing square bracket", c)
+            return c.fatalError("expect closing square bracket")
         }
     ) {
-        return array(values, footerComment)
+        return c.array(values, footerComment)
     }
 
 //   rule hash
@@ -308,10 +308,10 @@ array =
 hash =
     "{" entries:hashentries? footerComment:_ (
         "}" / &{
-            return fatalError("expect closing curly bracket", c)
+            return c.fatalError("expect closing curly bracket")
         }
     ) {
-        return hash(entries, footerComment)
+        return c.hash(entries, footerComment)
     }
 
 //   rule hashentries
@@ -322,10 +322,10 @@ hash =
 hashentries =
     hashentry:hashentry hashentries1:(
         whitespace hashentry:hashentry {
-            return ret(hashentry)
+            return c.ret(hashentry)
         }
     )* {
-        return hashentries(hashentry, hashentries1)
+        return c.hashentries(hashentry, hashentries1)
     }
 
 //   rule hashentry
@@ -335,7 +335,7 @@ hashentries =
 
 hashentry =
     comment:_ name:(number / bareword / stringValue) __ "=>" __ value:value {
-        return hashentry(name, value, comment)
+        return c.hashentry(name, value, comment)
     }
 
 // Conditions
@@ -350,14 +350,14 @@ hashentry =
 branch =
     ifComment:_ ifBlock:ifCond elseIfBlocks:(
         eibComment:_ eib:elseIf {
-                return elseIfComment(eib, eibComment)
+                return c.elseIfComment(eib, eibComment)
             }
         )* elseBlock:(
             ebComment:_ eb:elseCond {
-                return elseComment(eb, ebComment)
+                return c.elseComment(eb, ebComment)
             }
         )? {
-        return branch(ifBlock, elseIfBlocks, elseBlock, ifComment)
+        return c.branch(ifBlock, elseIfBlocks, elseBlock, ifComment)
     }
 
 //   rule if
@@ -371,14 +371,14 @@ branch =
 ifCond =
     "if" __ cond:condition __ "{" bops:(
             comment:_ bop:branchOrPlugin {
-                return branchOrPluginComment(bop, comment)
+                return c.branchOrPluginComment(bop, comment)
             }
         )* footerComment:_ (
             "}" / &{
-                return fatalError("expect closing curly bracket", c)
+                return c.fatalError("expect closing curly bracket")
             }
         ) {
-        return ifBlock(cond, bops, footerComment)
+        return c.ifBlock(cond, bops, footerComment)
     }
 
 //   rule else_if
@@ -392,14 +392,14 @@ ifCond =
 elseIf =
     "else" __ "if" __ cond:condition __ "{" bops:(
         comment:_ bop:branchOrPlugin {
-            return branchOrPluginComment(bop, comment)
+            return c.branchOrPluginComment(bop, comment)
         }
     )* footerComment:_ (
         "}" / &{
-            return fatalError("expect closing curly bracket", c)
+            return c.fatalError("expect closing curly bracket")
         }
     ) {
-        return elseIfBlock(cond, bops, footerComment)
+        return c.elseIfBlock(cond, bops, footerComment)
     }
 
 //   rule else
@@ -413,14 +413,14 @@ elseIf =
 elseCond =
     "else" __ "{" bops:(
         comment:_ bop:branchOrPlugin {
-            return branchOrPluginComment(bop, comment)
+            return c.branchOrPluginComment(bop, comment)
         }
     )* footerComment:_ (
         "}" / &{
-            return fatalError("expect closing curly bracket", c)
+            return c.fatalError("expect closing curly bracket")
         }
     ) {
-        return elseBlock(bops, footerComment)
+        return c.elseBlock(bops, footerComment)
     }
 
 //   rule condition
@@ -431,10 +431,10 @@ elseCond =
 condition =
     cond:expression conds:(
         __ bo:booleanOperator __ cond:expression {
-            return expression(bo, cond)
+            return c.expression(bo, cond)
         }
     )* {
-        return condition(cond, conds)
+        return c.condition(cond, conds)
     }
 
 //   rule expression
@@ -453,7 +453,7 @@ expression =
     (
         (
             "(" __ cond:condition __ ")" {
-                return conditionExpression(cond)
+                return c.conditionExpression(cond)
             }
         )
       / negativeExpression
@@ -462,9 +462,9 @@ expression =
       / compareExpression
       / regexpExpression
       / rv:rvalue {
-          return rvalue(rv)
+          return c.rvalue(rv)
       }
-      // &{ return pushError("expect valid expression", c) }
+      // &{ return c.pushError("expect valid expression") }
     )
 
 //   rule negative_expression
@@ -479,15 +479,15 @@ negativeExpression =
         (
             "!" __ "(" __ cond:condition __ (
                 ")" / &{
-                    return fatalError("expect closing parenthesis", c)
+                    return c.fatalError("expect closing parenthesis")
                 }
             ) {
-                return negativeExpression(cond)
+                return c.negativeExpression(cond)
             }
         )
       / (
           "!" __ sel:selector {
-              return negativeSelector(sel)
+              return c.negativeSelector(sel)
           }
         )
     )
@@ -499,7 +499,7 @@ negativeExpression =
 
 inExpression =
     lv:rvalue __ inOperator __ rv:rvalue {
-        return inExpression(lv, rv)
+        return c.inExpression(lv, rv)
     }
 
 //   rule not_in_expression
@@ -509,7 +509,7 @@ inExpression =
 
 notInExpression =
     lv:rvalue __ notInOperator __ rv:rvalue {
-        return notInExpression(lv, rv)
+        return c.notInExpression(lv, rv)
     }
 
 //   rule in_operator
@@ -518,7 +518,7 @@ notInExpression =
 
 inOperator =
     "in" / &{
-        return pushError("expect in operator (in)", c)
+        return c.pushError("expect in operator (in)")
     }
 
 //   rule not_in_operator
@@ -527,7 +527,7 @@ inOperator =
 
 notInOperator =
     "not " __ "in" / &{
-        return pushError("expect not in operator (not in)", c)
+        return c.pushError("expect not in operator (not in)")
     }
 
 //   rule rvalue
@@ -539,7 +539,7 @@ notInOperator =
 //     string_value / number / selector / array / method_call / regexp
 rvalue =
     stringValue / number / selector / array / regexp / &{
-        return pushError("invalid value for expression", c)
+        return c.pushError("invalid value for expression")
     }
 
 //   rule method_call
@@ -574,7 +574,7 @@ rvalue =
 
 compareExpression =
     lv:rvalue __ co:compareOperator __ rv:rvalue {
-        return compareExpression(lv, co, rv)
+        return c.compareExpression(lv, co, rv)
     }
 
 //   rule compare_operator
@@ -584,9 +584,9 @@ compareExpression =
 
 compareOperator =
     ("==" / "!=" / "<=" / ">=" / "<" / ">" / &{
-        return pushError("expect compare operator (==, !=, <=, >=, <, >)", c)
+        return c.pushError("expect compare operator (==, !=, <=, >=, <, >)")
     }) {
-        return compareOperator(string(c.text))
+        return c.compareOperator()
     }
 
 //   rule regexp_expression
@@ -596,7 +596,7 @@ compareOperator =
 
 regexpExpression =
     lv:rvalue __  ro:regexpOperator __ rv:(stringValue / regexp) {
-        return regexpExpression(lv, ro, rv)
+        return c.regexpExpression(lv, ro, rv)
     }
 
 //   rule regexp_operator
@@ -605,9 +605,9 @@ regexpExpression =
 
 regexpOperator =
     ("=~" / "!~" / &{
-        return pushError("expect regexp comparison operator (=~, !~)", c)
+        return c.pushError("expect regexp comparison operator (=~, !~)")
     }) {
-        return regexpOperator(string(c.text))
+        return c.regexpOperator()
     }
 
 //   rule boolean_operator
@@ -617,9 +617,9 @@ regexpOperator =
 
 booleanOperator =
     ("and" / "or" / "xor" / "nand" / &{
-        return pushError("expect boolean operator (and, or, xor, nand)", c)
+        return c.pushError("expect boolean operator (and, or, xor, nand)")
     }) {
-        return booleanOperator(string(c.text))
+        return c.booleanOperator()
     }
 
 //   rule selector
@@ -629,7 +629,7 @@ booleanOperator =
 
 selector =
     ses:selectorElement+ {
-        return selector(ses)
+        return c.selector(ses)
     }
 
 //   rule selector_element
@@ -640,10 +640,10 @@ selector =
 selectorElement =
     "[" [^\][,]+ (
         "]" / &{
-            return pushError("expect closing square bracket", c)
+            return c.pushError("expect closing square bracket")
         }
     ) {
-        return selectorElement(string(c.text))
+        return c.selectorElement()
     }
 
 EOF = !.

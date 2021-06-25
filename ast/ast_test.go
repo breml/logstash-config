@@ -78,7 +78,7 @@ output {
 						NewIfBlock(
 							NewCondition(
 								NewCompareExpression(
-									NoOperator, NewStringAttribute("", "true", DoubleQuoted), Equal, NewStringAttribute("", "true", DoubleQuoted),
+									BooleanOperator{Op: NoOperator}, NewStringAttribute("", "true", DoubleQuoted), CompareOperator{Op: Equal}, NewStringAttribute("", "true", DoubleQuoted),
 								),
 							),
 							NewPlugin("if-plugin"),
@@ -104,7 +104,7 @@ output {
 						NewIfBlock(
 							NewCondition(
 								NewCompareExpression(
-									NoOperator, NewStringAttribute("", "true", DoubleQuoted), Equal, NewStringAttribute("", "true", DoubleQuoted),
+									BooleanOperator{Op: NoOperator}, NewStringAttribute("", "true", DoubleQuoted), CompareOperator{Op: Equal}, NewStringAttribute("", "true", DoubleQuoted),
 								),
 							),
 							NewPlugin("if-plugin"),
@@ -134,7 +134,7 @@ output {
 						NewIfBlock(
 							NewCondition(
 								NewCompareExpression(
-									NoOperator, NewStringAttribute("", "true", DoubleQuoted), Equal, NewStringAttribute("", "true", DoubleQuoted),
+									BooleanOperator{Op: NoOperator}, NewStringAttribute("", "true", DoubleQuoted), CompareOperator{Op: Equal}, NewStringAttribute("", "true", DoubleQuoted),
 								),
 							),
 							NewPlugin("if-plugin"),
@@ -145,7 +145,7 @@ output {
 						NewElseIfBlock(
 							NewCondition(
 								NewCompareExpression(
-									NoOperator, NewStringAttribute("", "true", DoubleQuoted), NotEqual, NewStringAttribute("", "true", DoubleQuoted),
+									BooleanOperator{Op: NoOperator}, NewStringAttribute("", "true", DoubleQuoted), CompareOperator{Op: NotEqual}, NewStringAttribute("", "true", DoubleQuoted),
 								),
 							),
 							NewPlugin("else-if-plugin-1"),
@@ -153,7 +153,7 @@ output {
 						NewElseIfBlock(
 							NewCondition(
 								NewCompareExpression(
-									NoOperator, NewNumberAttribute("", 10), GreaterThan, NewNumberAttribute("", 2),
+									BooleanOperator{Op: NoOperator}, NewNumberAttribute("", 10), CompareOperator{Op: GreaterThan}, NewNumberAttribute("", 2),
 								),
 							),
 							NewPlugin("else-if-plugin-2"),
@@ -161,7 +161,7 @@ output {
 						NewElseIfBlock(
 							NewCondition(
 								NewCompareExpression(
-									NoOperator, NewNumberAttribute("", 2), LessThan, NewNumberAttribute("", 10),
+									BooleanOperator{Op: NoOperator}, NewNumberAttribute("", 2), CompareOperator{Op: LessThan}, NewNumberAttribute("", 10),
 								),
 							),
 							NewPlugin("else-if-plugin-3"),
@@ -169,7 +169,7 @@ output {
 						NewElseIfBlock(
 							NewCondition(
 								NewCompareExpression(
-									NoOperator, NewNumberAttribute("", 10), GreaterOrEqual, NewNumberAttribute("", 2),
+									BooleanOperator{Op: NoOperator}, NewNumberAttribute("", 10), CompareOperator{Op: GreaterOrEqual}, NewNumberAttribute("", 2),
 								),
 							),
 							NewPlugin("else-if-plugin-4"),
@@ -177,7 +177,7 @@ output {
 						NewElseIfBlock(
 							NewCondition(
 								NewCompareExpression(
-									NoOperator, NewNumberAttribute("", 2), LessOrEqual, NewNumberAttribute("", 10),
+									BooleanOperator{Op: NoOperator}, NewNumberAttribute("", 2), CompareOperator{Op: LessOrEqual}, NewNumberAttribute("", 10),
 								),
 							),
 							NewPlugin("else-if-plugin-5"),
@@ -214,19 +214,19 @@ output {
 						NewIfBlock(
 							NewCondition(
 								NewCompareExpression(
-									NoOperator, NewStringAttribute("", "true", DoubleQuoted), Equal, NewStringAttribute("", "true", DoubleQuoted),
+									BooleanOperator{Op: NoOperator}, NewStringAttribute("", "true", DoubleQuoted), CompareOperator{Op: Equal}, NewStringAttribute("", "true", DoubleQuoted),
 								),
 								NewCompareExpression(
-									And, NewStringAttribute("", "true", DoubleQuoted), Equal, NewStringAttribute("", "true", DoubleQuoted),
+									BooleanOperator{Op: And}, NewStringAttribute("", "true", DoubleQuoted), CompareOperator{Op: Equal}, NewStringAttribute("", "true", DoubleQuoted),
 								),
 								NewCompareExpression(
-									Or, NewStringAttribute("", "true", DoubleQuoted), Equal, NewStringAttribute("", "true", DoubleQuoted),
+									BooleanOperator{Op: Or}, NewStringAttribute("", "true", DoubleQuoted), CompareOperator{Op: Equal}, NewStringAttribute("", "true", DoubleQuoted),
 								),
 								NewCompareExpression(
-									Nand, NewStringAttribute("", "true", DoubleQuoted), Equal, NewStringAttribute("", "true", DoubleQuoted),
+									BooleanOperator{Op: Nand}, NewStringAttribute("", "true", DoubleQuoted), CompareOperator{Op: Equal}, NewStringAttribute("", "true", DoubleQuoted),
 								),
 								NewCompareExpression(
-									Xor, NewStringAttribute("", "true", DoubleQuoted), Equal, NewStringAttribute("", "true", DoubleQuoted),
+									BooleanOperator{Op: Xor}, NewStringAttribute("", "true", DoubleQuoted), CompareOperator{Op: Equal}, NewStringAttribute("", "true", DoubleQuoted),
 								),
 							),
 							NewPlugin("plugin"),
@@ -252,10 +252,10 @@ output {
 						NewIfBlock(
 							NewCondition(
 								NewConditionExpression(
-									NoOperator,
+									BooleanOperator{Op: NoOperator},
 									NewCondition(
 										NewInExpression(
-											NoOperator, NewStringAttribute("", "tag", DoubleQuoted), NewSelectorFromNames("tags"),
+											BooleanOperator{Op: NoOperator}, NewStringAttribute("", "tag", DoubleQuoted), NewSelectorFromNames("tags"),
 										),
 									),
 								),
@@ -283,24 +283,24 @@ output {
 						NewIfBlock(
 							NewCondition(
 								NewConditionExpression(
-									NoOperator,
+									BooleanOperator{Op: NoOperator},
 									NewCondition(
 										NewInExpression(
-											NoOperator, NewStringAttribute("", "tag", DoubleQuoted), NewSelectorFromNames("tags"),
+											BooleanOperator{Op: NoOperator}, NewStringAttribute("", "tag", DoubleQuoted), NewSelectorFromNames("tags"),
 										),
 										NewConditionExpression(
-											Or,
+											BooleanOperator{Op: Or},
 											NewCondition(
 												NewCompareExpression(
-													NoOperator,
+													BooleanOperator{Op: NoOperator},
 													NewStringAttribute("", "true", DoubleQuoted),
-													Equal,
+													CompareOperator{Op: Equal},
 													NewStringAttribute("", "true", DoubleQuoted),
 												),
 												NewCompareExpression(
-													And,
+													BooleanOperator{Op: And},
 													NewNumberAttribute("", 1),
-													Equal,
+													CompareOperator{Op: Equal},
 													NewNumberAttribute("", 1),
 												),
 											),
@@ -331,12 +331,12 @@ output {
 						NewIfBlock(
 							NewCondition(
 								NewNegativeConditionExpression(
-									NoOperator,
+									BooleanOperator{Op: NoOperator},
 									NewCondition(
 										NewCompareExpression(
-											NoOperator,
+											BooleanOperator{Op: NoOperator},
 											NewStringAttribute("", "true", DoubleQuoted),
-											Equal,
+											CompareOperator{Op: Equal},
 											NewStringAttribute("", "true", DoubleQuoted),
 										),
 									),
@@ -365,7 +365,7 @@ output {
 						NewIfBlock(
 							NewCondition(
 								NewNegativeSelectorExpression(
-									NoOperator,
+									BooleanOperator{Op: NoOperator},
 									NewSelectorFromNames("field", "subfield"),
 								),
 							),
@@ -392,7 +392,7 @@ output {
 						NewIfBlock(
 							NewCondition(
 								NewInExpression(
-									NoOperator, NewStringAttribute("", "tag", DoubleQuoted), NewSelectorFromNames("tags"),
+									BooleanOperator{Op: NoOperator}, NewStringAttribute("", "tag", DoubleQuoted), NewSelectorFromNames("tags"),
 								),
 							),
 							NewPlugin("plugin"),
@@ -418,7 +418,7 @@ output {
 						NewIfBlock(
 							NewCondition(
 								NewNotInExpression(
-									NoOperator, NewStringAttribute("", "tag", DoubleQuoted), NewSelectorFromNames("field", "subfield"),
+									BooleanOperator{Op: NoOperator}, NewStringAttribute("", "tag", DoubleQuoted), NewSelectorFromNames("field", "subfield"),
 								),
 							),
 							NewPlugin("plugin"),
@@ -444,7 +444,7 @@ output {
 						NewIfBlock(
 							NewCondition(
 								NewRegexpExpression(
-									NoOperator, NewSelectorFromNames("field"), RegexpMatch, NewRegexp(".*"),
+									BooleanOperator{Op: NoOperator}, NewSelectorFromNames("field"), RegexpOperator{Op: RegexpMatch}, NewRegexp(".*"),
 								),
 							),
 							NewPlugin("plugin"),
@@ -470,7 +470,7 @@ output {
 						NewIfBlock(
 							NewCondition(
 								NewRegexpExpression(
-									NoOperator, NewSelectorFromNames("field"), RegexpNotMatch, NewRegexp(".*"),
+									BooleanOperator{Op: NoOperator}, NewSelectorFromNames("field"), RegexpOperator{Op: RegexpNotMatch}, NewRegexp(".*"),
 								),
 							),
 							NewPlugin("plugin"),
@@ -496,16 +496,16 @@ output {
 						NewIfBlock(
 							NewCondition(
 								NewRvalueExpression(
-									NoOperator, NewStringAttribute("", "string", DoubleQuoted),
+									BooleanOperator{Op: NoOperator}, NewStringAttribute("", "string", DoubleQuoted),
 								),
 								NewRvalueExpression(
-									Or, NewNumberAttribute("", 10),
+									BooleanOperator{Op: Or}, NewNumberAttribute("", 10),
 								),
 								NewRvalueExpression(
-									Or, NewSelectorFromNames("field", "subfield"),
+									BooleanOperator{Op: Or}, NewSelectorFromNames("field", "subfield"),
 								),
 								NewRvalueExpression(
-									Or, NewRegexp(".*"),
+									BooleanOperator{Op: Or}, NewRegexp(".*"),
 								),
 							),
 							NewPlugin("plugin"),
@@ -542,7 +542,7 @@ output {
 						NewIfBlock(
 							NewCondition(
 								NewCompareExpression(
-									NoOperator, NewStringAttribute("", "true", DoubleQuoted), Equal, NewStringAttribute("", "true", DoubleQuoted),
+									BooleanOperator{Op: NoOperator}, NewStringAttribute("", "true", DoubleQuoted), CompareOperator{Op: Equal}, NewStringAttribute("", "true", DoubleQuoted),
 								),
 							),
 							nil,
@@ -551,7 +551,7 @@ output {
 						NewElseIfBlock(
 							NewCondition(
 								NewCompareExpression(
-									NoOperator, NewStringAttribute("", "false", DoubleQuoted), Equal, nil,
+									BooleanOperator{Op: NoOperator}, NewStringAttribute("", "false", DoubleQuoted), CompareOperator{Op: Equal}, nil,
 								),
 								nil,
 							),
@@ -757,42 +757,42 @@ func TestCompareOperator(t *testing.T) {
 	}{
 		{
 			name:     "equal",
-			input:    Equal,
+			input:    CompareOperator{Op: Equal},
 			expected: `==`,
 		},
 		{
 			name:     "not equal",
-			input:    NotEqual,
+			input:    CompareOperator{Op: NotEqual},
 			expected: `!=`,
 		},
 		{
 			name:     "less or equal",
-			input:    LessOrEqual,
+			input:    CompareOperator{Op: LessOrEqual},
 			expected: `<=`,
 		},
 		{
 			name:     "greater or equal",
-			input:    GreaterOrEqual,
+			input:    CompareOperator{Op: GreaterOrEqual},
 			expected: ">=",
 		},
 		{
 			name:     "less than",
-			input:    LessThan,
+			input:    CompareOperator{Op: LessThan},
 			expected: "<",
 		},
 		{
 			name:     "greater than",
-			input:    GreaterThan,
+			input:    CompareOperator{Op: GreaterThan},
 			expected: ">",
 		},
 		{
 			name:     "undefined compare operator 0",
-			input:    0,
+			input:    CompareOperator{Op: 0},
 			expected: "undefined compare operator",
 		},
 		{
 			name:     "undefined compare operator 7",
-			input:    7,
+			input:    CompareOperator{Op: 7},
 			expected: "undefined compare operator",
 		},
 	}
@@ -813,23 +813,31 @@ func TestRegexpOperator(t *testing.T) {
 		expected string
 	}{
 		{
-			name:     "regex match",
-			input:    RegexpMatch,
+			name: "regex match",
+			input: RegexpOperator{
+				Op: RegexpMatch,
+			},
 			expected: `=~`,
 		},
 		{
-			name:     "regex not match",
-			input:    RegexpNotMatch,
+			name: "regex not match",
+			input: RegexpOperator{
+				Op: RegexpNotMatch,
+			},
 			expected: `!~`,
 		},
 		{
-			name:     "undefined regexp operator 0",
-			input:    0,
+			name: "undefined regexp operator 0",
+			input: RegexpOperator{
+				Op: 0,
+			},
 			expected: "undefined regexp operator",
 		},
 		{
-			name:     "undefined regexp operator 3",
-			input:    3,
+			name: "undefined regexp operator 3",
+			input: RegexpOperator{
+				Op: 3,
+			},
 			expected: "undefined regexp operator",
 		},
 	}
@@ -851,37 +859,37 @@ func TestBooleanOperator(t *testing.T) {
 	}{
 		{
 			name:     "no operator",
-			input:    NoOperator,
+			input:    BooleanOperator{Op: NoOperator},
 			expected: ``,
 		},
 		{
 			name:     "and",
-			input:    And,
+			input:    BooleanOperator{Op: And},
 			expected: ` and `,
 		},
 		{
 			name:     "or",
-			input:    Or,
+			input:    BooleanOperator{Op: Or},
 			expected: ` or `,
 		},
 		{
 			name:     "nand",
-			input:    Nand,
+			input:    BooleanOperator{Op: Nand},
 			expected: ` nand `,
 		},
 		{
 			name:     "xor",
-			input:    Xor,
+			input:    BooleanOperator{Op: Xor},
 			expected: ` xor `,
 		},
 		{
 			name:     "undefined boolean operator 0",
-			input:    0,
+			input:    BooleanOperator{Op: 0},
 			expected: "undefined boolean operator",
 		},
 		{
 			name:     "undefined boolean operator 6",
-			input:    6,
+			input:    BooleanOperator{Op: 6},
 			expected: "undefined boolean operator",
 		},
 	}
