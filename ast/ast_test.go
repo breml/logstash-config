@@ -3,7 +3,6 @@ package ast_test
 import (
 	"testing"
 
-	"github.com/breml/logstash-config/ast"
 	. "github.com/breml/logstash-config/ast"
 )
 
@@ -79,7 +78,7 @@ output {
 						NewIfBlock(
 							NewCondition(
 								NewCompareExpression(
-									ast.BooleanOperator{Op: NoOperator}, NewStringAttribute("", "true", DoubleQuoted), CompareOperator{Op: Equal}, NewStringAttribute("", "true", DoubleQuoted),
+									BooleanOperator{Op: NoOperator}, NewStringAttribute("", "true", DoubleQuoted), CompareOperator{Op: Equal}, NewStringAttribute("", "true", DoubleQuoted),
 								),
 							),
 							NewPlugin("if-plugin"),
@@ -105,7 +104,7 @@ output {
 						NewIfBlock(
 							NewCondition(
 								NewCompareExpression(
-									ast.BooleanOperator{Op: NoOperator}, NewStringAttribute("", "true", DoubleQuoted), CompareOperator{Op: Equal}, NewStringAttribute("", "true", DoubleQuoted),
+									BooleanOperator{Op: NoOperator}, NewStringAttribute("", "true", DoubleQuoted), CompareOperator{Op: Equal}, NewStringAttribute("", "true", DoubleQuoted),
 								),
 							),
 							NewPlugin("if-plugin"),
@@ -135,7 +134,7 @@ output {
 						NewIfBlock(
 							NewCondition(
 								NewCompareExpression(
-									ast.BooleanOperator{Op: NoOperator}, NewStringAttribute("", "true", DoubleQuoted), CompareOperator{Op: Equal}, NewStringAttribute("", "true", DoubleQuoted),
+									BooleanOperator{Op: NoOperator}, NewStringAttribute("", "true", DoubleQuoted), CompareOperator{Op: Equal}, NewStringAttribute("", "true", DoubleQuoted),
 								),
 							),
 							NewPlugin("if-plugin"),
@@ -146,7 +145,7 @@ output {
 						NewElseIfBlock(
 							NewCondition(
 								NewCompareExpression(
-									ast.BooleanOperator{Op: NoOperator}, NewStringAttribute("", "true", DoubleQuoted), CompareOperator{Op: NotEqual}, NewStringAttribute("", "true", DoubleQuoted),
+									BooleanOperator{Op: NoOperator}, NewStringAttribute("", "true", DoubleQuoted), CompareOperator{Op: NotEqual}, NewStringAttribute("", "true", DoubleQuoted),
 								),
 							),
 							NewPlugin("else-if-plugin-1"),
@@ -154,7 +153,7 @@ output {
 						NewElseIfBlock(
 							NewCondition(
 								NewCompareExpression(
-									ast.BooleanOperator{Op: NoOperator}, NewNumberAttribute("", 10), CompareOperator{Op: GreaterThan}, NewNumberAttribute("", 2),
+									BooleanOperator{Op: NoOperator}, NewNumberAttribute("", 10), CompareOperator{Op: GreaterThan}, NewNumberAttribute("", 2),
 								),
 							),
 							NewPlugin("else-if-plugin-2"),
@@ -162,7 +161,7 @@ output {
 						NewElseIfBlock(
 							NewCondition(
 								NewCompareExpression(
-									ast.BooleanOperator{Op: NoOperator}, NewNumberAttribute("", 2), CompareOperator{Op: LessThan}, NewNumberAttribute("", 10),
+									BooleanOperator{Op: NoOperator}, NewNumberAttribute("", 2), CompareOperator{Op: LessThan}, NewNumberAttribute("", 10),
 								),
 							),
 							NewPlugin("else-if-plugin-3"),
@@ -170,7 +169,7 @@ output {
 						NewElseIfBlock(
 							NewCondition(
 								NewCompareExpression(
-									ast.BooleanOperator{Op: NoOperator}, NewNumberAttribute("", 10), CompareOperator{Op: GreaterOrEqual}, NewNumberAttribute("", 2),
+									BooleanOperator{Op: NoOperator}, NewNumberAttribute("", 10), CompareOperator{Op: GreaterOrEqual}, NewNumberAttribute("", 2),
 								),
 							),
 							NewPlugin("else-if-plugin-4"),
@@ -178,7 +177,7 @@ output {
 						NewElseIfBlock(
 							NewCondition(
 								NewCompareExpression(
-									ast.BooleanOperator{Op: NoOperator}, NewNumberAttribute("", 2), CompareOperator{Op: LessOrEqual}, NewNumberAttribute("", 10),
+									BooleanOperator{Op: NoOperator}, NewNumberAttribute("", 2), CompareOperator{Op: LessOrEqual}, NewNumberAttribute("", 10),
 								),
 							),
 							NewPlugin("else-if-plugin-5"),
@@ -215,19 +214,19 @@ output {
 						NewIfBlock(
 							NewCondition(
 								NewCompareExpression(
-									ast.BooleanOperator{Op: NoOperator}, NewStringAttribute("", "true", DoubleQuoted), CompareOperator{Op: Equal}, NewStringAttribute("", "true", DoubleQuoted),
+									BooleanOperator{Op: NoOperator}, NewStringAttribute("", "true", DoubleQuoted), CompareOperator{Op: Equal}, NewStringAttribute("", "true", DoubleQuoted),
 								),
 								NewCompareExpression(
-									ast.BooleanOperator{Op: And}, NewStringAttribute("", "true", DoubleQuoted), CompareOperator{Op: Equal}, NewStringAttribute("", "true", DoubleQuoted),
+									BooleanOperator{Op: And}, NewStringAttribute("", "true", DoubleQuoted), CompareOperator{Op: Equal}, NewStringAttribute("", "true", DoubleQuoted),
 								),
 								NewCompareExpression(
-									ast.BooleanOperator{Op: Or}, NewStringAttribute("", "true", DoubleQuoted), CompareOperator{Op: Equal}, NewStringAttribute("", "true", DoubleQuoted),
+									BooleanOperator{Op: Or}, NewStringAttribute("", "true", DoubleQuoted), CompareOperator{Op: Equal}, NewStringAttribute("", "true", DoubleQuoted),
 								),
 								NewCompareExpression(
-									ast.BooleanOperator{Op: Nand}, NewStringAttribute("", "true", DoubleQuoted), CompareOperator{Op: Equal}, NewStringAttribute("", "true", DoubleQuoted),
+									BooleanOperator{Op: Nand}, NewStringAttribute("", "true", DoubleQuoted), CompareOperator{Op: Equal}, NewStringAttribute("", "true", DoubleQuoted),
 								),
 								NewCompareExpression(
-									ast.BooleanOperator{Op: Xor}, NewStringAttribute("", "true", DoubleQuoted), CompareOperator{Op: Equal}, NewStringAttribute("", "true", DoubleQuoted),
+									BooleanOperator{Op: Xor}, NewStringAttribute("", "true", DoubleQuoted), CompareOperator{Op: Equal}, NewStringAttribute("", "true", DoubleQuoted),
 								),
 							),
 							NewPlugin("plugin"),
@@ -253,10 +252,10 @@ output {
 						NewIfBlock(
 							NewCondition(
 								NewConditionExpression(
-									ast.BooleanOperator{Op: NoOperator},
+									BooleanOperator{Op: NoOperator},
 									NewCondition(
 										NewInExpression(
-											ast.BooleanOperator{Op: NoOperator}, NewStringAttribute("", "tag", DoubleQuoted), NewSelectorFromNames("tags"),
+											BooleanOperator{Op: NoOperator}, NewStringAttribute("", "tag", DoubleQuoted), NewSelectorFromNames("tags"),
 										),
 									),
 								),
@@ -284,22 +283,22 @@ output {
 						NewIfBlock(
 							NewCondition(
 								NewConditionExpression(
-									ast.BooleanOperator{Op: NoOperator},
+									BooleanOperator{Op: NoOperator},
 									NewCondition(
 										NewInExpression(
-											ast.BooleanOperator{Op: NoOperator}, NewStringAttribute("", "tag", DoubleQuoted), NewSelectorFromNames("tags"),
+											BooleanOperator{Op: NoOperator}, NewStringAttribute("", "tag", DoubleQuoted), NewSelectorFromNames("tags"),
 										),
 										NewConditionExpression(
-											ast.BooleanOperator{Op: Or},
+											BooleanOperator{Op: Or},
 											NewCondition(
 												NewCompareExpression(
-													ast.BooleanOperator{Op: NoOperator},
+													BooleanOperator{Op: NoOperator},
 													NewStringAttribute("", "true", DoubleQuoted),
 													CompareOperator{Op: Equal},
 													NewStringAttribute("", "true", DoubleQuoted),
 												),
 												NewCompareExpression(
-													ast.BooleanOperator{Op: And},
+													BooleanOperator{Op: And},
 													NewNumberAttribute("", 1),
 													CompareOperator{Op: Equal},
 													NewNumberAttribute("", 1),
@@ -332,10 +331,10 @@ output {
 						NewIfBlock(
 							NewCondition(
 								NewNegativeConditionExpression(
-									ast.BooleanOperator{Op: NoOperator},
+									BooleanOperator{Op: NoOperator},
 									NewCondition(
 										NewCompareExpression(
-											ast.BooleanOperator{Op: NoOperator},
+											BooleanOperator{Op: NoOperator},
 											NewStringAttribute("", "true", DoubleQuoted),
 											CompareOperator{Op: Equal},
 											NewStringAttribute("", "true", DoubleQuoted),
@@ -366,7 +365,7 @@ output {
 						NewIfBlock(
 							NewCondition(
 								NewNegativeSelectorExpression(
-									ast.BooleanOperator{Op: NoOperator},
+									BooleanOperator{Op: NoOperator},
 									NewSelectorFromNames("field", "subfield"),
 								),
 							),
@@ -393,7 +392,7 @@ output {
 						NewIfBlock(
 							NewCondition(
 								NewInExpression(
-									ast.BooleanOperator{Op: NoOperator}, NewStringAttribute("", "tag", DoubleQuoted), NewSelectorFromNames("tags"),
+									BooleanOperator{Op: NoOperator}, NewStringAttribute("", "tag", DoubleQuoted), NewSelectorFromNames("tags"),
 								),
 							),
 							NewPlugin("plugin"),
@@ -419,7 +418,7 @@ output {
 						NewIfBlock(
 							NewCondition(
 								NewNotInExpression(
-									ast.BooleanOperator{Op: NoOperator}, NewStringAttribute("", "tag", DoubleQuoted), NewSelectorFromNames("field", "subfield"),
+									BooleanOperator{Op: NoOperator}, NewStringAttribute("", "tag", DoubleQuoted), NewSelectorFromNames("field", "subfield"),
 								),
 							),
 							NewPlugin("plugin"),
@@ -445,7 +444,7 @@ output {
 						NewIfBlock(
 							NewCondition(
 								NewRegexpExpression(
-									ast.BooleanOperator{Op: NoOperator}, NewSelectorFromNames("field"), RegexpOperator{Op: RegexpMatch}, NewRegexp(".*"),
+									BooleanOperator{Op: NoOperator}, NewSelectorFromNames("field"), RegexpOperator{Op: RegexpMatch}, NewRegexp(".*"),
 								),
 							),
 							NewPlugin("plugin"),
@@ -471,7 +470,7 @@ output {
 						NewIfBlock(
 							NewCondition(
 								NewRegexpExpression(
-									ast.BooleanOperator{Op: NoOperator}, NewSelectorFromNames("field"), RegexpOperator{Op: RegexpNotMatch}, NewRegexp(".*"),
+									BooleanOperator{Op: NoOperator}, NewSelectorFromNames("field"), RegexpOperator{Op: RegexpNotMatch}, NewRegexp(".*"),
 								),
 							),
 							NewPlugin("plugin"),
@@ -497,16 +496,16 @@ output {
 						NewIfBlock(
 							NewCondition(
 								NewRvalueExpression(
-									ast.BooleanOperator{Op: NoOperator}, NewStringAttribute("", "string", DoubleQuoted),
+									BooleanOperator{Op: NoOperator}, NewStringAttribute("", "string", DoubleQuoted),
 								),
 								NewRvalueExpression(
-									ast.BooleanOperator{Op: Or}, NewNumberAttribute("", 10),
+									BooleanOperator{Op: Or}, NewNumberAttribute("", 10),
 								),
 								NewRvalueExpression(
-									ast.BooleanOperator{Op: Or}, NewSelectorFromNames("field", "subfield"),
+									BooleanOperator{Op: Or}, NewSelectorFromNames("field", "subfield"),
 								),
 								NewRvalueExpression(
-									ast.BooleanOperator{Op: Or}, NewRegexp(".*"),
+									BooleanOperator{Op: Or}, NewRegexp(".*"),
 								),
 							),
 							NewPlugin("plugin"),
@@ -543,7 +542,7 @@ output {
 						NewIfBlock(
 							NewCondition(
 								NewCompareExpression(
-									ast.BooleanOperator{Op: NoOperator}, NewStringAttribute("", "true", DoubleQuoted), CompareOperator{Op: Equal}, NewStringAttribute("", "true", DoubleQuoted),
+									BooleanOperator{Op: NoOperator}, NewStringAttribute("", "true", DoubleQuoted), CompareOperator{Op: Equal}, NewStringAttribute("", "true", DoubleQuoted),
 								),
 							),
 							nil,
@@ -552,7 +551,7 @@ output {
 						NewElseIfBlock(
 							NewCondition(
 								NewCompareExpression(
-									ast.BooleanOperator{Op: NoOperator}, NewStringAttribute("", "false", DoubleQuoted), CompareOperator{Op: Equal}, nil,
+									BooleanOperator{Op: NoOperator}, NewStringAttribute("", "false", DoubleQuoted), CompareOperator{Op: Equal}, nil,
 								),
 								nil,
 							),
@@ -815,28 +814,28 @@ func TestRegexpOperator(t *testing.T) {
 	}{
 		{
 			name: "regex match",
-			input: ast.RegexpOperator{
+			input: RegexpOperator{
 				Op: RegexpMatch,
 			},
 			expected: `=~`,
 		},
 		{
 			name: "regex not match",
-			input: ast.RegexpOperator{
+			input: RegexpOperator{
 				Op: RegexpNotMatch,
 			},
 			expected: `!~`,
 		},
 		{
 			name: "undefined regexp operator 0",
-			input: ast.RegexpOperator{
+			input: RegexpOperator{
 				Op: 0,
 			},
 			expected: "undefined regexp operator",
 		},
 		{
 			name: "undefined regexp operator 3",
-			input: ast.RegexpOperator{
+			input: RegexpOperator{
 				Op: 3,
 			},
 			expected: "undefined regexp operator",
@@ -860,37 +859,37 @@ func TestBooleanOperator(t *testing.T) {
 	}{
 		{
 			name:     "no operator",
-			input:    ast.BooleanOperator{Op: NoOperator},
+			input:    BooleanOperator{Op: NoOperator},
 			expected: ``,
 		},
 		{
 			name:     "and",
-			input:    ast.BooleanOperator{Op: And},
+			input:    BooleanOperator{Op: And},
 			expected: ` and `,
 		},
 		{
 			name:     "or",
-			input:    ast.BooleanOperator{Op: Or},
+			input:    BooleanOperator{Op: Or},
 			expected: ` or `,
 		},
 		{
 			name:     "nand",
-			input:    ast.BooleanOperator{Op: Nand},
+			input:    BooleanOperator{Op: Nand},
 			expected: ` nand `,
 		},
 		{
 			name:     "xor",
-			input:    ast.BooleanOperator{Op: Xor},
+			input:    BooleanOperator{Op: Xor},
 			expected: ` xor `,
 		},
 		{
 			name:     "undefined boolean operator 0",
-			input:    ast.BooleanOperator{Op: 0},
+			input:    BooleanOperator{Op: 0},
 			expected: "undefined boolean operator",
 		},
 		{
 			name:     "undefined boolean operator 6",
-			input:    ast.BooleanOperator{Op: 6},
+			input:    BooleanOperator{Op: 6},
 			expected: "undefined boolean operator",
 		},
 	}
