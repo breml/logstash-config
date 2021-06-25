@@ -81,6 +81,6 @@ type validator struct {
 func (v *validator) walk(c *astutil.Cursor) {
 	_, err := c.Plugin().ID()
 	if err != nil {
-		v.noIDs = append(v.noIDs, c.Plugin().String())
+		v.noIDs = append(v.noIDs, fmt.Sprintf("%s: %s", c.Plugin().Pos().String(), c.Plugin().Name()))
 	}
 }
