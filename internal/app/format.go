@@ -14,10 +14,14 @@ func makeFormatCmd() *cobra.Command {
 		SilenceErrors: true,
 	}
 
+	cmd.Flags().BoolP("write-to-source", "w", false, "write result to (source) file instead  of stdout")
+
 	return cmd
 }
 
 func runFormat(cmd *cobra.Command, args []string) error {
-	format := format.New(cmd.OutOrStdout())
+	writeToSource, _ := cmd.Flags().GetBool("write-to-source")
+
+	format := format.New(cmd.OutOrStdout(), writeToSource)
 	return format.Run(args)
 }
