@@ -8,7 +8,7 @@ import (
 
 func makeCheckCmd() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:           "check [<flags>] [path ...]",
+		Use:           "check [path ...]",
 		Short:         "syntax check for logstash config files",
 		RunE:          runCheck,
 		SilenceErrors: true,

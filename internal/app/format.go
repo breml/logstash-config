@@ -8,7 +8,7 @@ import (
 
 func makeFormatCmd() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:           "format [<flags>] [path ...]",
+		Use:           "format [path ...]",
 		Short:         "pretty format logstash config files",
 		RunE:          runFormat,
 		SilenceErrors: true,

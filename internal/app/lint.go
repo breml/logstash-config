@@ -8,7 +8,7 @@ import (
 
 func makeLintCmd() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:           "lint [<flags>] [path ...]",
+		Use:           "lint [path ...]",
 		Short:         "lint for logstash config files",
 		RunE:          runLint,
 		SilenceErrors: true,
