@@ -27,16 +27,23 @@ go get -t github.com/breml/logstash-config/...
 `mustache` is a command line tool that allows to syntax check, lint and format Logstash configuration files. The name of
 the tool is inspired by the original Logstash Logo ([wooden character with an eye-catching mustache](https://www.elastic.co/de/blog/high-level-logstash-roadmap-is-published)).
 
-Check the syntax for Logstash configuration files:
+The `check` command verifies the syntax of Logstash configuration files:
 
 ```shell
 mustache check file.conf
 ```
 
-Lint checks for common problems in Logstash configuration files. If the syntax of the passed Logstash configuration file
-is not valid, the linting fails. Currently, this is limited to checking if each plugin does have the `id` attribute set.
-If the `--auto-fix-id` flag is passed, each plugin gets automatically an ID.
-Be aware, that this potentially reformats the Logstash configuration files.
+The `lint` command checks for problems in Logstash configuration files.
+
+The following checks are performed:
+
+* Valid Logstash configuration file syntax
+* No comments in exceptional places (these are comments, that are valid by the Logstash configuration file syntax, but
+  but are located in exceptional or uncommon locations)
+* Precence of an `id` attribute for each plugin in the Logstash configuration
+
+If the `--auto-fix-id` flag is passed, each plugin gets automatically an ID. Be aware, that this potentially reformats
+the Logstash configuration files.
 
 ```shell
 mustache lint --auto-fix-id file.conf

@@ -29,7 +29,7 @@ func (f Check) Run(args []string) error {
 			continue
 		}
 
-		_, err = config.ParseFile(filename)
+		_, err = config.ParseFile(filename, config.IgnoreComments(true))
 		if err != nil {
 			if errMsg, hasErr := config.GetFarthestFailure(); hasErr {
 				if !strings.Contains(err.Error(), errMsg) {

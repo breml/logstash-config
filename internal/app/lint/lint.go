@@ -36,7 +36,7 @@ func (l Lint) Run(args []string) error {
 			continue
 		}
 
-		c, err := config.ParseFile(filename)
+		c, err := config.ParseFile(filename, config.ExceptionalCommentsWarning(true))
 		if err != nil {
 			if errMsg, hasErr := config.GetFarthestFailure(); hasErr {
 				if !strings.Contains(err.Error(), errMsg) {
@@ -47,6 +47,9 @@ func (l Lint) Run(args []string) error {
 			continue
 		}
 		conf := c.(ast.Config)
+		for _, warning := range conf.Warnings {
+			result = multierror.Append(result, errors.New(warning))
+		}
 
 		v := validator{
 			autoFixID: l.autoFixID,
