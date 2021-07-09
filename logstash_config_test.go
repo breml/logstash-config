@@ -702,7 +702,7 @@ func TestParseErrors(t *testing.T) {
 			expectedError: `expect plugin type`,
 		},
 		{
-			name: "missing closing curly backet (pluginsection)",
+			name: "missing closing curly bracket (pluginsection)",
 			input: `filter {
   if 1 == 1 {
     plugin{}
@@ -891,7 +891,7 @@ func TestParseErrors(t *testing.T) {
 			expectedError: `expect not in operator`,
 		},
 		{
-			name: "missing closing squre bracket",
+			name: "missing closing square bracket",
 			input: `filter {
   if "test" in [field][subfield {
     plugin{}

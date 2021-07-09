@@ -20,3 +20,6 @@
 
 .idea/
 *~
+
+# Goreleaser
+dist/
