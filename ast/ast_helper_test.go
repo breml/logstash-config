@@ -20,15 +20,7 @@ func TestPrefix(t *testing.T) {
 			want: "\n",
 		},
 		{
-			name:  "simple attribute",
-			input: `value => 3.1415`,
-
-			want: `
-  value => 3.1415
-`,
-		},
-		{
-			name: "simple attribute with newline",
+			name: "simple attribute",
 			input: `value => 3.1415
 `,
 
@@ -39,7 +31,8 @@ func TestPrefix(t *testing.T) {
 		{
 			name: "simple attribute with comment",
 			input: `// comment
-value => 3.1415`,
+value => 3.1415
+`,
 
 			want: `
   // comment
@@ -63,6 +56,56 @@ add_tag => [ "foobar" ]
   }
 
   add_tag => [ "foobar" ]
+`,
+		},
+		{
+			name: "attribute with multiline string attribute",
+			input: `value => "string
+with multiple
+lines"
+othervalue => 3.1415
+`,
+
+			want: `
+  value => "string
+with multiple
+lines"
+  othervalue => 3.1415
+`,
+		},
+		{
+			name: "attribute with multiline string attribute (single quote)",
+			input: `value => 'string
+with multiple
+lines'
+othervalue => 3.1415
+`,
+
+			want: `
+  value => 'string
+with multiple
+lines'
+  othervalue => 3.1415
+`,
+		},
+		{
+			name: "comment with double and single quote",
+			input: `// comment with " and '
+othervalue => 3.1415
+`,
+
+			want: `
+  // comment with " and '
+  othervalue => 3.1415
+`,
+		},
+		{
+			name: "array with multiple string types",
+			input: `value => [ "string", 'string', string ]
+`,
+
+			want: `
+  value => [ "string", 'string', string ]
 `,
 		},
 	}

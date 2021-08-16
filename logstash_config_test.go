@@ -370,6 +370,19 @@ output {}
 }
 `,
 		},
+		{
+			name: "multiline string",
+			input: `filter {
+  mutate {
+    add_field => {
+      "largeint" => "a string
+with multiple
+lines"
+    }
+  }
+}
+`,
+		},
 	}
 
 	for _, test := range cases {
