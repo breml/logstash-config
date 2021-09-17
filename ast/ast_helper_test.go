@@ -30,19 +30,19 @@ func TestPrefix(t *testing.T) {
 		},
 		{
 			name: "simple attribute with comment",
-			input: `// comment
+			input: `# comment
 value => 3.1415
 `,
 
 			want: `
-  // comment
+  # comment
   value => 3.1415
 `,
 		},
 		{
 			name: "block",
 			input: `add_field {
-  // comment
+  # comment
   value => 3.1415
 }
 
@@ -51,7 +51,7 @@ add_tag => [ "foobar" ]
 
 			want: `
   add_field {
-    // comment
+    # comment
     value => 3.1415
   }
 
@@ -90,12 +90,12 @@ lines'
 		},
 		{
 			name: "comment with double and single quote",
-			input: `// comment with " and '
+			input: `# comment with " and '
 othervalue => 3.1415
 `,
 
 			want: `
-  // comment with " and '
+  # comment with " and '
   othervalue => 3.1415
 `,
 		},
