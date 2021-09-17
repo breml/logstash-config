@@ -12,7 +12,7 @@ import (
 // * line of comment
 // * line without any quotes
 // * line(s) with quoted strings, which are kept together to form a single "line of configuration"
-var linesRe = regexp.MustCompile(`(\n|\s*//[^\n]*\n|[^'"\n]*\n|([^"'\n]*("(\\"|[^"])*"|'(\\'|[^'])*')[^"'\n]*)*\n)`)
+var linesRe = regexp.MustCompile(`(\n|\s*#[^\n]*\n|[^'"\n]*\n|([^"'\n]*("(\\"|[^"])*"|'(\\'|[^'])*')[^"'\n]*)*\n)`)
 
 func prefix(in string, emptyNewline bool) string {
 	if len(in) == 0 {
