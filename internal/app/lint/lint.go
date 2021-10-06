@@ -53,6 +53,7 @@ func (l Lint) Run(args []string) error {
 
 		v := validator{
 			autoFixID: l.autoFixID,
+			allIDs:    make(map[string]bool),
 		}
 
 		for i := range conf.Input {
@@ -69,6 +70,14 @@ func (l Lint) Run(args []string) error {
 			errMsg := strings.Builder{}
 			errMsg.WriteString(fmt.Sprintf("%s: no IDs found for:\n", filename))
 			for _, block := range v.noIDs {
+				errMsg.WriteString(block + "\n")
+			}
+			result = multierror.Append(result, errors.New(errMsg.String()))
+		}
+		if len(v.duplicateIDs) > 0 {
+			errMsg := strings.Builder{}
+			errMsg.WriteString(fmt.Sprintf("%s: duplicate IDs found in:\n", filename))
+			for _, block := range v.duplicateIDs {
 				errMsg.WriteString(block + "\n")
 			}
 			result = multierror.Append(result, errors.New(errMsg.String()))
@@ -101,16 +110,18 @@ func (l Lint) Run(args []string) error {
 }
 
 type validator struct {
-	count     int
-	noIDs     []string
-	autoFixID bool
-	changed   bool
+	count        int
+	noIDs        []string
+	autoFixID    bool
+	changed      bool
+	duplicateIDs []string
+	allIDs       map[string]bool
 }
 
 func (v *validator) walk(c *astutil.Cursor) {
 	v.count++
 
-	_, err := c.Plugin().ID()
+	id, err := c.Plugin().ID()
 	if err != nil {
 		if v.autoFixID {
 			v.changed = true
@@ -122,5 +133,9 @@ func (v *validator) walk(c *astutil.Cursor) {
 		} else {
 			v.noIDs = append(v.noIDs, fmt.Sprintf("%s: %s", c.Plugin().Pos().String(), c.Plugin().Name()))
 		}
+	} else if v.allIDs[id] {
+		v.duplicateIDs = append(v.duplicateIDs, fmt.Sprintf("%s: %s", c.Plugin().Pos().String(), c.Plugin().Name()))
+	} else {
+		v.allIDs[id] = true
 	}
 }
