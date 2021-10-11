@@ -53,7 +53,7 @@ func (l Lint) Run(args []string) error {
 
 		v := validator{
 			autoFixID: l.autoFixID,
-			allIDs:    make(map[string]bool),
+			allIDs:    map[string]struct{}{},
 		}
 
 		for i := range conf.Input {
@@ -115,7 +115,7 @@ type validator struct {
 	autoFixID    bool
 	changed      bool
 	duplicateIDs []string
-	allIDs       map[string]bool
+	allIDs       map[string]struct{}
 }
 
 func (v *validator) walk(c *astutil.Cursor) {
@@ -133,9 +133,13 @@ func (v *validator) walk(c *astutil.Cursor) {
 		} else {
 			v.noIDs = append(v.noIDs, fmt.Sprintf("%s: %s", c.Plugin().Pos().String(), c.Plugin().Name()))
 		}
-	} else if v.allIDs[id] {
-		v.duplicateIDs = append(v.duplicateIDs, fmt.Sprintf("%s: %s", c.Plugin().Pos().String(), c.Plugin().Name()))
-	} else {
-		v.allIDs[id] = true
+		return
 	}
+
+	if _, ok := v.allIDs[id]; ok {
+		v.duplicateIDs = append(v.duplicateIDs, fmt.Sprintf("%s: %s", c.Plugin().Pos().String(), c.Plugin().Name()))
+		return
+	}
+
+	v.allIDs[id] = struct{}{}
 }
