@@ -368,6 +368,10 @@ func (pa PluginAttribute) CommentBlock() string {
 	return pa.Comment.String()
 }
 
+func (pa PluginAttribute) Value() Plugin {
+	return pa.value
+}
+
 const (
 	// Undefined is already defined
 
