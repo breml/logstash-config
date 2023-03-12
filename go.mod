@@ -5,7 +5,7 @@ go 1.19
 require (
 	github.com/hashicorp/go-multierror v1.1.1
 	github.com/pkg/errors v0.9.1
-	github.com/sergi/go-diff v1.1.0
+	github.com/sergi/go-diff v1.3.1
 	github.com/spf13/cobra v1.6.1
 	github.com/spf13/viper v1.15.0
 )
