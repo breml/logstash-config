@@ -1,7 +1,6 @@
 module github.com/breml/logstash-config
 
-go 1.19
-toolchain go1.24.1
+go 1.23.0
 
 require (
 	github.com/hashicorp/go-multierror v1.1.1
